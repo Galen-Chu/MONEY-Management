@@ -1,0 +1,102 @@
+{
+  "tabs": {
+    "today": "Today",
+    "accounts": "Accounts",
+    "stats": "Stats",
+    "settings": "Settings"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "close": "Close",
+    "add": "Add",
+    "loading": "Loading…",
+    "errorTitle": "Something went wrong",
+    "retryLater": "Please try again later."
+  },
+  "txn": {
+    "titleAdd": "Add entry",
+    "titleEdit": "Edit entry",
+    "typeExpense": "Expense",
+    "typeIncome": "Income",
+    "typeTransfer": "Transfer",
+    "amount": "Amount",
+    "note": "Note",
+    "notePlaceholder": "Note (optional)",
+    "category": "Category",
+    "account": "Account",
+    "fromAccount": "From account",
+    "toAccount": "To account",
+    "date": "Date",
+    "prevDay": "Previous day",
+    "nextDay": "Next day",
+    "errAmount": "Amount must be greater than 0",
+    "errDate": "Invalid date",
+    "errCategory": "Please choose a category",
+    "errAccount": "Please choose an account",
+    "errSameAccount": "From and to accounts must differ"
+  },
+  "categories": {
+    "food": "Food",
+    "transport": "Transport",
+    "housing": "Housing",
+    "shopping": "Shopping",
+    "fun": "Entertainment",
+    "medical": "Medical",
+    "education": "Education",
+    "other": "Other",
+    "salary": "Salary",
+    "bonus": "Bonus",
+    "invest": "Investment",
+    "otherIncome": "Other income"
+  },
+  "accounts": {
+    "title": "Accounts",
+    "add": "Add account",
+    "edit": "Edit account",
+    "name": "Name",
+    "namePlaceholder": "e.g. Cash, Payroll",
+    "type": "Type",
+    "initial": "Opening balance",
+    "initialHint": "Can be negative (credit card debt)",
+    "typeCash": "Cash",
+    "typeBank": "Bank",
+    "typeCredit": "Credit card",
+    "totalAssets": "Total assets",
+    "totalDebts": "Total debts",
+    "netWorth": "Net worth",
+    "errName": "Please enter an account name",
+    "errAmount": "Invalid opening balance",
+    "errInUse": "This account still has transactions and cannot be deleted",
+    "emptyTitle": "No accounts yet",
+    "emptyBody": "Add a cash, bank, or credit card account to start tracking."
+  },
+  "today": {
+    "title": "Today",
+    "monthExpense": "Spent this month",
+    "monthIncome": "Earned this month",
+    "monthNet": "Net this month",
+    "fab": "Add entry",
+    "emptyTitle": "No entries this month",
+    "emptyBody": "Tap the button below to record your first expense or income."
+  },
+  "stats": {
+    "title": "Stats",
+    "income": "Income",
+    "expense": "Expense",
+    "net": "Net",
+    "byCategory": "Expenses by category",
+    "noData": "No expenses this month"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "語言 / Language",
+    "langZh": "繁體中文",
+    "langEn": "English",
+    "privacyTitle": "Data safety",
+    "privacyBody": "All data lives only on your device (local database). No cloud, nothing uploaded to any server.",
+    "about": "About",
+    "version": "Version"
+  }
+}

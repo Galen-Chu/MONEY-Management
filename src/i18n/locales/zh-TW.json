@@ -1,0 +1,102 @@
+{
+  "tabs": {
+    "today": "今天",
+    "accounts": "帳戶",
+    "stats": "統計",
+    "settings": "設定"
+  },
+  "common": {
+    "save": "儲存",
+    "cancel": "取消",
+    "delete": "刪除",
+    "close": "關閉",
+    "add": "新增",
+    "loading": "載入中…",
+    "errorTitle": "出了點問題",
+    "retryLater": "請稍後再試一次。"
+  },
+  "txn": {
+    "titleAdd": "記一筆",
+    "titleEdit": "編輯紀錄",
+    "typeExpense": "支出",
+    "typeIncome": "收入",
+    "typeTransfer": "轉帳",
+    "amount": "金額",
+    "note": "備註",
+    "notePlaceholder": "備註(選填)",
+    "category": "分類",
+    "account": "帳戶",
+    "fromAccount": "轉出帳戶",
+    "toAccount": "轉入帳戶",
+    "date": "日期",
+    "prevDay": "前一天",
+    "nextDay": "後一天",
+    "errAmount": "金額需大於 0",
+    "errDate": "日期不合法",
+    "errCategory": "請選擇分類",
+    "errAccount": "請選擇帳戶",
+    "errSameAccount": "轉出與轉入帳戶不可相同"
+  },
+  "categories": {
+    "food": "餐飲",
+    "transport": "交通",
+    "housing": "居住",
+    "shopping": "購物",
+    "fun": "娛樂",
+    "medical": "醫療",
+    "education": "教育",
+    "other": "其他",
+    "salary": "薪資",
+    "bonus": "獎金",
+    "invest": "投資",
+    "otherIncome": "其他收入"
+  },
+  "accounts": {
+    "title": "帳戶",
+    "add": "新增帳戶",
+    "edit": "編輯帳戶",
+    "name": "名稱",
+    "namePlaceholder": "例如:現金、薪轉戶",
+    "type": "類型",
+    "initial": "期初餘額",
+    "initialHint": "可為負(信用卡欠款)",
+    "typeCash": "現金",
+    "typeBank": "銀行",
+    "typeCredit": "信用卡",
+    "totalAssets": "總資產",
+    "totalDebts": "總負債",
+    "netWorth": "淨值",
+    "errName": "請輸入帳戶名稱",
+    "errAmount": "期初餘額格式錯誤",
+    "errInUse": "此帳戶仍有交易紀錄,無法刪除",
+    "emptyTitle": "還沒有帳戶",
+    "emptyBody": "新增現金、銀行或信用卡帳戶後,就能開始記帳。"
+  },
+  "today": {
+    "title": "今天",
+    "monthExpense": "本月支出",
+    "monthIncome": "本月收入",
+    "monthNet": "本月淨額",
+    "fab": "記一筆",
+    "emptyTitle": "這個月還沒有紀錄",
+    "emptyBody": "點右下角按鈕,記下第一筆支出或收入。"
+  },
+  "stats": {
+    "title": "統計",
+    "income": "收入",
+    "expense": "支出",
+    "net": "淨額",
+    "byCategory": "支出分類",
+    "noData": "這個月還沒有支出"
+  },
+  "settings": {
+    "title": "設定",
+    "language": "語言 / Language",
+    "langZh": "繁體中文",
+    "langEn": "English",
+    "privacyTitle": "資料安全",
+    "privacyBody": "所有資料只存在你的裝置上(本機資料庫),不連雲端、不上傳任何伺服器。",
+    "about": "關於",
+    "version": "版本"
+  }
+}
