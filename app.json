@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "MoneyCare",
+    "slug": "moneycare",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "moneycare",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "bundleIdentifier": "com.galenchu.moneycare",
+      "icon": "./assets/images/icon.png"
+    },
+    "android": {
+      "package": "com.galenchu.moneycare",
+      "adaptiveIcon": {
+        "backgroundColor": "#F6F5F0",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#F6F5F0",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 76
+        }
+      ],
+      "expo-sqlite"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
