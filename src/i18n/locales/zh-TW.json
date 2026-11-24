@@ -169,6 +169,10 @@
     "monthExpense": "本月支出",
     "monthIncome": "本月收入",
     "monthNet": "本月淨額",
+    "prevMonth": "上個月",
+    "nextMonth": "下個月",
+    "searchPlaceholder": "搜尋備註(全部月份)",
+    "searchEmpty": "沒有符合的備註",
     "fab": "記一筆",
     "emptyTitle": "這個月還沒有紀錄",
     "emptyBody": "點右下角按鈕,記下第一筆支出或收入。"
@@ -179,7 +183,8 @@
     "expense": "支出",
     "net": "淨額",
     "byCategory": "支出分類",
-    "noData": "這個月還沒有支出"
+    "noData": "這個月還沒有支出",
+    "cashflowTitle": "現金流趨勢(近 12 個月)"
   },
   "settings": {
     "title": "設定",

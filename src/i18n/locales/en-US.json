@@ -169,6 +169,10 @@
     "monthExpense": "Spent this month",
     "monthIncome": "Earned this month",
     "monthNet": "Net this month",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "searchPlaceholder": "Search notes (all months)",
+    "searchEmpty": "No matching notes",
     "fab": "Add entry",
     "emptyTitle": "No entries this month",
     "emptyBody": "Tap the button below to record your first expense or income."
@@ -179,7 +183,8 @@
     "expense": "Expense",
     "net": "Net",
     "byCategory": "Expenses by category",
-    "noData": "No expenses this month"
+    "noData": "No expenses this month",
+    "cashflowTitle": "Cash flow (last 12 months)"
   },
   "settings": {
     "title": "Settings",

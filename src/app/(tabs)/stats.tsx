@@ -1,5 +1,6 @@
 /**
- * 統計分頁:月份導覽(‹ ›)→ 收/支/淨三卡 + 支出分類長條(百分比,分類色)。
+ * 統計分頁:月份導覽(‹ ›)→ 收/支/淨三卡 + 支出分類長條(百分比,分類色)
+ * + 現金流趨勢(近 12 個月,收/支雙長條+淨額)。
  */
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -7,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '../../components/ui/empty-state';
 import { CATEGORY_COLORS, categoryLabelKey } from '../../domain/categories';
-import { categoryTotals, monthOf, monthTotals, shiftMonth, todayKey } from '../../domain/ledger';
+import { categoryTotals, monthOf, monthTotals, monthlyCashflow, shiftMonth, todayKey } from '../../domain/ledger';
 import { formatCents } from '../../domain/money';
 import { formatMonthLabel } from '../../i18n/format';
 import { useLedgerStore } from '../../state/ledgerStore';
@@ -29,6 +30,8 @@ export default function StatsScreen() {
     [monthTxns]
   );
   const maxCat = cats[0]?.amountCents ?? 1;
+  const cashflow = useMemo(() => monthlyCashflow(txns, month), [txns, month]);
+  const maxFlow = Math.max(1, ...cashflow.map((m) => Math.max(m.incomeCents, m.expenseCents)));
 
   return (
     <ScrollView contentContainerStyle={styles.content}>
@@ -72,6 +75,32 @@ export default function StatsScreen() {
           );
         })
       )}
+
+      <Text style={styles.section}>{t('stats.cashflowTitle')}</Text>
+      <View style={styles.flowCard}>
+        <View style={styles.flowLegend}>
+          <View style={[styles.flowDot, { backgroundColor: color.income }]} />
+          <Text style={styles.flowLegendText}>{t('stats.income')}</Text>
+          <View style={[styles.flowDot, { backgroundColor: color.expense }]} />
+          <Text style={styles.flowLegendText}>{t('stats.expense')}</Text>
+        </View>
+        {cashflow.map((m) => {
+          const incomePct = Math.round((m.incomeCents / maxFlow) * 100);
+          const expensePct = Math.round((m.expenseCents / maxFlow) * 100);
+          return (
+            <View key={m.month} style={styles.flowRow}>
+              <Text style={styles.flowMonth}>{m.month.slice(2).replace('-', '/')}</Text>
+              <View style={styles.flowBars}>
+                <View style={[styles.flowBarIncome, { width: `${incomePct}%` }]} />
+                <View style={[styles.flowBarExpense, { width: `${expensePct}%` }]} />
+              </View>
+              <Text style={[styles.flowNet, m.netCents < 0 && { color: color.expense }]}>
+                {formatCents(m.netCents, lang)}
+              </Text>
+            </View>
+          );
+        })}
+      </View>
     </ScrollView>
   );
 }
@@ -185,6 +214,62 @@ const styles = StyleSheet.create({
     fontSize: font.size.small,
     color: color.inkSecondary,
     fontFamily: font.family.semibold,
+    fontVariant: ['tabular-nums'],
+  },
+  flowCard: {
+    backgroundColor: color.surface,
+    borderRadius: radius.row,
+    borderWidth: 1,
+    borderColor: color.line,
+    padding: 14,
+    gap: 8,
+  },
+  flowLegend: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 2,
+  },
+  flowDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  flowLegendText: {
+    fontSize: font.size.tiny,
+    color: color.inkSecondary,
+    marginRight: 8,
+  },
+  flowRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  flowMonth: {
+    width: 44,
+    fontSize: font.size.tiny,
+    color: color.inkMuted,
+    fontVariant: ['tabular-nums'],
+  },
+  flowBars: {
+    flex: 1,
+    gap: 3,
+  },
+  flowBarIncome: {
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: color.income,
+  },
+  flowBarExpense: {
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: color.expense,
+  },
+  flowNet: {
+    width: 96,
+    fontSize: font.size.tiny,
+    color: color.inkSecondary,
+    textAlign: 'right',
     fontVariant: ['tabular-nums'],
   },
 });

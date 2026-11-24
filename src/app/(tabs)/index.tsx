@@ -1,9 +1,9 @@
 /**
- * 今天分頁:本月收支摘要列 + 本月交易(依日分組,最新在上)+ 右下「記一筆」鈕。
- * 點交易列 → 編輯 Sheet(含刪除)。
+ * 今天分頁(P2 現金流管理):月份導覽(歷史瀏覽)+ 當月收支摘要 + 交易(依日分組,最新在上)
+ * + 備註搜尋(跨全部月份)+ 右下「記一筆」鈕。點交易列 → 編輯 Sheet(含刪除)。
  */
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
@@ -11,7 +11,7 @@ import { TxnRow } from '../../components/ledger/txn-row';
 import { TxnSheet } from '../../components/ledger/txn-sheet';
 import { EmptyState } from '../../components/ui/empty-state';
 import { Icon } from '../../components/ui/icon';
-import { groupByDate, monthOf, monthTotals, todayKey, type Txn } from '../../domain/ledger';
+import { groupByDate, monthOf, monthTotals, shiftMonth, todayKey, type Txn } from '../../domain/ledger';
 import { formatCents } from '../../domain/money';
 import { formatDayLabel, formatMonthLabel } from '../../i18n/format';
 import { useLedgerStore } from '../../state/ledgerStore';
@@ -28,10 +28,17 @@ export default function TodayScreen() {
 
   const [sheetVisible, setSheetVisible] = useState(false);
   const [editing, setEditing] = useState<Txn | null>(null);
+  const [month, setMonth] = useState(() => monthOf(todayKey()));
+  const [query, setQuery] = useState('');
+  const q = query.trim().toLowerCase();
 
-  const thisMonth = monthOf(todayKey());
-  const groups = useMemo(() => groupByDate(txns.filter((x) => monthOf(x.date) === thisMonth)), [txns, thisMonth]);
-  const totals = useMemo(() => monthTotals(txns.filter((x) => monthOf(x.date) === thisMonth)), [txns, thisMonth]);
+  const monthTxns = useMemo(() => txns.filter((x) => monthOf(x.date) === month), [txns, month]);
+  const searchTxns = useMemo(
+    () => (q ? txns.filter((x) => x.note.toLowerCase().includes(q)).slice(0, 100) : null),
+    [txns, q]
+  );
+  const groups = useMemo(() => groupByDate(searchTxns ?? monthTxns), [searchTxns, monthTxns]);
+  const totals = useMemo(() => monthTotals(monthTxns), [monthTxns]);
 
   const nameOf = useMemo(() => {
     const map = new Map(accounts.map((a) => [a.id, a.name]));
@@ -42,7 +49,26 @@ export default function TodayScreen() {
     <View style={styles.shell}>
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.hello}>{t('today.title')}</Text>
-        <Text style={styles.month}>{formatMonthLabel(thisMonth, lang)}</Text>
+
+        <View style={styles.monthNav}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('today.prevMonth')}
+            onPress={() => setMonth((m) => shiftMonth(m, -1))}
+            style={styles.monthBtn}
+          >
+            <Icon name="arrowLeft" size={16} fill={color.inkSecondary} />
+          </Pressable>
+          <Text style={styles.month}>{formatMonthLabel(month, lang)}</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('today.nextMonth')}
+            onPress={() => setMonth((m) => shiftMonth(m, 1))}
+            style={styles.monthBtn}
+          >
+            <Icon name="arrowRight" size={16} fill={color.inkSecondary} />
+          </Pressable>
+        </View>
 
         <View style={styles.summary}>
           <SummaryCell label={t('today.monthExpense')} value={formatCents(-totals.expenseCents, lang)} tone="expense" />
@@ -50,8 +76,22 @@ export default function TodayScreen() {
           <SummaryCell label={t('today.monthNet')} value={formatCents(totals.netCents, lang)} tone={totals.netCents >= 0 ? 'income' : 'expense'} />
         </View>
 
+        <TextInput
+          accessibilityLabel={t('today.searchPlaceholder')}
+          style={styles.search}
+          value={query}
+          onChangeText={setQuery}
+          placeholder={t('today.searchPlaceholder')}
+          placeholderTextColor={color.inkMuted}
+          autoCorrect={false}
+        />
+
         {groups.length === 0 ? (
-          <EmptyState emoji="📒" title={t('today.emptyTitle')} body={t('today.emptyBody')} />
+          q ? (
+            <EmptyState emoji="🔍" title={t('today.searchEmpty')} body="" />
+          ) : (
+            <EmptyState emoji="📒" title={t('today.emptyTitle')} body={t('today.emptyBody')} />
+          )
         ) : (
           groups.map((g) => (
             <View key={g.date} style={styles.day}>
@@ -124,10 +164,34 @@ const styles = StyleSheet.create({
     fontFamily: font.family.bold,
     color: color.ink,
   },
+  monthNav: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+  },
+  monthBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: color.surface,
+    borderWidth: 1,
+    borderColor: color.line,
+  },
   month: {
     fontSize: font.size.small,
     color: color.inkMuted,
-    marginTop: -6,
+  },
+  search: {
+    backgroundColor: color.surface,
+    borderRadius: radius.row,
+    borderWidth: 1,
+    borderColor: color.line,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    fontSize: font.size.body,
+    color: color.ink,
   },
   summary: {
     flexDirection: 'row',

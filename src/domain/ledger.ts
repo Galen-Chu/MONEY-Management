@@ -196,3 +196,28 @@ export function accountInUse(accountId: string, txns: Txn[]): boolean {
     (t) => t.accountId === accountId || (t.toAccountId != null && t.toAccountId === accountId)
   );
 }
+
+export interface MonthCashflow {
+  month: string; // YYYY-MM
+  incomeCents: number;
+  expenseCents: number;
+  netCents: number;
+}
+
+/** 近 count 個月現金流(含 endMonth、升冪;無交易月份補 0;轉帳不計——D4) */
+export function monthlyCashflow(txns: Txn[], endMonth: string, count = 12): MonthCashflow[] {
+  const map = new Map<string, MonthCashflow>();
+  for (let k = count - 1; k >= 0; k--) {
+    const m = shiftMonth(endMonth, -k);
+    map.set(m, { month: m, incomeCents: 0, expenseCents: 0, netCents: 0 });
+  }
+  for (const t of txns) {
+    const hit = map.get(monthOf(t.date));
+    if (!hit) continue;
+    if (t.type === 'income') hit.incomeCents += t.amountCents;
+    else if (t.type === 'expense') hit.expenseCents += t.amountCents;
+  }
+  const list = [...map.values()].sort((a, b) => a.month.localeCompare(b.month));
+  for (const m of list) m.netCents = m.incomeCents - m.expenseCents;
+  return list;
+}
