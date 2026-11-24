@@ -15,8 +15,8 @@ npm run verify         # lint+typecheck+test(同 CI)
 
 ## 架構
 
-- `src/domain/` — 純函式:`money.ts`(分整數模型+Intl TWD 格式化)、`categories.ts`(固定分類+色票)、`ledger.ts`(Account/Txn 模型、餘額/淨值/月彙總/分類統計/依日分組/驗證/日期工具)、`loan.ts`(Loan 模型、攤還表/未償本金/額外還本與利率情境試算、淨值含貸款)
-- `src/data/` — `repository.ts`(介面+InMemory)、`db.native.ts`(expo-sqlite 實作+工廠)、`db.ts`(web InMemory 工廠;Metro 按平台選檔)、`migrations.ts`(介面注入可測;每版一交易+PRAGMA user_version)
+- `src/domain/` — 純函式:`money.ts`(分整數模型+Intl TWD 格式化)、`categories.ts`(固定分類+色票)、`ledger.ts`(Account/Txn 模型、餘額/淨值/月彙總/分類統計/依日分組/驗證/日期工具)、`loan.ts`(Loan 模型、攤還表/未償本金/額外還本與利率情境試算、淨值含貸款)、`backup.ts`(備份序列化/解析驗證/版本策略)
+- `src/data/` — `repository.ts`(介面+InMemory)、`db.native.ts`(expo-sqlite 實作+工廠)、`db.ts`(web InMemory 工廠;Metro 按平台選檔)、`migrations.ts`(介面注入可測;每版一交易+PRAGMA user_version)、`backup.ts`(快照/還原編排)、`backup-io(.native).ts`(平台檔案 IO:web 下載選檔/native 檔案+分享)
 - `src/state/` — `ledgerStore.ts`(帳戶/交易 CRUD,guard() 防護:錯誤寫 error 狀態不外拋;web 開發模式暴露 `window.__moneycareStore`)、`loanStore.ts`(貸款 CRUD,同 guard 模式)、`settings.ts`(Zustand+AsyncStorage persist,僅語言)
 - `src/app/` — expo-router:`(tabs)/` 五分頁(index=今天、loans=貸款、accounts、stats、settings);Repository 在 `(tabs)/_layout.tsx` 統一 attach+bootstrap
 - `src/components/` — `ui/`(Card/Segmented/BottomSheet/EmptyState)+ `ledger/`(TxnSheet/TxnRow/AccountSheet)+ ErrorBanner
@@ -32,6 +32,7 @@ npm run verify         # lint+typecheck+test(同 CI)
 - **貸款口徑**(P1):年利率以「千分之百分比」整數儲存(2.185%→2185),期內利息=round(剩餘×rateMilliPercent÷1,200,000);annuity 月繳四捨五入為常數、**末期強制結清**(利息逐期捨入殘留);寬限期只繳息;提前還本=月繳不變期數縮短;利率情境=自某期起新利率月繳重算;淨值=帳戶淨值−Σ未償本金
 - 刪除帳戶前必查 `accountInUse`(含轉入端引用);被引用 → false + UI 顯示 errInUse
 - **金融資料 100% 本機**(D5):不得引入任何雲端/後端儲存;settings 僅存語言
+- **備份**(P0.8):匯出=JSON(web 瀏覽器下載/native 寫快取+系統分享,零上傳);還原=**取代**裝置全部資料(兩段式確認);`parseBackup` 做結構驗證,備份版本較新一律拒絕(向前不相容);還原後 store 重新 bootstrap
 - **不做網銀爬蟲**(紅線);外部串接前依「串接類開發紀律」查當下官方文件(查證結論與分期見 `docs/PLAN.md`)
 - web 走 InMemory 不持久化(native SQLite);web 開發模式有 `window.__moneycareStore` 走查鉤子(僅 NODE_ENV≠production)
 
@@ -48,5 +49,5 @@ npm run verify         # lint+typecheck+test(同 CI)
 
 - **主線**:P0.6 UI 改版(Uniconsign token 遷移)→ P0.7 iOS TestFlight 發佈管線(卡 Apple Developer 申請——維護者動作)→ P1 貸款模組(房貸/車貸/信貸,純計算零串接)→ P2 發票對獎(開放資料)→ P3 CSV 匯入(先收集各家銀行匯出樣本)
 - **待維護者拍板**:P4 載具發票查詢(需營業人統編向財政資訊中心申請 appID——有無統編決定此路開關)
-- **優先度較高的工程項**:資料匯出備份(本機資料唯一備份路徑)、表單層 RNTL 測試、真機 Expo Go 驗證 SQLite 路徑
+- **優先度較高的工程項**:表單層 RNTL 測試、真機 Expo Go 驗證 SQLite 路徑、TestFlight 首建(卡 Apple Developer 申請)
 - 完整清單(產品優化候選+技術債):`docs/PLAN.md` §「待辦與優化清單」

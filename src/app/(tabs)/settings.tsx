@@ -1,14 +1,26 @@
 /**
- * 設定分頁:語言切換 + 資料安全聲明(本機儲存、零雲端)+ 關於。
+ * 設定分頁:語言切換 + 備份(匯出/還原)+ 資料安全聲明(本機儲存、零雲端)+ 關於。
+ * 還原採兩段式確認(第一次點=備援、4 秒內再點=執行),避免誤觸取代全部資料。
  */
-import { StyleSheet, Text, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { Card } from '../../components/ui/card';
 import { Segmented } from '../../components/ui/segmented';
+import { restoreBackup, collectBackupData } from '../../data/backup';
+import { pickBackupFile, shareBackupFile } from '../../data/backup-io';
+import { parseBackup, serializeBackup } from '../../domain/backup';
 import type { Language } from '../../i18n';
+import { useLedgerStore } from '../../state/ledgerStore';
+import { useLoanStore } from '../../state/loanStore';
 import { currentLanguage, useSettings } from '../../state/settings';
-import { color, font } from '../../theme';
+import { color, font, radius } from '../../theme';
+
+interface Status {
+  kind: 'ok' | 'err';
+  text: string;
+}
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
@@ -16,8 +28,68 @@ export default function SettingsScreen() {
   const setLanguage = useSettings((s) => s.setLanguage);
   const lang = currentLanguage(settings);
 
+  const accounts = useLedgerStore((s) => s.accounts);
+  const txns = useLedgerStore((s) => s.txns);
+  const loans = useLoanStore((s) => s.loans);
+
+  const [status, setStatus] = useState<Status | null>(null);
+  const [confirmImport, setConfirmImport] = useState(false);
+  const confirmTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  async function onExport() {
+    try {
+      const ok = await shareBackupFile(serializeBackup(collectBackupData(accounts, txns, loans)));
+      setStatus(ok ? { kind: 'ok', text: t('settings.exportDone') } : { kind: 'err', text: t('settings.errExport') });
+    } catch {
+      setStatus({ kind: 'err', text: t('settings.errExport') });
+    }
+  }
+
+  function armImport() {
+    if (!confirmImport) {
+      setConfirmImport(true);
+      setStatus(null);
+      if (confirmTimer.current) clearTimeout(confirmTimer.current);
+      confirmTimer.current = setTimeout(() => setConfirmImport(false), 4000);
+      return;
+    }
+    setConfirmImport(false);
+    if (confirmTimer.current) clearTimeout(confirmTimer.current);
+    void doImport();
+  }
+
+  async function doImport() {
+    try {
+      const text = await pickBackupFile();
+      if (text == null) return;
+      const parsed = parseBackup(text);
+      if (!parsed.ok) {
+        setStatus({
+          kind: 'err',
+          text: t(parsed.error === 'version' ? 'settings.errBackupVersion' : 'settings.errBackupFormat'),
+        });
+        return;
+      }
+      // 動態載入:避免測試環境載入平台 db 實作(expo-sqlite)
+      const { createRepositories } = await import('../../data/db');
+      const repos = await createRepositories();
+      await restoreBackup(repos, parsed.data);
+      await Promise.all([useLedgerStore.getState().bootstrap(), useLoanStore.getState().bootstrap()]);
+      setStatus({
+        kind: 'ok',
+        text: t('settings.importDone', {
+          accounts: parsed.data.accounts.length,
+          txns: parsed.data.txns.length,
+          loans: parsed.data.loans.length,
+        }),
+      });
+    } catch {
+      setStatus({ kind: 'err', text: t('settings.errImport') });
+    }
+  }
+
   return (
-    <View style={styles.content}>
+    <ScrollView style={styles.shell} contentContainerStyle={styles.content}>
       <Text style={styles.title}>{t('settings.title')}</Text>
 
       <Card style={styles.card}>
@@ -34,6 +106,24 @@ export default function SettingsScreen() {
       </Card>
 
       <Card style={styles.card}>
+        <Text style={styles.rowTitle}>{t('settings.backupTitle')}</Text>
+        <Text style={styles.backupBody}>{t('settings.backupBody')}</Text>
+        <View style={styles.backupRow}>
+          <Pressable accessibilityRole="button" style={[styles.backupBtn, styles.backupBtnPrimary]} onPress={() => void onExport()}>
+            <Text style={styles.backupBtnPrimaryText}>{t('settings.export')}</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" style={[styles.backupBtn, styles.backupBtnSecondary]} onPress={armImport}>
+            <Text style={styles.backupBtnSecondaryText}>
+              {confirmImport ? t('settings.importConfirm') : t('settings.import')}
+            </Text>
+          </Pressable>
+        </View>
+        {status ? (
+          <Text style={[styles.status, status.kind === 'ok' ? styles.statusOk : styles.statusErr]}>{status.text}</Text>
+        ) : null}
+      </Card>
+
+      <Card style={styles.card}>
         <Text style={styles.rowTitle}>{t('settings.privacyTitle')}</Text>
         <Text style={styles.privacyBody}>{t('settings.privacyBody')}</Text>
       </Card>
@@ -45,16 +135,19 @@ export default function SettingsScreen() {
           <Text style={styles.versionValue}>1.0.0</Text>
         </View>
       </Card>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  content: {
+  shell: {
     flex: 1,
     backgroundColor: color.bg,
+  },
+  content: {
     paddingHorizontal: 16,
     paddingTop: 18,
+    paddingBottom: 120,
     gap: 10,
   },
   title: {
@@ -70,6 +163,49 @@ const styles = StyleSheet.create({
     fontSize: font.size.h2,
     fontWeight: '700',
     color: color.ink,
+  },
+  backupBody: {
+    fontSize: font.size.small,
+    color: color.inkSecondary,
+    lineHeight: 20,
+  },
+  backupRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  backupBtn: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderRadius: radius.button,
+  },
+  backupBtnPrimary: {
+    backgroundColor: color.accent,
+  },
+  backupBtnPrimaryText: {
+    color: color.onBrand,
+    fontSize: font.size.body,
+    fontWeight: '700',
+  },
+  backupBtnSecondary: {
+    backgroundColor: color.surface,
+    borderWidth: 1,
+    borderColor: color.line,
+  },
+  backupBtnSecondaryText: {
+    color: color.ink,
+    fontSize: font.size.body,
+    fontWeight: '600',
+  },
+  status: {
+    fontSize: font.size.small,
+    fontWeight: '600',
+  },
+  statusOk: {
+    color: color.income,
+  },
+  statusErr: {
+    color: color.danger,
   },
   privacyBody: {
     fontSize: font.size.small,
