@@ -45,16 +45,16 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   title: {
-    color: '#FFFFFF',
+    color: color.onBrand,
     fontSize: font.size.body,
     fontWeight: '700',
   },
   body: {
-    color: 'rgba(255,255,255,0.85)',
+    color: color.onBrandSecondary,
     fontSize: font.size.small,
   },
   close: {
-    color: '#FFFFFF',
+    color: color.onBrand,
     fontSize: 16,
     paddingHorizontal: 4,
   },

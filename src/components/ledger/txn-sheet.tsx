@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.accent,
   },
   btnPrimaryText: {
-    color: '#FFFFFF',
+    color: color.onBrand,
     fontSize: font.size.body,
     fontWeight: '700',
   },

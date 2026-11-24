@@ -47,7 +47,7 @@ export function BottomSheet({ visible, onClose, children }: PropsWithChildren<Pr
 
 const styles = StyleSheet.create({
   mask: {
-    backgroundColor: 'rgba(38,37,31,0.4)',
+    backgroundColor: color.scrim,
   },
   panel: {
     position: 'absolute',
@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: radius.sheetTop,
     paddingBottom: 24,
     elevation: 8,
-    shadowColor: '#26251F',
+    shadowColor: color.shadow,
     shadowOpacity: 0.12,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: -4 },

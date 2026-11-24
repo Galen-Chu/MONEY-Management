@@ -14,7 +14,7 @@
     "android": {
       "package": "com.galenchu.moneycare",
       "adaptiveIcon": {
-        "backgroundColor": "#F6F5F0",
+        "backgroundColor": "#F7F7F5",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
@@ -29,7 +29,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#F6F5F0",
+          "backgroundColor": "#F7F7F5",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }

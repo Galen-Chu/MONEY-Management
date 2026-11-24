@@ -21,7 +21,7 @@ npm run verify         # lint+typecheck+test(同 CI)
 - `src/app/` — expo-router:`(tabs)/` 四分頁(index=今天、accounts、stats、settings);Repository 在 `(tabs)/_layout.tsx` 統一 attach+bootstrap
 - `src/components/` — `ui/`(Card/Segmented/BottomSheet/EmptyState)+ `ledger/`(TxnSheet/TxnRow/AccountSheet)+ ErrorBanner
 - `src/i18n/` — i18next 單例(zh-TW 預設/en-US 全量;**不跟隨系統**,僅手動切換)+ `format.ts`(Intl 日期/月份)
-- `src/theme/tokens.json` — 設計 token 單一事實來源(暖紙底/墨棕/松綠 accent)
+- `src/theme/tokens.json` — 設計 token 單一事實來源(值同步自 Uniconsign `@galen-chu/uniconsign` 語意層淺色:品牌綠 accent/暖中性階;對應表見 `theme/index.ts` 註解)
 
 ## 重要行為(修改時勿破壞)
 
@@ -43,9 +43,9 @@ npm run verify         # lint+typecheck+test(同 CI)
 - 新增純邏輯一律配 Jest 單元測試;repo 類邏輯以介面注入(InMemory)可測;migration 測試斷言交易順序(PRAGMA user_version)
 - Windows 環境教訓(沿用 TIME-Management):Jest `testTimeout: 15000`(並行負載逾時 flake);**含中文的 .ps1 一律以 pwsh 7 執行**(WinPS 5.1 誤讀 UTF-8 為 CP950 會靜默漏行);**中文檔案寫入後必掃 U+FFFD、掃淨才 commit**(P0 建案實測 5 處損壞,其中 1 處由測試如實揪出);`formatCents` 勿依賴 Intl 貨幣符號(zh-TW ICU 對本幣 TWD 呈現裸 `$`)
 
-## 待辦排隊(2026-10-14 P0 收尾歸檔)
+## 待辦排隊(2026-11-24 路線更新)
 
-- **主線**:P1 房貸模組(純計算零串接)→ P2 發票對獎(開放資料)→ P3 CSV 匯入(先收集各家銀行匯出樣本)
+- **主線**:P0.6 UI 改版(Uniconsign token 遷移)→ P0.7 iOS TestFlight 發佈管線(卡 Apple Developer 申請——維護者動作)→ P1 貸款模組(房貸/車貸/信貸,純計算零串接)→ P2 發票對獎(開放資料)→ P3 CSV 匯入(先收集各家銀行匯出樣本)
 - **待維護者拍板**:P4 載具發票查詢(需營業人統編向財政資訊中心申請 appID——有無統編決定此路開關)
 - **優先度較高的工程項**:資料匯出備份(本機資料唯一備份路徑)、表單層 RNTL 測試、真機 Expo Go 驗證 SQLite 路徑
 - 完整清單(產品優化候選+技術債):`docs/PLAN.md` §「待辦與優化清單」

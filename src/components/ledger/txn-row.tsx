@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dotArrow: {
-    color: '#FFFFFF',
+    color: color.onBrand,
     fontSize: 15,
     fontWeight: '700',
   },

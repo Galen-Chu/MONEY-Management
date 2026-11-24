@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
   },
   bar: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.94)',
+    backgroundColor: color.surface,
     borderTopWidth: 1,
     borderTopColor: color.line,
     paddingTop: 10,

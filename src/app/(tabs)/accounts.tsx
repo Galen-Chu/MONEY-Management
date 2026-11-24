@@ -125,12 +125,12 @@ const styles = StyleSheet.create({
   },
   netLabel: {
     fontSize: font.size.small,
-    color: 'rgba(255,255,255,0.85)',
+    color: color.onBrandSecondary,
     fontWeight: '600',
   },
   netValue: {
     fontSize: 30,
-    color: '#FFFFFF',
+    color: color.onBrand,
     fontWeight: '700',
     fontVariant: ['tabular-nums'],
   },
@@ -145,18 +145,18 @@ const styles = StyleSheet.create({
   },
   worthCellLabel: {
     fontSize: font.size.tiny,
-    color: 'rgba(255,255,255,0.75)',
+    color: color.onBrandSecondary,
   },
   worthCellValue: {
     fontSize: font.size.body,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: color.onBrand,
     fontVariant: ['tabular-nums'],
   },
   worthDivider: {
     width: 1,
     alignSelf: 'stretch',
-    backgroundColor: 'rgba(255,255,255,0.3)',
+    backgroundColor: color.onBrandSoft,
   },
   accountCard: {
     flexDirection: 'row',
@@ -194,13 +194,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 13,
     elevation: 6,
-    shadowColor: '#26251F',
+    shadowColor: color.shadow,
     shadowOpacity: 0.25,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
   },
   addText: {
-    color: '#FFFFFF',
+    color: color.onBrand,
     fontSize: font.size.body,
     fontWeight: '700',
   },
