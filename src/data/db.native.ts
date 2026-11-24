@@ -5,7 +5,8 @@
 import * as SQLite from 'expo-sqlite';
 
 import type { Account, Txn } from '../domain/ledger';
-import type { AccountRepository, TxnRepository, Repositories } from './repository';
+import type { Loan } from '../domain/loan';
+import type { AccountRepository, TxnRepository, LoanRepository, Repositories } from './repository';
 import { applyMigrations } from './migrations';
 
 export type { Repositories } from './repository';
@@ -93,6 +94,45 @@ export class SqliteTxnRepository implements TxnRepository {
   }
 }
 
+interface LoanRow {
+  id: string; name: string; type: string; principalCents: number;
+  annualRateMilliPercent: number; termMonths: number; startDate: string;
+  method: string; graceMonths: number; createdAt: number; updatedAt: number;
+}
+
+export class SqliteLoanRepository implements LoanRepository {
+  constructor(private db: SQLite.SQLiteDatabase) {}
+
+  async list(): Promise<Loan[]> {
+    const rows = await this.db.getAllAsync<LoanRow>(
+      'SELECT * FROM loans ORDER BY createdAt'
+    );
+    return rows.map((r) => ({
+      ...r,
+      type: r.type as Loan['type'],
+      method: r.method as Loan['method'],
+    }));
+  }
+
+  async insert(l: Loan): Promise<void> {
+    await this.db.runAsync(
+      'INSERT INTO loans (id, name, type, principalCents, annualRateMilliPercent, termMonths, startDate, method, graceMonths, createdAt, updatedAt) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+      [l.id, l.name, l.type, l.principalCents, l.annualRateMilliPercent, l.termMonths, l.startDate, l.method, l.graceMonths, l.createdAt, l.updatedAt]
+    );
+  }
+
+  async update(l: Loan): Promise<void> {
+    await this.db.runAsync(
+      'UPDATE loans SET name=?, type=?, principalCents=?, annualRateMilliPercent=?, termMonths=?, startDate=?, method=?, graceMonths=?, updatedAt=? WHERE id=?',
+      [l.name, l.type, l.principalCents, l.annualRateMilliPercent, l.termMonths, l.startDate, l.method, l.graceMonths, l.updatedAt, l.id]
+    );
+  }
+
+  async remove(id: string): Promise<void> {
+    await this.db.runAsync('DELETE FROM loans WHERE id=?', [id]);
+  }
+}
+
 let cached: Repositories | null = null;
 
 /** Repository 工廠(native):expo-sqlite 開庫 + migration(冪等) */
@@ -104,6 +144,7 @@ export async function createRepositories(): Promise<Repositories> {
   cached = {
     accounts: new SqliteAccountRepository(db),
     txns: new SqliteTxnRepository(db),
+    loans: new SqliteLoanRepository(db),
   };
   return cached;
 }

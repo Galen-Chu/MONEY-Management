@@ -37,6 +37,22 @@ export const MIGRATIONS: readonly string[] = [
   CREATE INDEX IF NOT EXISTS idx_txns_date ON transactions(date);
   CREATE INDEX IF NOT EXISTS idx_txns_account ON transactions(accountId);
   `,
+  // v3:loans(P1 貸款模組)
+  `
+  CREATE TABLE IF NOT EXISTS loans (
+    id TEXT PRIMARY KEY NOT NULL,
+    name TEXT NOT NULL,
+    type TEXT NOT NULL,
+    principalCents INTEGER NOT NULL,
+    annualRateMilliPercent INTEGER NOT NULL,
+    termMonths INTEGER NOT NULL,
+    startDate TEXT NOT NULL,
+    method TEXT NOT NULL,
+    graceMonths INTEGER NOT NULL DEFAULT 0,
+    createdAt INTEGER NOT NULL,
+    updatedAt INTEGER NOT NULL
+  );
+  `,
 ];
 
 /** 依 PRAGMA user_version 依序套用未執行的 migration(冪等);回傳本次套用版數 */

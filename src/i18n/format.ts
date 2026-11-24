@@ -25,3 +25,8 @@ export function formatMonthLabel(month: string, lang: Language): string {
     month: 'long',
   }).format(new Date(y!, m! - 1, 1));
 }
+
+/** 年利率(milliPercent=0.001% 單位)→ 「2.185」(最多 3 位小數;UI 自行接 %) */
+export function formatRatePercent(milliPercent: number, lang: Language): string {
+  return new Intl.NumberFormat(localeOf(lang), { maximumFractionDigits: 3 }).format(milliPercent / 1000);
+}

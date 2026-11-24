@@ -2,7 +2,12 @@
  * web 預覽/測試的 Repository 工廠:InMemory(不持久化)。
  * native 走 db.native.ts(expo-sqlite);介面同一份(repository.ts)。
  */
-import { InMemoryAccountRepository, InMemoryTxnRepository, type Repositories } from './repository';
+import {
+  InMemoryAccountRepository,
+  InMemoryLoanRepository,
+  InMemoryTxnRepository,
+  type Repositories,
+} from './repository';
 
 export type { Repositories } from './repository';
 
@@ -13,6 +18,7 @@ export async function createRepositories(): Promise<Repositories> {
   cached = {
     accounts: new InMemoryAccountRepository(),
     txns: new InMemoryTxnRepository(),
+    loans: new InMemoryLoanRepository(),
   };
   return cached;
 }

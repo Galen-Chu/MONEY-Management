@@ -11,10 +11,12 @@ import { useTranslation } from 'react-i18next';
 import { ErrorBanner } from '../../components/error-banner';
 import { createRepositories } from '../../data/db';
 import { useLedgerStore } from '../../state/ledgerStore';
+import { useLoanStore } from '../../state/loanStore';
 import { color, font } from '../../theme';
 
 const TABS: { name: string; key: string }[] = [
   { name: 'index', key: 'tabs.today' },
+  { name: 'loans', key: 'tabs.loans' },
   { name: 'accounts', key: 'tabs.accounts' },
   { name: 'stats', key: 'tabs.stats' },
   { name: 'settings', key: 'tabs.settings' },
@@ -29,7 +31,11 @@ export default function TabsLayout() {
       try {
         const repos = await createRepositories();
         useLedgerStore.getState().attach(repos.accounts, repos.txns);
-        await useLedgerStore.getState().bootstrap();
+        useLoanStore.getState().attach(repos.loans);
+        await Promise.all([
+          useLedgerStore.getState().bootstrap(),
+          useLoanStore.getState().bootstrap(),
+        ]);
       } catch (e) {
         useLedgerStore.setState({ error: e instanceof Error ? e.message : String(e) });
       }
@@ -71,6 +77,7 @@ export default function TabsLayout() {
         screenOptions={{ headerShown: false }}
       >
         <Tabs.Screen name="index" />
+        <Tabs.Screen name="loans" />
         <Tabs.Screen name="accounts" />
         <Tabs.Screen name="stats" />
         <Tabs.Screen name="settings" />

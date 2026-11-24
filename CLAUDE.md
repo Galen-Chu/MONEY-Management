@@ -15,10 +15,10 @@ npm run verify         # lint+typecheck+test(同 CI)
 
 ## 架構
 
-- `src/domain/` — 純函式:`money.ts`(分整數模型+Intl TWD 格式化)、`categories.ts`(固定分類+色票)、`ledger.ts`(Account/Txn 模型、餘額/淨值/月彙總/分類統計/依日分組/驗證/日期工具)
+- `src/domain/` — 純函式:`money.ts`(分整數模型+Intl TWD 格式化)、`categories.ts`(固定分類+色票)、`ledger.ts`(Account/Txn 模型、餘額/淨值/月彙總/分類統計/依日分組/驗證/日期工具)、`loan.ts`(Loan 模型、攤還表/未償本金/額外還本與利率情境試算、淨值含貸款)
 - `src/data/` — `repository.ts`(介面+InMemory)、`db.native.ts`(expo-sqlite 實作+工廠)、`db.ts`(web InMemory 工廠;Metro 按平台選檔)、`migrations.ts`(介面注入可測;每版一交易+PRAGMA user_version)
-- `src/state/` — `ledgerStore.ts`(帳戶/交易 CRUD,guard() 防護:錯誤寫 error 狀態不外拋;web 開發模式暴露 `window.__moneycareStore`)、`settings.ts`(Zustand+AsyncStorage persist,僅語言)
-- `src/app/` — expo-router:`(tabs)/` 四分頁(index=今天、accounts、stats、settings);Repository 在 `(tabs)/_layout.tsx` 統一 attach+bootstrap
+- `src/state/` — `ledgerStore.ts`(帳戶/交易 CRUD,guard() 防護:錯誤寫 error 狀態不外拋;web 開發模式暴露 `window.__moneycareStore`)、`loanStore.ts`(貸款 CRUD,同 guard 模式)、`settings.ts`(Zustand+AsyncStorage persist,僅語言)
+- `src/app/` — expo-router:`(tabs)/` 五分頁(index=今天、loans=貸款、accounts、stats、settings);Repository 在 `(tabs)/_layout.tsx` 統一 attach+bootstrap
 - `src/components/` — `ui/`(Card/Segmented/BottomSheet/EmptyState)+ `ledger/`(TxnSheet/TxnRow/AccountSheet)+ ErrorBanner
 - `src/i18n/` — i18next 單例(zh-TW 預設/en-US 全量;**不跟隨系統**,僅手動切換)+ `format.ts`(Intl 日期/月份)
 - `src/theme/tokens.json` — 設計 token 單一事實來源(值同步自 Uniconsign `@galen-chu/uniconsign` 語意層淺色:品牌綠 accent/暖中性階;對應表見 `theme/index.ts` 註解)
@@ -28,7 +28,8 @@ npm run verify         # lint+typecheck+test(同 CI)
 - **金額一律以「分」的整數儲存與運算**(D2):UI 輸入 → `parseAmount` → `toCents`;呈現走 `formatCents`(Intl TWD)。任何新代碼不得以浮點元運算
 - **淨值口徑**(D4):餘額=期初+收入−支出+轉入−轉出;信用卡以餘額轉負呈現負債;淨值=Σ正餘額−Σ|負餘額|;**轉帳不計入收支統計**(只是位置移動)
 - **分類為固定集**(D3,支出 8+收入 4):label 走 `categories.*` i18n、色票在 `domain/categories.ts`;不做分類 CRUD(變更需同步兩份 locale+parity 測試)
-- **驗證單一來源**:交易驗證只走 `domain/ledger.validateTxn`(錯誤碼→`txn.err*` i18n);store 動作重驗一次,UI 不自行發明規則
+- **驗證單一來源**:交易驗證只走 `domain/ledger.validateTxn`(錯誤碼→`txn.err*` i18n)、貸款驗證只走 `domain/loan.validateLoan`(→`loans.err*`);store 動作重驗一次,UI 不自行發明規則
+- **貸款口徑**(P1):年利率以「千分之百分比」整數儲存(2.185%→2185),期內利息=round(剩餘×rateMilliPercent÷1,200,000);annuity 月繳四捨五入為常數、**末期強制結清**(利息逐期捨入殘留);寬限期只繳息;提前還本=月繳不變期數縮短;利率情境=自某期起新利率月繳重算;淨值=帳戶淨值−Σ未償本金
 - 刪除帳戶前必查 `accountInUse`(含轉入端引用);被引用 → false + UI 顯示 errInUse
 - **金融資料 100% 本機**(D5):不得引入任何雲端/後端儲存;settings 僅存語言
 - **不做網銀爬蟲**(紅線);外部串接前依「串接類開發紀律」查當下官方文件(查證結論與分期見 `docs/PLAN.md`)

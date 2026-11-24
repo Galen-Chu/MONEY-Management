@@ -8,9 +8,11 @@ import { useTranslation } from 'react-i18next';
 
 import { AccountSheet } from '../../components/ledger/account-sheet';
 import { EmptyState } from '../../components/ui/empty-state';
-import { accountBalance, netWorth, type Account } from '../../domain/ledger';
+import { accountBalance, todayKey, type Account } from '../../domain/ledger';
+import { netWorthWithLoans } from '../../domain/loan';
 import { formatCents } from '../../domain/money';
 import { useLedgerStore } from '../../state/ledgerStore';
+import { useLoanStore } from '../../state/loanStore';
 import { currentLanguage, useSettings } from '../../state/settings';
 import { color, font, radius } from '../../theme';
 
@@ -26,11 +28,12 @@ export default function AccountsScreen() {
   const lang = currentLanguage(settings);
   const accounts = useLedgerStore((s) => s.accounts);
   const txns = useLedgerStore((s) => s.txns);
+  const loans = useLoanStore((s) => s.loans);
 
   const [sheetVisible, setSheetVisible] = useState(false);
   const [editing, setEditing] = useState<Account | null>(null);
 
-  const worth = useMemo(() => netWorth(accounts, txns), [accounts, txns]);
+  const worth = useMemo(() => netWorthWithLoans(accounts, txns, loans, todayKey()), [accounts, txns, loans]);
   const balances = useMemo(
     () => accounts.map((a) => ({ account: a, cents: accountBalance(a, txns) })),
     [accounts, txns]
@@ -57,6 +60,9 @@ export default function AccountsScreen() {
               <Text style={[styles.worthCellValue, { color: color.expense }]}>{formatCents(-worth.debtsCents, lang)}</Text>
             </View>
           </View>
+          {worth.loanDebtsCents > 0 ? (
+            <Text style={styles.worthHint}>{t('accounts.debtHint')}</Text>
+          ) : null}
         </View>
 
         {balances.length === 0 ? (
@@ -157,6 +163,11 @@ const styles = StyleSheet.create({
     width: 1,
     alignSelf: 'stretch',
     backgroundColor: color.onBrandSoft,
+  },
+  worthHint: {
+    fontSize: font.size.tiny,
+    color: color.onBrandSecondary,
+    marginTop: -4,
   },
   accountCard: {
     flexDirection: 'row',

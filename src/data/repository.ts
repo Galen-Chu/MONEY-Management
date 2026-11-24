@@ -4,6 +4,7 @@
  * store 僅依賴本介面(依賴方向:UI→state→domain←data)。
  */
 import type { Account, Txn } from '../domain/ledger';
+import type { Loan } from '../domain/loan';
 
 export interface AccountRepository {
   list(): Promise<Account[]>;
@@ -19,10 +20,18 @@ export interface TxnRepository {
   remove(id: string): Promise<void>;
 }
 
+export interface LoanRepository {
+  list(): Promise<Loan[]>;
+  insert(loan: Loan): Promise<void>;
+  update(loan: Loan): Promise<void>;
+  remove(id: string): Promise<void>;
+}
+
 /** 平台工廠(db.ts / db.native.ts)回傳的組合 */
 export interface Repositories {
   accounts: AccountRepository;
   txns: TxnRepository;
+  loans: LoanRepository;
 }
 
 export class InMemoryAccountRepository implements AccountRepository {
@@ -68,5 +77,30 @@ export class InMemoryTxnRepository implements TxnRepository {
 
   async remove(id: string): Promise<void> {
     this.items = this.items.filter((t) => t.id !== id);
+  }
+}
+
+export class InMemoryLoanRepository implements LoanRepository {
+  private items: Loan[] = [];
+
+  constructor(seed: Loan[] = []) {
+    this.items = seed.map((l) => ({ ...l }));
+  }
+
+  async list(): Promise<Loan[]> {
+    return this.items.map((l) => ({ ...l }));
+  }
+
+  async insert(loan: Loan): Promise<void> {
+    this.items.push({ ...loan });
+  }
+
+  async update(loan: Loan): Promise<void> {
+    const i = this.items.findIndex((l) => l.id === loan.id);
+    if (i >= 0) this.items[i] = { ...loan };
+  }
+
+  async remove(id: string): Promise<void> {
+    this.items = this.items.filter((l) => l.id !== id);
   }
 }

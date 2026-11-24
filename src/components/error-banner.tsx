@@ -1,17 +1,26 @@
 /**
- * 頂部錯誤橫幅:danger 底白字 + 關閉鈕;綁 ledgerStore.error。
+ * 頂部錯誤橫幅:danger 底白字 + 關閉鈕;合併呈現 ledgerStore 與 loanStore 的 error。
  */
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { color, font } from '../theme';
 import { useLedgerStore } from '../state/ledgerStore';
+import { useLoanStore } from '../state/loanStore';
 
 export function ErrorBanner() {
   const { t } = useTranslation();
-  const error = useLedgerStore((s) => s.error);
-  const clearError = useLedgerStore((s) => s.clearError);
+  const ledgerError = useLedgerStore((s) => s.error);
+  const clearLedgerError = useLedgerStore((s) => s.clearError);
+  const loanError = useLoanStore((s) => s.error);
+  const clearLoanError = useLoanStore((s) => s.clearError);
+  const error = ledgerError ?? loanError;
   if (!error) return null;
+
+  const clearError = () => {
+    clearLedgerError();
+    clearLoanError();
+  };
 
   return (
     <View accessibilityRole="alert" style={styles.banner}>
