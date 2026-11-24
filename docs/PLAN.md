@@ -47,7 +47,7 @@
 | 期 | 內容 | 狀態 |
 |---|---|---|
 | **P0** | 骨架 + 記帳:四分頁(今天/帳戶/統計/設定)、帳戶 CRUD、交易 CRUD(支出/收入/轉帳)、月度統計、分類分佈、淨值卡、雙語、CI | ✅ 2026-10-14 |
-| **P0.6** | UI 改版(Uniconsign):主題 token 遷移語意層淺色值(品牌綠/暖中性/圓角字級對齊)+ 硬編碼色清零;後續批次:Inter 字體、圖示匯入、深色模式 | 🔄 進行中 |
+| **P0.6** | UI 改版(Uniconsign):批次一 ✅ token 遷移語意層淺色值+硬編碼色清零(2026-11-24);批次二 ✅ Inter 字體(400–700,權重映射)+ Uniconsign 圖示系統(tab 五圖示/箭頭/關閉/加號,vendor 於 `ui/icon.tsx`)(2026-11-24);餘:深色模式 | 🔄 深色模式待做 |
 | **P0.7** | iOS 發佈管線:`eas.json`(production/simulator)、圖示與 splash 品牌換膚、發佈手冊 `docs/RELEASE.md` 備妥;**待維護者:Apple Developer 申請 + `eas login` 後執行首次雲端建置**(步驟見 RELEASE.md) | 🔄 管線備妥 |
 | **P0.8** | 資料匯出備份:JSON 匯出(web 下載/native 系統分享)+ 還原(兩段式確認、結構驗證、版本策略向前不相容拒絕) | ✅ 2026-11-24 |
 | P1 | 淨值報表深化 + 貸款模組(房貸/車貸/信貸通用:攤還表、提前還款、利率情境——純計算) | 🔄 貸款模組 ✅ 2026-11-24;淨值報表深化待開工 |
@@ -115,6 +115,5 @@
 | CI 基礎設施 | actions 版本/node 版本追蹤 | 借鏡 TIME:ubuntu-latest 映象遷移期 |
 | a11y 深化 | 對比度檢核腳本(TIME 有 contrast-audit 可鏡像)、動態字型複查 | |
 | Uniconsign 深色模式 | 成對深色 token(語意層已附 `$extensions.mode.dark`)+ `userInterfaceStyle` 切換 | D7 後續批次;元件雙模式複查 |
-| Inter 字體接入 | `@expo-google-fonts/inter` + 權重映射(中文退回系統蘋方/微軟正黑) | Uniconsign 字體規範:Inter 搭 Noto Sans TC |
-| Uniconsign 圖示匯入 | `react-native-svg` + 24×24 網格 2px 線寬圖示(TabBar/表單/分類) | 圖示集在 `@galen-chu/uniconsign`(241 枚) |
-| 設計系統套件依賴化 | `tokens.json` 手動同步 → npm 依賴 `@galen-chu/uniconsign` | GitHub Packages 需 PAT(read:packages)+ CI secret |
+| 圖示擴編 | `ui/icon.tsx` 目前 vendor 9 枚;依需求自 `@galen-chu/uniconsign` 增補(分類點、交易列轉帳符號) | 圖示集 241 枚 |
+| 設計系統套件依賴化 | `tokens.json`/`icon.tsx` 手動同步 → npm 依賴 `@galen-chu/uniconsign` | GitHub Packages 需 PAT(read:packages)+ CI secret |

@@ -62,10 +62,10 @@ const styles = StyleSheet.create({
   label: {
     fontSize: font.size.small,
     color: color.inkSecondary,
-    fontWeight: '500',
+    fontFamily: font.family.medium,
   },
   labelActive: {
     color: color.accentDeep,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
   },
 });

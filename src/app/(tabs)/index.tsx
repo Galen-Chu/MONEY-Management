@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { TxnRow } from '../../components/ledger/txn-row';
 import { TxnSheet } from '../../components/ledger/txn-sheet';
 import { EmptyState } from '../../components/ui/empty-state';
+import { Icon } from '../../components/ui/icon';
 import { groupByDate, monthOf, monthTotals, todayKey, type Txn } from '../../domain/ledger';
 import { formatCents } from '../../domain/money';
 import { formatDayLabel, formatMonthLabel } from '../../i18n/format';
@@ -88,7 +89,7 @@ export default function TodayScreen() {
         }}
         style={[styles.fab, { bottom: insets.bottom + 76 }]}
       >
-        <Text style={styles.fabText}>＋</Text>
+        <Icon name="plus" size={24} fill={color.onBrand} />
       </Pressable>
 
       <TxnSheet visible={sheetVisible} onClose={() => setSheetVisible(false)} initial={editing} />
@@ -120,7 +121,7 @@ const styles = StyleSheet.create({
   },
   hello: {
     fontSize: font.size.title,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
     color: color.ink,
   },
   month: {
@@ -145,7 +146,7 @@ const styles = StyleSheet.create({
   },
   cellValue: {
     fontSize: font.size.body,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
     fontVariant: ['tabular-nums'],
   },
   day: {
@@ -163,11 +164,11 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: font.size.small,
     color: color.inkSecondary,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
   },
   dayTotal: {
     fontSize: font.size.small,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
     fontVariant: ['tabular-nums'],
   },
   fab: {
@@ -184,11 +185,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
-  },
-  fabText: {
-    color: color.onBrand,
-    fontSize: 26,
-    fontWeight: '600',
-    lineHeight: 30,
   },
 });

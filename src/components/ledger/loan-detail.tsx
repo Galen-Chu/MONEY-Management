@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: font.size.title,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
     color: color.ink,
   },
   subtitle: {
@@ -215,16 +215,16 @@ const styles = StyleSheet.create({
   infoValue: {
     fontSize: font.size.small,
     color: color.ink,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
     fontVariant: ['tabular-nums'],
   },
   infoValueStrong: {
     fontSize: font.size.h2,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
   },
   section: {
     fontSize: font.size.h2,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
     color: color.ink,
     marginTop: 4,
   },
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
   },
   schedPay: {
     fontSize: font.size.body,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
     color: color.ink,
     fontVariant: ['tabular-nums'],
   },
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
   simLine: {
     fontSize: font.size.small,
     color: color.ink,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
     fontVariant: ['tabular-nums'],
   },
   simGood: {
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
   },
   paidOffText: {
     fontSize: font.size.h2,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
     color: color.accentDeep,
   },
   editBtn: {
@@ -297,6 +297,6 @@ const styles = StyleSheet.create({
   editBtnText: {
     color: color.onBrand,
     fontSize: font.size.body,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
   },
 });

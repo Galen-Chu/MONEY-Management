@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: font.size.title,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
     color: color.ink,
   },
   input: {
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     fontSize: font.size.h2,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
     color: color.ink,
     fontVariant: ['tabular-nums'],
   },
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontSize: font.size.small,
     color: color.inkSecondary,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
   },
   hint: {
     fontSize: font.size.tiny,
@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
   },
   chipLabelActive: {
     color: color.accentDeep,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
   },
   typeRow: {
     flexDirection: 'row',
@@ -370,11 +370,11 @@ const styles = StyleSheet.create({
   typeLabel: {
     fontSize: font.size.small,
     color: color.inkSecondary,
-    fontWeight: '500',
+    fontFamily: font.family.medium,
   },
   typeLabelActive: {
     color: color.accentDeep,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
   },
   err: {
     fontSize: font.size.small,
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
   btnSecondaryText: {
     color: color.danger,
     fontSize: font.size.body,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
   },
   btnPrimary: {
     backgroundColor: color.accent,
@@ -407,6 +407,6 @@ const styles = StyleSheet.create({
   btnPrimaryText: {
     color: color.onBrand,
     fontSize: font.size.body,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
   },
 });

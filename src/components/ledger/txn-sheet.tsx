@@ -23,6 +23,7 @@ import { useSettings, currentLanguage } from '../../state/settings';
 import { formatDayLabel } from '../../i18n/format';
 import { color, font, radius } from '../../theme';
 import { BottomSheet } from '../ui/bottom-sheet';
+import { Icon } from '../ui/icon';
 
 interface Props {
   visible: boolean;
@@ -231,11 +232,11 @@ export function TxnSheet({ visible, onClose, initial }: Props) {
         {/* 日期 */}
         <View style={styles.dateRow}>
           <Pressable accessibilityLabel={t('txn.prevDay')} onPress={() => setDate((d) => shiftDate(d, -1))} style={styles.dateBtn}>
-            <Text style={styles.dateBtnText}>‹</Text>
+            <Icon name="arrowLeft" size={16} fill={color.inkSecondary} />
           </Pressable>
           <Text style={styles.dateText}>{formatDayLabel(date, lang)}</Text>
           <Pressable accessibilityLabel={t('txn.nextDay')} onPress={() => setDate((d) => shiftDate(d, 1))} style={styles.dateBtn}>
-            <Text style={styles.dateBtnText}>›</Text>
+            <Icon name="arrowRight" size={16} fill={color.inkSecondary} />
           </Pressable>
         </View>
 
@@ -297,7 +298,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: font.size.title,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
     color: color.ink,
   },
   typeRow: {
@@ -319,11 +320,11 @@ const styles = StyleSheet.create({
   typeLabel: {
     fontSize: font.size.small,
     color: color.inkSecondary,
-    fontWeight: '500',
+    fontFamily: font.family.medium,
   },
   typeLabelActive: {
     color: color.accentDeep,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
   },
   amountRow: {
     flexDirection: 'row',
@@ -339,13 +340,13 @@ const styles = StyleSheet.create({
   currency: {
     fontSize: font.size.h2,
     color: color.inkMuted,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
   },
   amountInput: {
     flex: 1,
     fontSize: 24,
     color: color.ink,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
     paddingVertical: 4,
     fontVariant: ['tabular-nums'],
   },
@@ -355,7 +356,7 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontSize: font.size.small,
     color: color.inkSecondary,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
   },
   chips: {
     flexDirection: 'row',
@@ -391,7 +392,7 @@ const styles = StyleSheet.create({
   },
   chipLabelActive: {
     color: color.accentDeep,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
   },
   dateRow: {
     flexDirection: 'row',
@@ -409,15 +410,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: color.line,
   },
-  dateBtnText: {
-    fontSize: 20,
-    color: color.inkSecondary,
-    lineHeight: 24,
-  },
   dateText: {
     fontSize: font.size.h2,
     color: color.ink,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
     fontVariant: ['tabular-nums'],
   },
   noteInput: {
@@ -453,7 +449,7 @@ const styles = StyleSheet.create({
   btnSecondaryText: {
     color: color.danger,
     fontSize: font.size.body,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
   },
   btnPrimary: {
     backgroundColor: color.accent,
@@ -461,6 +457,6 @@ const styles = StyleSheet.create({
   btnPrimaryText: {
     color: color.onBrand,
     fontSize: font.size.body,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
   },
 });

@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: font.size.title,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
     color: color.ink,
     marginBottom: 4,
   },
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
   },
   rowTitle: {
     fontSize: font.size.h2,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
     color: color.ink,
   },
   backupBody: {
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   backupBtnPrimaryText: {
     color: color.onBrand,
     fontSize: font.size.body,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
   },
   backupBtnSecondary: {
     backgroundColor: color.surface,
@@ -195,11 +195,11 @@ const styles = StyleSheet.create({
   backupBtnSecondaryText: {
     color: color.ink,
     fontSize: font.size.body,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
   },
   status: {
     fontSize: font.size.small,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
   },
   statusOk: {
     color: color.income,
@@ -224,6 +224,6 @@ const styles = StyleSheet.create({
   versionValue: {
     fontSize: font.size.small,
     color: color.ink,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
   },
 });

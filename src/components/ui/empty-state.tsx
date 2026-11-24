@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: font.size.h2,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
     color: color.ink,
   },
   body: {

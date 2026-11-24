@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   dotArrow: {
     color: color.onBrand,
     fontSize: 15,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
   },
   main: {
     flex: 1,
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: font.size.body,
     color: color.ink,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
   },
   secondary: {
     fontSize: font.size.tiny,
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   },
   amount: {
     fontSize: font.size.body,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
     fontVariant: ['tabular-nums'],
   },
   expense: {

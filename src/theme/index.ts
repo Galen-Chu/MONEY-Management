@@ -26,5 +26,6 @@ export const radius = tokens.radius as {
 };
 
 export const font = tokens.font as {
+  family: { regular: string; medium: string; semibold: string; bold: string };
   size: { title: number; h2: number; body: number; small: number; tiny: number };
 };

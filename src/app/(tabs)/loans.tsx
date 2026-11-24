@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { LoanDetailSheet } from '../../components/ledger/loan-detail';
 import { LoanSheet } from '../../components/ledger/loan-sheet';
 import { EmptyState } from '../../components/ui/empty-state';
+import { Icon } from '../../components/ui/icon';
 import { todayKey } from '../../domain/ledger';
 import type { Loan } from '../../domain/loan';
 import { monthlyPaymentTotalCents, nextPayment, outstandingCents, paidPeriods, scheduleOf } from '../../domain/loan';
@@ -121,7 +122,8 @@ export default function LoansScreen() {
         }}
         style={[styles.addBtn, { bottom: insets.bottom + 96 }]}
       >
-        <Text style={styles.addText}>＋ {t('loans.add')}</Text>
+        <Icon name="plus" size={14} fill={color.onBrand} />
+        <Text style={styles.addText}>{t('loans.add')}</Text>
       </Pressable>
 
       <LoanDetailSheet
@@ -152,7 +154,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: font.size.title,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
     color: color.ink,
   },
   summaryCard: {
@@ -164,12 +166,12 @@ const styles = StyleSheet.create({
   sumLabel: {
     fontSize: font.size.small,
     color: color.onBrandSecondary,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
   },
   sumValue: {
     fontSize: 30,
     color: color.onBrand,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
     fontVariant: ['tabular-nums'],
   },
   sumRow: {
@@ -187,7 +189,7 @@ const styles = StyleSheet.create({
   },
   sumCellValue: {
     fontSize: font.size.body,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
     color: color.onBrand,
     fontVariant: ['tabular-nums'],
   },
@@ -210,7 +212,7 @@ const styles = StyleSheet.create({
   },
   loanName: {
     fontSize: font.size.h2,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
     color: color.ink,
   },
   loanSub: {
@@ -235,7 +237,7 @@ const styles = StyleSheet.create({
   },
   loanRemaining: {
     fontSize: font.size.h2,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
     color: color.ink,
     fontVariant: ['tabular-nums'],
   },
@@ -255,6 +257,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.button,
     paddingHorizontal: 18,
     paddingVertical: 13,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     elevation: 6,
     shadowColor: color.shadow,
     shadowOpacity: 0.25,
@@ -264,6 +269,6 @@ const styles = StyleSheet.create({
   addText: {
     color: color.onBrand,
     fontSize: font.size.body,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
   },
 });

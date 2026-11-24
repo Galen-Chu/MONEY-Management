@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { color, font } from '../theme';
 import { useLedgerStore } from '../state/ledgerStore';
 import { useLoanStore } from '../state/loanStore';
+import { Icon } from './ui/icon';
 
 export function ErrorBanner() {
   const { t } = useTranslation();
@@ -34,7 +35,7 @@ export function ErrorBanner() {
         onPress={clearError}
         hitSlop={8}
       >
-        <Text style={styles.close}>✕</Text>
+        <Icon name="close" size={16} fill={color.onBrand} />
       </Pressable>
     </View>
   );
@@ -56,15 +57,10 @@ const styles = StyleSheet.create({
   title: {
     color: color.onBrand,
     fontSize: font.size.body,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
   },
   body: {
     color: color.onBrandSecondary,
     fontSize: font.size.small,
-  },
-  close: {
-    color: color.onBrand,
-    fontSize: 16,
-    paddingHorizontal: 4,
   },
 });

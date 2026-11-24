@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: font.size.title,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
     color: color.ink,
   },
   monthNav: {
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   monthText: {
     fontSize: font.size.h2,
     color: color.ink,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
   },
   totalsRow: {
     flexDirection: 'row',
@@ -142,12 +142,12 @@ const styles = StyleSheet.create({
   },
   totalValue: {
     fontSize: font.size.body,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
     fontVariant: ['tabular-nums'],
   },
   section: {
     fontSize: font.size.h2,
-    fontWeight: '700',
+    fontFamily: font.family.bold,
     color: color.ink,
     marginTop: 8,
   },
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     width: 64,
     fontSize: font.size.small,
     color: color.ink,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
   },
   catTrack: {
     flex: 1,
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
   catAmount: {
     fontSize: font.size.small,
     color: color.inkSecondary,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
     fontVariant: ['tabular-nums'],
   },
 });

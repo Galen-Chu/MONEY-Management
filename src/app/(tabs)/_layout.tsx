@@ -9,17 +9,18 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
 import { ErrorBanner } from '../../components/error-banner';
+import { Icon, type IconName } from '../../components/ui/icon';
 import { createRepositories } from '../../data/db';
 import { useLedgerStore } from '../../state/ledgerStore';
 import { useLoanStore } from '../../state/loanStore';
 import { color, font } from '../../theme';
 
-const TABS: { name: string; key: string }[] = [
-  { name: 'index', key: 'tabs.today' },
-  { name: 'loans', key: 'tabs.loans' },
-  { name: 'accounts', key: 'tabs.accounts' },
-  { name: 'stats', key: 'tabs.stats' },
-  { name: 'settings', key: 'tabs.settings' },
+const TABS: { name: string; key: string; icon: IconName }[] = [
+  { name: 'index', key: 'tabs.today', icon: 'sun' },
+  { name: 'loans', key: 'tabs.loans', icon: 'ledger' },
+  { name: 'accounts', key: 'tabs.accounts', icon: 'balance' },
+  { name: 'stats', key: 'tabs.stats', icon: 'dashboard' },
+  { name: 'settings', key: 'tabs.settings', icon: 'typewriter' },
 ];
 
 export default function TabsLayout() {
@@ -67,7 +68,7 @@ export default function TabsLayout() {
                   accessibilityRole="tab"
                   accessibilityState={{ selected: active }}
                 >
-                  <View style={[styles.dot, active && styles.dotActive]} />
+                  <Icon name={tab.icon} size={22} fill={active ? color.accent : color.inkMuted} />
                   <Text style={[styles.label, active && styles.labelActive]}>{t(tab.key)}</Text>
                 </Pressable>
               );
@@ -101,21 +102,12 @@ const styles = StyleSheet.create({
   tab: {
     flex: 1,
     alignItems: 'center',
-    gap: 5,
-  },
-  dot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: 'transparent',
-  },
-  dotActive: {
-    backgroundColor: color.accent,
+    gap: 4,
   },
   label: {
     fontSize: font.size.tiny,
     color: color.inkMuted,
-    fontWeight: '600',
+    fontFamily: font.family.semibold,
   },
   labelActive: {
     color: color.ink,

@@ -19,9 +19,9 @@ npm run verify         # lint+typecheck+test(同 CI)
 - `src/data/` — `repository.ts`(介面+InMemory)、`db.native.ts`(expo-sqlite 實作+工廠)、`db.ts`(web InMemory 工廠;Metro 按平台選檔)、`migrations.ts`(介面注入可測;每版一交易+PRAGMA user_version)、`backup.ts`(快照/還原編排)、`backup-io(.native).ts`(平台檔案 IO:web 下載選檔/native 檔案+分享)
 - `src/state/` — `ledgerStore.ts`(帳戶/交易 CRUD,guard() 防護:錯誤寫 error 狀態不外拋;web 開發模式暴露 `window.__moneycareStore`)、`loanStore.ts`(貸款 CRUD,同 guard 模式)、`settings.ts`(Zustand+AsyncStorage persist,僅語言)
 - `src/app/` — expo-router:`(tabs)/` 五分頁(index=今天、loans=貸款、accounts、stats、settings);Repository 在 `(tabs)/_layout.tsx` 統一 attach+bootstrap
-- `src/components/` — `ui/`(Card/Segmented/BottomSheet/EmptyState)+ `ledger/`(TxnSheet/TxnRow/AccountSheet)+ ErrorBanner
+- `src/components/` — `ui/`(Card/Segmented/BottomSheet/EmptyState/Icon)+ `ledger/`(TxnSheet/TxnRow/AccountSheet/LoanSheet/LoanDetailSheet)+ ErrorBanner
 - `src/i18n/` — i18next 單例(zh-TW 預設/en-US 全量;**不跟隨系統**,僅手動切換)+ `format.ts`(Intl 日期/月份)
-- `src/theme/tokens.json` — 設計 token 單一事實來源(值同步自 Uniconsign `@galen-chu/uniconsign` 語意層淺色:品牌綠 accent/暖中性階;對應表見 `theme/index.ts` 註解)
+- `src/theme/tokens.json` — 設計 token 單一事實來源(值同步自 Uniconsign `@galen-chu/uniconsign` 語意層淺色:品牌綠 accent/暖中性階;對應表見 `theme/index.ts` 註解)。字體 Inter(@expo-google-fonts,根布局 `useFonts` 不阻斷渲染;權重映射 500/600/700→medium/semibold/bold,全專案禁用 fontWeight);圖示 vendor 於 `components/ui/icon.tsx`(24×24 填色路徑,color prop 注入)
 
 ## 重要行為(修改時勿破壞)
 
