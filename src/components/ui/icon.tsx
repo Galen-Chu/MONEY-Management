@@ -14,6 +14,7 @@ export type IconName =
   | 'balance' // philosophy
   | 'dashboard' // science
   | 'typewriter' // science
+  | 'envelope' // science
   | 'plus' // math
   | 'arrowLeft' // ui
   | 'arrowRight' // ui
@@ -69,6 +70,13 @@ const ICONS: Record<IconName, (fill: string) => ReactElement> = {
       <Circle cx={7.5} cy={13.5} r={0.9} fill={f} />
       <Circle cx={12} cy={13.5} r={0.9} fill={f} />
       <Circle cx={16.5} cy={13.5} r={0.9} fill={f} />
+    </>
+  ),
+  envelope: (f) => (
+    <>
+      <Path d="M5 6H19Q21 6 21 8V16Q21 18 19 18H5Q3 18 3 16V8Q3 6 5 6Z M5 8V16H19V8Z" fill={f} />
+      <Rect x={7} y={4.1} width={2} height={12.31} rx={1} transform="rotate(-50.91 8 10.25)" fill={f} />
+      <Rect x={15} y={4.1} width={2} height={12.31} rx={1} transform="rotate(50.91 16 10.25)" fill={f} />
     </>
   ),
   plus: (f) => (

@@ -53,6 +53,25 @@ export const MIGRATIONS: readonly string[] = [
     updatedAt INTEGER NOT NULL
   );
   `,
+  // v4:invoices + prize_numbers(P2 發票對獎)
+  `
+  CREATE TABLE IF NOT EXISTS invoices (
+    id TEXT PRIMARY KEY NOT NULL,
+    term TEXT NOT NULL,
+    number TEXT NOT NULL,
+    note TEXT NOT NULL DEFAULT '',
+    createdAt INTEGER NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS idx_invoices_term ON invoices(term);
+  CREATE TABLE IF NOT EXISTS prize_numbers (
+    term TEXT PRIMARY KEY NOT NULL,
+    superNumber TEXT NOT NULL,
+    specialNumber TEXT NOT NULL,
+    firstNumbers TEXT NOT NULL,
+    extraNumbers TEXT NOT NULL,
+    fetchedAt INTEGER NOT NULL
+  );
+  `,
 ];
 
 /** 依 PRAGMA user_version 依序套用未執行的 migration(冪等);回傳本次套用版數 */

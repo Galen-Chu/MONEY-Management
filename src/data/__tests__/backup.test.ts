@@ -1,5 +1,12 @@
 /** 備份編排測試(InMemory repos):collect 快照 + restore 取代表資料。 */
-import { InMemoryAccountRepository, InMemoryLoanRepository, InMemoryTxnRepository, type Repositories } from '../repository';
+import {
+  InMemoryAccountRepository,
+  InMemoryInvoiceRepository,
+  InMemoryLoanRepository,
+  InMemoryPrizeRepository,
+  InMemoryTxnRepository,
+  type Repositories,
+} from '../repository';
 import { collectBackupData, restoreBackup } from '../backup';
 import { buildBackupData } from '../../domain/backup';
 import type { Account, Txn } from '../../domain/ledger';
@@ -24,6 +31,8 @@ function makeRepos(seed: { seedAccounts?: Account[] }): Repositories {
     accounts: new InMemoryAccountRepository(seed.seedAccounts ?? []),
     txns: new InMemoryTxnRepository(),
     loans: new InMemoryLoanRepository(),
+    invoices: new InMemoryInvoiceRepository(),
+    prizes: new InMemoryPrizeRepository(),
   };
 }
 

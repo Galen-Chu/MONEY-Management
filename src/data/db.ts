@@ -4,7 +4,9 @@
  */
 import {
   InMemoryAccountRepository,
+  InMemoryInvoiceRepository,
   InMemoryLoanRepository,
+  InMemoryPrizeRepository,
   InMemoryTxnRepository,
   type Repositories,
 } from './repository';
@@ -19,6 +21,8 @@ export async function createRepositories(): Promise<Repositories> {
     accounts: new InMemoryAccountRepository(),
     txns: new InMemoryTxnRepository(),
     loans: new InMemoryLoanRepository(),
+    invoices: new InMemoryInvoiceRepository(),
+    prizes: new InMemoryPrizeRepository(),
   };
   return cached;
 }

@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { ErrorBanner } from '../../components/error-banner';
 import { Icon, type IconName } from '../../components/ui/icon';
 import { createRepositories } from '../../data/db';
+import { useInvoiceStore } from '../../state/invoiceStore';
 import { useLedgerStore } from '../../state/ledgerStore';
 import { useLoanStore } from '../../state/loanStore';
 import { color, font } from '../../theme';
@@ -20,6 +21,7 @@ const TABS: { name: string; key: string; icon: IconName }[] = [
   { name: 'loans', key: 'tabs.loans', icon: 'ledger' },
   { name: 'accounts', key: 'tabs.accounts', icon: 'balance' },
   { name: 'stats', key: 'tabs.stats', icon: 'dashboard' },
+  { name: 'invoice', key: 'tabs.invoice', icon: 'envelope' },
   { name: 'settings', key: 'tabs.settings', icon: 'typewriter' },
 ];
 
@@ -33,9 +35,11 @@ export default function TabsLayout() {
         const repos = await createRepositories();
         useLedgerStore.getState().attach(repos.accounts, repos.txns);
         useLoanStore.getState().attach(repos.loans);
+        useInvoiceStore.getState().attach(repos.invoices, repos.prizes);
         await Promise.all([
           useLedgerStore.getState().bootstrap(),
           useLoanStore.getState().bootstrap(),
+          useInvoiceStore.getState().bootstrap(),
         ]);
       } catch (e) {
         useLedgerStore.setState({ error: e instanceof Error ? e.message : String(e) });
@@ -81,6 +85,7 @@ export default function TabsLayout() {
         <Tabs.Screen name="loans" />
         <Tabs.Screen name="accounts" />
         <Tabs.Screen name="stats" />
+        <Tabs.Screen name="invoice" />
         <Tabs.Screen name="settings" />
       </Tabs>
     </View>

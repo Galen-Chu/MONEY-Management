@@ -46,11 +46,14 @@ describe('applyMigrations', () => {
     expect(f.log[f.log.length - 1]).toBe('ROLLBACK;');
   });
 
-  it('DDL 內容:v1=accounts、v2=transactions、v3=loans', () => {
+  it('DDL 內容:v1=accounts、v2=transactions、v3=loans、v4=invoices+prize_numbers', () => {
     expect(MIGRATIONS[0]).toContain('CREATE TABLE IF NOT EXISTS accounts');
     expect(MIGRATIONS[1]).toContain('CREATE TABLE IF NOT EXISTS transactions');
     expect(MIGRATIONS[1]).toContain('idx_txns_date');
     expect(MIGRATIONS[2]).toContain('CREATE TABLE IF NOT EXISTS loans');
     expect(MIGRATIONS[2]).toContain('annualRateMilliPercent');
+    expect(MIGRATIONS[3]).toContain('CREATE TABLE IF NOT EXISTS invoices');
+    expect(MIGRATIONS[3]).toContain('idx_invoices_term');
+    expect(MIGRATIONS[3]).toContain('CREATE TABLE IF NOT EXISTS prize_numbers');
   });
 });

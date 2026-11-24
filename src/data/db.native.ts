@@ -6,7 +6,15 @@ import * as SQLite from 'expo-sqlite';
 
 import type { Account, Txn } from '../domain/ledger';
 import type { Loan } from '../domain/loan';
-import type { AccountRepository, TxnRepository, LoanRepository, Repositories } from './repository';
+import type { Invoice, PrizeNumbers } from '../domain/invoice';
+import type {
+  AccountRepository,
+  TxnRepository,
+  LoanRepository,
+  InvoiceRepository,
+  PrizeRepository,
+  Repositories,
+} from './repository';
 import { applyMigrations } from './migrations';
 
 export type { Repositories } from './repository';
@@ -133,6 +141,61 @@ export class SqliteLoanRepository implements LoanRepository {
   }
 }
 
+interface InvoiceRow {
+  id: string; term: string; number: string; note: string; createdAt: number;
+}
+
+export class SqliteInvoiceRepository implements InvoiceRepository {
+  constructor(private db: SQLite.SQLiteDatabase) {}
+
+  async list(): Promise<Invoice[]> {
+    return await this.db.getAllAsync<InvoiceRow>(
+      'SELECT * FROM invoices ORDER BY createdAt DESC'
+    );
+  }
+
+  async insert(i: Invoice): Promise<void> {
+    await this.db.runAsync(
+      'INSERT INTO invoices (id, term, number, note, createdAt) VALUES (?,?,?,?,?)',
+      [i.id, i.term, i.number, i.note, i.createdAt]
+    );
+  }
+
+  async remove(id: string): Promise<void> {
+    await this.db.runAsync('DELETE FROM invoices WHERE id=?', [id]);
+  }
+}
+
+export class SqlitePrizeRepository implements PrizeRepository {
+  constructor(private db: SQLite.SQLiteDatabase) {}
+
+  async get(term: string): Promise<PrizeNumbers | null> {
+    const row = await this.db.getFirstAsync<{
+      term: string; superNumber: string; specialNumber: string;
+      firstNumbers: string; extraNumbers: string; fetchedAt: number;
+    }>('SELECT * FROM prize_numbers WHERE term=?', [term]);
+    if (!row) return null;
+    return {
+      term: row.term,
+      superNumber: row.superNumber,
+      specialNumber: row.specialNumber,
+      firstNumbers: row.firstNumbers.split(','),
+      extraNumbers: row.extraNumbers ? row.extraNumbers.split(',') : [],
+      fetchedAt: row.fetchedAt,
+    };
+  }
+
+  async upsert(p: PrizeNumbers): Promise<void> {
+    await this.db.runAsync(
+      `INSERT INTO prize_numbers (term, superNumber, specialNumber, firstNumbers, extraNumbers, fetchedAt)
+       VALUES (?,?,?,?,?,?)
+       ON CONFLICT(term) DO UPDATE SET superNumber=excluded.superNumber, specialNumber=excluded.specialNumber,
+         firstNumbers=excluded.firstNumbers, extraNumbers=excluded.extraNumbers, fetchedAt=excluded.fetchedAt`,
+      [p.term, p.superNumber, p.specialNumber, p.firstNumbers.join(','), p.extraNumbers.join(','), p.fetchedAt]
+    );
+  }
+}
+
 let cached: Repositories | null = null;
 
 /** Repository 工廠(native):expo-sqlite 開庫 + migration(冪等) */
@@ -145,6 +208,8 @@ export async function createRepositories(): Promise<Repositories> {
     accounts: new SqliteAccountRepository(db),
     txns: new SqliteTxnRepository(db),
     loans: new SqliteLoanRepository(db),
+    invoices: new SqliteInvoiceRepository(db),
+    prizes: new SqlitePrizeRepository(db),
   };
   return cached;
 }

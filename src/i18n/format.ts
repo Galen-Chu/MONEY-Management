@@ -30,3 +30,18 @@ export function formatMonthLabel(month: string, lang: Language): string {
 export function formatRatePercent(milliPercent: number, lang: Language): string {
   return new Intl.NumberFormat(localeOf(lang), { maximumFractionDigits: 3 }).format(milliPercent / 1000);
 }
+
+/** 發票期別組成(民國年/西元年/起訖月);顯示模板走 i18n key `invoice.periodLabel` */
+export function termPeriodInfo(term: string): { rocYear: number; gregYear: number; fromMonth: number; toMonth: number } {
+  const rocYear = Number(term.slice(0, 3));
+  const fromMonth = Number(term.slice(3, 5));
+  return { rocYear, gregYear: rocYear + 1911, fromMonth, toMonth: fromMonth + 1 };
+}
+
+/** 月標籤:en 走 Intl 縮寫(Jul),zh 回數字 */
+export function monthLabel(month: number, lang: Language): string {
+  if (lang === 'en-US') {
+    return new Intl.DateTimeFormat('en-US', { month: 'short' }).format(new Date(2000, month - 1, 1));
+  }
+  return String(month);
+}

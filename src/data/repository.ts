@@ -5,6 +5,7 @@
  */
 import type { Account, Txn } from '../domain/ledger';
 import type { Loan } from '../domain/loan';
+import type { Invoice, PrizeNumbers } from '../domain/invoice';
 
 export interface AccountRepository {
   list(): Promise<Account[]>;
@@ -27,11 +28,24 @@ export interface LoanRepository {
   remove(id: string): Promise<void>;
 }
 
+export interface InvoiceRepository {
+  list(): Promise<Invoice[]>;
+  insert(invoice: Invoice): Promise<void>;
+  remove(id: string): Promise<void>;
+}
+
+export interface PrizeRepository {
+  get(term: string): Promise<PrizeNumbers | null>;
+  upsert(prizes: PrizeNumbers): Promise<void>;
+}
+
 /** 平台工廠(db.ts / db.native.ts)回傳的組合 */
 export interface Repositories {
   accounts: AccountRepository;
   txns: TxnRepository;
   loans: LoanRepository;
+  invoices: InvoiceRepository;
+  prizes: PrizeRepository;
 }
 
 export class InMemoryAccountRepository implements AccountRepository {
@@ -102,5 +116,38 @@ export class InMemoryLoanRepository implements LoanRepository {
 
   async remove(id: string): Promise<void> {
     this.items = this.items.filter((l) => l.id !== id);
+  }
+}
+
+export class InMemoryInvoiceRepository implements InvoiceRepository {
+  private items: Invoice[] = [];
+
+  constructor(seed: Invoice[] = []) {
+    this.items = seed.map((i) => ({ ...i }));
+  }
+
+  async list(): Promise<Invoice[]> {
+    return this.items.map((i) => ({ ...i }));
+  }
+
+  async insert(invoice: Invoice): Promise<void> {
+    this.items.push({ ...invoice });
+  }
+
+  async remove(id: string): Promise<void> {
+    this.items = this.items.filter((i) => i.id !== id);
+  }
+}
+
+export class InMemoryPrizeRepository implements PrizeRepository {
+  private items = new Map<string, PrizeNumbers>();
+
+  async get(term: string): Promise<PrizeNumbers | null> {
+    const hit = this.items.get(term);
+    return hit ? { ...hit } : null;
+  }
+
+  async upsert(prizes: PrizeNumbers): Promise<void> {
+    this.items.set(prizes.term, { ...prizes });
   }
 }
