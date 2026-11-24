@@ -5,6 +5,7 @@
  */
 import type { Account, Txn } from './ledger';
 import type { Loan } from './loan';
+import type { Asset, AssetValuation } from './asset';
 
 export const BACKUP_VERSION = 1;
 
@@ -16,9 +17,19 @@ export interface BackupData {
   accounts: Account[];
   txns: Txn[];
   loans: Loan[];
+  /** v1 後期欄位——舊備份無此二陣列時視為空(向前相容) */
+  assets: Asset[];
+  valuations: AssetValuation[];
 }
 
-export function buildBackupData(accounts: Account[], txns: Txn[], loans: Loan[], now: Date = new Date()): BackupData {
+export function buildBackupData(
+  accounts: Account[],
+  txns: Txn[],
+  loans: Loan[],
+  assets: Asset[],
+  valuations: AssetValuation[],
+  now: Date = new Date()
+): BackupData {
   return {
     app: 'moneycare',
     version: BACKUP_VERSION,
@@ -26,6 +37,8 @@ export function buildBackupData(accounts: Account[], txns: Txn[], loans: Loan[],
     accounts: accounts.map((a) => ({ ...a })),
     txns: txns.map((t) => ({ ...t })),
     loans: loans.map((l) => ({ ...l })),
+    assets: assets.map((a) => ({ ...a })),
+    valuations: valuations.map((v) => ({ ...v })),
   };
 }
 
@@ -48,6 +61,7 @@ const TXN_TYPES: readonly string[] = ['expense', 'income', 'transfer'];
 const ACCOUNT_TYPES: readonly string[] = ['cash', 'bank', 'credit'];
 const LOAN_TYPES: readonly string[] = ['mortgage', 'car', 'personal', 'student', 'other'];
 const LOAN_METHODS: readonly string[] = ['annuity', 'principal'];
+const ASSET_TYPES: readonly string[] = ['real-estate', 'vehicle', 'investment', 'insurance', 'other'];
 
 function isObj(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -109,5 +123,20 @@ export function parseBackup(text: string): BackupParseResult {
       return { ok: false, error: 'format' };
     }
   }
-  return { ok: true, data: raw as unknown as BackupData };
+  const rawAssets = Array.isArray(raw.assets) ? raw.assets : [];
+  const rawValuations = Array.isArray(raw.valuations) ? raw.valuations : [];
+  for (const a of rawAssets) {
+    if (!isObj(a) || !str(a.id) || !str(a.name) || !oneOf(a.type, ASSET_TYPES) || !int(a.createdAt) || !int(a.updatedAt)) {
+      return { ok: false, error: 'format' };
+    }
+  }
+  for (const v of rawValuations) {
+    if (!isObj(v) || !str(v.id) || !str(v.assetId) || !str(v.date) || !int(v.valueCents) || !int(v.createdAt)) {
+      return { ok: false, error: 'format' };
+    }
+  }
+  return {
+    ok: true,
+    data: { ...(raw as unknown as BackupData), assets: rawAssets, valuations: rawValuations },
+  };
 }

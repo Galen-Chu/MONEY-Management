@@ -6,6 +6,7 @@
 import type { Account, Txn } from '../domain/ledger';
 import type { Loan } from '../domain/loan';
 import type { Invoice, PrizeNumbers } from '../domain/invoice';
+import type { Asset, AssetValuation } from '../domain/asset';
 
 export interface AccountRepository {
   list(): Promise<Account[]>;
@@ -39,6 +40,20 @@ export interface PrizeRepository {
   upsert(prizes: PrizeNumbers): Promise<void>;
 }
 
+export interface AssetRepository {
+  list(): Promise<Asset[]>;
+  insert(asset: Asset): Promise<void>;
+  update(asset: Asset): Promise<void>;
+  remove(id: string): Promise<void>;
+}
+
+export interface ValuationRepository {
+  listAll(): Promise<AssetValuation[]>;
+  insert(valuation: AssetValuation): Promise<void>;
+  remove(id: string): Promise<void>;
+  removeByAsset(assetId: string): Promise<void>;
+}
+
 /** 平台工廠(db.ts / db.native.ts)回傳的組合 */
 export interface Repositories {
   accounts: AccountRepository;
@@ -46,6 +61,8 @@ export interface Repositories {
   loans: LoanRepository;
   invoices: InvoiceRepository;
   prizes: PrizeRepository;
+  assets: AssetRepository;
+  valuations: ValuationRepository;
 }
 
 export class InMemoryAccountRepository implements AccountRepository {
@@ -149,5 +166,54 @@ export class InMemoryPrizeRepository implements PrizeRepository {
 
   async upsert(prizes: PrizeNumbers): Promise<void> {
     this.items.set(prizes.term, { ...prizes });
+  }
+}
+
+export class InMemoryAssetRepository implements AssetRepository {
+  private items: Asset[] = [];
+
+  constructor(seed: Asset[] = []) {
+    this.items = seed.map((a) => ({ ...a }));
+  }
+
+  async list(): Promise<Asset[]> {
+    return this.items.map((a) => ({ ...a }));
+  }
+
+  async insert(asset: Asset): Promise<void> {
+    this.items.push({ ...asset });
+  }
+
+  async update(asset: Asset): Promise<void> {
+    const i = this.items.findIndex((a) => a.id === asset.id);
+    if (i >= 0) this.items[i] = { ...asset };
+  }
+
+  async remove(id: string): Promise<void> {
+    this.items = this.items.filter((a) => a.id !== id);
+  }
+}
+
+export class InMemoryValuationRepository implements ValuationRepository {
+  private items: AssetValuation[] = [];
+
+  constructor(seed: AssetValuation[] = []) {
+    this.items = seed.map((v) => ({ ...v }));
+  }
+
+  async listAll(): Promise<AssetValuation[]> {
+    return this.items.map((v) => ({ ...v }));
+  }
+
+  async insert(valuation: AssetValuation): Promise<void> {
+    this.items.push({ ...valuation });
+  }
+
+  async remove(id: string): Promise<void> {
+    this.items = this.items.filter((v) => v.id !== id);
+  }
+
+  async removeByAsset(assetId: string): Promise<void> {
+    this.items = this.items.filter((v) => v.assetId !== assetId);
   }
 }

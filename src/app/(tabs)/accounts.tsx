@@ -10,8 +10,9 @@ import { AccountSheet } from '../../components/ledger/account-sheet';
 import { EmptyState } from '../../components/ui/empty-state';
 import { Icon } from '../../components/ui/icon';
 import { accountBalance, todayKey, type Account } from '../../domain/ledger';
-import { netWorthWithLoans } from '../../domain/loan';
+import { netWorthFull } from '../../domain/asset';
 import { formatCents } from '../../domain/money';
+import { useAssetStore } from '../../state/assetStore';
 import { useLedgerStore } from '../../state/ledgerStore';
 import { useLoanStore } from '../../state/loanStore';
 import { currentLanguage, useSettings } from '../../state/settings';
@@ -30,11 +31,16 @@ export default function AccountsScreen() {
   const accounts = useLedgerStore((s) => s.accounts);
   const txns = useLedgerStore((s) => s.txns);
   const loans = useLoanStore((s) => s.loans);
+  const assets = useAssetStore((s) => s.assets);
+  const valuations = useAssetStore((s) => s.valuations);
 
   const [sheetVisible, setSheetVisible] = useState(false);
   const [editing, setEditing] = useState<Account | null>(null);
 
-  const worth = useMemo(() => netWorthWithLoans(accounts, txns, loans, todayKey()), [accounts, txns, loans]);
+  const worth = useMemo(
+    () => netWorthFull(accounts, txns, loans, assets, valuations, todayKey()),
+    [accounts, txns, loans, assets, valuations]
+  );
   const balances = useMemo(
     () => accounts.map((a) => ({ account: a, cents: accountBalance(a, txns) })),
     [accounts, txns]
@@ -53,12 +59,12 @@ export default function AccountsScreen() {
           <View style={styles.worthRow}>
             <View style={styles.worthCell}>
               <Text style={styles.worthCellLabel}>{t('accounts.totalAssets')}</Text>
-              <Text style={[styles.worthCellValue, { color: color.income }]}>{formatCents(worth.assetsCents, lang)}</Text>
+              <Text style={[styles.worthCellValue, { color: color.income }]}>{formatCents(worth.totalAssetsCents, lang)}</Text>
             </View>
             <View style={styles.worthDivider} />
             <View style={styles.worthCell}>
               <Text style={styles.worthCellLabel}>{t('accounts.totalDebts')}</Text>
-              <Text style={[styles.worthCellValue, { color: color.expense }]}>{formatCents(-worth.debtsCents, lang)}</Text>
+              <Text style={[styles.worthCellValue, { color: color.expense }]}>{formatCents(-worth.totalDebtsCents, lang)}</Text>
             </View>
           </View>
           {worth.loanDebtsCents > 0 ? (

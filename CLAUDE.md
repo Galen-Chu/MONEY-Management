@@ -15,10 +15,10 @@ npm run verify         # lint+typecheck+test(同 CI)
 
 ## 架構
 
-- `src/domain/` — 純函式:`money.ts`(分整數模型+Intl TWD 格式化)、`categories.ts`(固定分類+色票)、`ledger.ts`(Account/Txn 模型、餘額/淨值/月彙總/分類統計/依日分組/驗證/日期工具)、`loan.ts`(Loan 模型、攤還表/未償本金/額外還本與利率情境試算、淨值含貸款)、`backup.ts`(備份序列化/解析驗證/版本策略)、`invoice.ts`(期別數學/獎號模型/九獎項比對/公告頁解析)
+- `src/domain/` — 純函式:`money.ts`(分整數模型+Intl TWD 格式化)、`categories.ts`(固定分類+色票)、`ledger.ts`(Account/Txn 模型、餘額/淨值/月彙總/分類統計/依日分組/現金流/驗證/日期工具)、`loan.ts`(Loan 模型、攤還表/未償本金/額外還本與利率情境試算)、`invoice.ts`(期別數學/獎號模型/九獎項比對/公告頁解析)、`asset.ts`(Asset/估值模型、估值取值/完整淨值/歷史淨值與趨勢)、`csv.ts`(RFC4180 剖析/分隔符嗅探/欄位偵測/列→交易轉換)、`backup.ts`(備份序列化/解析驗證/版本策略)
 - `src/data/` — `repository.ts`(介面+InMemory)、`db.native.ts`(expo-sqlite 實作+工廠)、`db.ts`(web InMemory 工廠;Metro 按平台選檔)、`migrations.ts`(介面注入可測;每版一交易+PRAGMA user_version)、`backup.ts`(快照/還原編排)、`backup-io(.native).ts`(平台檔案 IO:web 下載選檔/native 檔案+分享)
-- `src/state/` — `ledgerStore.ts`(帳戶/交易 CRUD,guard() 防護:錯誤寫 error 狀態不外拋;web 開發模式暴露 `window.__moneycareStore`)、`loanStore.ts`(貸款 CRUD)、`invoiceStore.ts`(發票 CRUD+獎號快取載入)、`settings.ts`(Zustand+AsyncStorage persist,僅語言)
-- `src/app/` — expo-router:`(tabs)/` 六分頁(index=今天、loans=貸款、accounts、stats、invoice=發票、settings);Repository 在 `(tabs)/_layout.tsx` 統一 attach+bootstrap
+- `src/state/` — `ledgerStore.ts`(帳戶/交易 CRUD,guard() 防護:錯誤寫 error 狀態不外拋;web 開發模式暴露 `window.__moneycareStore`)、`loanStore.ts`(貸款 CRUD)、`invoiceStore.ts`(發票 CRUD+獎號快取載入)、`assetStore.ts`(資產 CRUD+估值追加)、`settings.ts`(Zustand+AsyncStorage persist,僅語言)
+- `src/app/` — expo-router:`(tabs)/` 七分頁(index=今天、loans=貸款、accounts、stats、invoice=發票、assets=資產、settings);Repository 在 `(tabs)/_layout.tsx` 統一 attach+bootstrap
 - `src/components/` — `ui/`(Card/Segmented/BottomSheet/EmptyState/Icon)+ `ledger/`(TxnSheet/TxnRow/AccountSheet/LoanSheet/LoanDetailSheet)+ ErrorBanner
 - `src/i18n/` — i18next 單例(zh-TW 預設/en-US 全量;**不跟隨系統**,僅手動切換)+ `format.ts`(Intl 日期/月份)
 - `src/theme/tokens.json` — 設計 token 單一事實來源(值同步自 Uniconsign `@galen-chu/uniconsign` 語意層淺色:品牌綠 accent/暖中性階;對應表見 `theme/index.ts` 註解)。字體 Inter(@expo-google-fonts,根布局 `useFonts` 不阻斷渲染;權重映射 500/600/700→medium/semibold/bold,全專案禁用 fontWeight);圖示 vendor 於 `components/ui/icon.tsx`(24×24 填色路徑,color prop 注入)
@@ -32,7 +32,9 @@ npm run verify         # lint+typecheck+test(同 CI)
 - **貸款口徑**(P1):年利率以「千分之百分比」整數儲存(2.185%→2185),期內利息=round(剩餘×rateMilliPercent÷1,200,000);annuity 月繳四捨五入為常數、**末期強制結清**(利息逐期捨入殘留);寬限期只繳息;提前還本=月繳不變期數縮短;利率情境=自某期起新利率月繳重算;淨值=帳戶淨值−Σ未償本金
 - 刪除帳戶前必查 `accountInUse`(含轉入端引用);被引用 → false + UI 顯示 errInUse
 - **金融資料 100% 本機**(D5):不得引入任何雲端/後端儲存;settings 僅存語言
-- **備份**(P0.8):匯出=JSON(web 瀏覽器下載/native 寫快取+系統分享,零上傳);還原=**取代**裝置全部資料(兩段式確認);`parseBackup` 做結構驗證,備份版本較新一律拒絕(向前不相容);還原後 store 重新 bootstrap
+- **備份**(P0.8):匯出=JSON(web 瀏覽器下載/native 寫快取+系統分享,零上傳)涵蓋五表(帳戶/交易/貸款/資產/估值;獎號為公開資料不入檔);還原=**取代**裝置全部資料(兩段式確認);`parseBackup` 做結構驗證,備份版本較新一律拒絕,舊檔缺新欄位→空陣列相容;還原後各 store 重新 bootstrap
+- **資產**(P3):估值帶日期,「目前值」=asOf 前最新估值(同日比 createdAt);完整淨值=帳戶淨值+Σ資產估值−貸款未償;歷史淨值依截至日交易+當時估值+當時貸款未償計算
+- **CSV 匯入**(P4):限 UTF-8(含 BOM;Big5 需先轉檔);分隔符嗅探(逗號/分號/定位點);欄位自動偵測+人工可調;支出/存入雙欄或正負單欄;西元+民國日期;每筆仍走 `validateTxn` 單一來源驗證,分類預設 other/otherIncome(匯入後可改)
 - **發票對獎**(P2):期別=民國年+奇數起始月(11507);獎號來源=稅務入口網公告頁 `ETW183W2_{term}`(唯網路抓取,只抓公開獎號、快取本機 prize_numbers;比對純本機);比對只看後 8 碼、同張多獎項取最高一獎;原始碼 CJK 閘門下解析關鍵字以 `\u` 轉義維持
 - **不做網銀爬蟲**(紅線);外部串接前依「串接類開發紀律」查當下官方文件(查證結論與分期見 `docs/PLAN.md`)
 - web 走 InMemory 不持久化(native SQLite);web 開發模式有 `window.__moneycareStore` 走查鉤子(僅 NODE_ENV≠production)

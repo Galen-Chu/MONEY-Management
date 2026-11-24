@@ -9,6 +9,7 @@ import {
 } from '../backup';
 import type { Account, Txn } from '../ledger';
 import type { Loan } from '../loan';
+import type { Asset, AssetValuation } from '../asset';
 
 const NOW = new Date('2026-11-24T08:30:00');
 
@@ -32,9 +33,15 @@ const loans: Loan[] = [
   },
 ];
 
+const assets: Asset[] = [{ id: 'as1', name: '自住公寓', type: 'real-estate', createdAt: 5, updatedAt: 5 }];
+
+const valuations: AssetValuation[] = [
+  { id: 'v1', assetId: 'as1', date: '2026-01-31', valueCents: 10_000_000_00, createdAt: 5 },
+];
+
 describe('備份往返', () => {
   it('build → serialize → parse → 內容一致(深層相等、不共享參考)', () => {
-    const data = buildBackupData(accounts, txns, loans, NOW);
+    const data = buildBackupData(accounts, txns, loans, assets, valuations, NOW);
     expect(data.version).toBe(BACKUP_VERSION);
     expect(data.exportedAt).toBe(NOW.toISOString());
     const parsed = parseBackup(serializeBackup(data));
@@ -45,14 +52,31 @@ describe('備份往返', () => {
   });
 
   it('序列化鍵序穩定(同輸入同輸出)', () => {
-    const a = serializeBackup(buildBackupData(accounts, txns, loans, NOW));
-    const b = serializeBackup(buildBackupData(accounts, txns, loans, NOW));
+    const a = serializeBackup(buildBackupData(accounts, txns, loans, assets, valuations, NOW));
+    const b = serializeBackup(buildBackupData(accounts, txns, loans, assets, valuations, NOW));
     expect(a).toBe(b);
+  });
+
+  it('舊版備份(無 assets/valuations 欄位)→ 空陣列相容', () => {
+    const legacy = {
+      app: 'moneycare',
+      version: 1,
+      exportedAt: NOW.toISOString(),
+      accounts,
+      txns,
+      loans,
+    };
+    const parsed = parseBackup(JSON.stringify(legacy));
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) {
+      expect(parsed.data.assets).toEqual([]);
+      expect(parsed.data.valuations).toEqual([]);
+    }
   });
 });
 
 describe('parseBackup 驗證', () => {
-  const base = () => buildBackupData(accounts, txns, loans, NOW);
+  const base = () => buildBackupData(accounts, txns, loans, assets, valuations, NOW);
 
   it('非 JSON → format', () => {
     expect(parseBackup('not json')).toEqual({ ok: false, error: 'format' });
@@ -79,6 +103,16 @@ describe('parseBackup 驗證', () => {
     expect(parseBackup(JSON.stringify(v2))).toEqual({ ok: false, error: 'version' });
     const vBad = { ...base(), version: '1' } as unknown as BackupData;
     expect(parseBackup(JSON.stringify(vBad))).toEqual({ ok: false, error: 'version' });
+  });
+
+  it('資產欄位型別錯 → format', () => {
+    const badAsset = { ...base(), assets: [{ ...assets[0]!, type: 'weird' }] } as unknown as BackupData;
+    expect(parseBackup(JSON.stringify(badAsset))).toEqual({ ok: false, error: 'format' });
+    const badVal = {
+      ...base(),
+      valuations: [{ ...valuations[0]!, valueCents: 'x' }],
+    } as unknown as BackupData;
+    expect(parseBackup(JSON.stringify(badVal))).toEqual({ ok: false, error: 'format' });
   });
 });
 

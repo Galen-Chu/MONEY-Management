@@ -72,6 +72,25 @@ export const MIGRATIONS: readonly string[] = [
     fetchedAt INTEGER NOT NULL
   );
   `,
+  // v5:assets + asset_valuations(P3 資產管理)
+  `
+  CREATE TABLE IF NOT EXISTS assets (
+    id TEXT PRIMARY KEY NOT NULL,
+    name TEXT NOT NULL,
+    type TEXT NOT NULL,
+    createdAt INTEGER NOT NULL,
+    updatedAt INTEGER NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS asset_valuations (
+    id TEXT PRIMARY KEY NOT NULL,
+    assetId TEXT NOT NULL,
+    date TEXT NOT NULL,
+    valueCents INTEGER NOT NULL,
+    createdAt INTEGER NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS idx_valuations_asset ON asset_valuations(assetId);
+  CREATE INDEX IF NOT EXISTS idx_valuations_date ON asset_valuations(date);
+  `,
 ];
 
 /** 依 PRAGMA user_version 依序套用未執行的 migration(冪等);回傳本次套用版數 */

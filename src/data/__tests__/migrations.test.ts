@@ -46,7 +46,7 @@ describe('applyMigrations', () => {
     expect(f.log[f.log.length - 1]).toBe('ROLLBACK;');
   });
 
-  it('DDL 內容:v1=accounts、v2=transactions、v3=loans、v4=invoices+prize_numbers', () => {
+  it('DDL 內容:v1=accounts、v2=transactions、v3=loans、v4=invoices+prize_numbers、v5=assets+valuations', () => {
     expect(MIGRATIONS[0]).toContain('CREATE TABLE IF NOT EXISTS accounts');
     expect(MIGRATIONS[1]).toContain('CREATE TABLE IF NOT EXISTS transactions');
     expect(MIGRATIONS[1]).toContain('idx_txns_date');
@@ -55,5 +55,8 @@ describe('applyMigrations', () => {
     expect(MIGRATIONS[3]).toContain('CREATE TABLE IF NOT EXISTS invoices');
     expect(MIGRATIONS[3]).toContain('idx_invoices_term');
     expect(MIGRATIONS[3]).toContain('CREATE TABLE IF NOT EXISTS prize_numbers');
+    expect(MIGRATIONS[4]).toContain('CREATE TABLE IF NOT EXISTS assets');
+    expect(MIGRATIONS[4]).toContain('CREATE TABLE IF NOT EXISTS asset_valuations');
+    expect(MIGRATIONS[4]).toContain('idx_valuations_asset');
   });
 });

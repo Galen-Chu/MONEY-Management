@@ -7,12 +7,15 @@ import * as SQLite from 'expo-sqlite';
 import type { Account, Txn } from '../domain/ledger';
 import type { Loan } from '../domain/loan';
 import type { Invoice, PrizeNumbers } from '../domain/invoice';
+import type { Asset, AssetValuation } from '../domain/asset';
 import type {
   AccountRepository,
   TxnRepository,
   LoanRepository,
   InvoiceRepository,
   PrizeRepository,
+  AssetRepository,
+  ValuationRepository,
   Repositories,
 } from './repository';
 import { applyMigrations } from './migrations';
@@ -196,6 +199,66 @@ export class SqlitePrizeRepository implements PrizeRepository {
   }
 }
 
+interface AssetRow {
+  id: string; name: string; type: string; createdAt: number; updatedAt: number;
+}
+
+export class SqliteAssetRepository implements AssetRepository {
+  constructor(private db: SQLite.SQLiteDatabase) {}
+
+  async list(): Promise<Asset[]> {
+    const rows = await this.db.getAllAsync<AssetRow>('SELECT * FROM assets ORDER BY createdAt');
+    return rows.map((r) => ({ ...r, type: r.type as Asset['type'] }));
+  }
+
+  async insert(a: Asset): Promise<void> {
+    await this.db.runAsync(
+      'INSERT INTO assets (id, name, type, createdAt, updatedAt) VALUES (?,?,?,?,?)',
+      [a.id, a.name, a.type, a.createdAt, a.updatedAt]
+    );
+  }
+
+  async update(a: Asset): Promise<void> {
+    await this.db.runAsync(
+      'UPDATE assets SET name=?, type=?, updatedAt=? WHERE id=?',
+      [a.name, a.type, a.updatedAt, a.id]
+    );
+  }
+
+  async remove(id: string): Promise<void> {
+    await this.db.runAsync('DELETE FROM assets WHERE id=?', [id]);
+  }
+}
+
+interface ValuationRow {
+  id: string; assetId: string; date: string; valueCents: number; createdAt: number;
+}
+
+export class SqliteValuationRepository implements ValuationRepository {
+  constructor(private db: SQLite.SQLiteDatabase) {}
+
+  async listAll(): Promise<AssetValuation[]> {
+    return await this.db.getAllAsync<ValuationRow>(
+      'SELECT * FROM asset_valuations ORDER BY date, createdAt'
+    );
+  }
+
+  async insert(v: AssetValuation): Promise<void> {
+    await this.db.runAsync(
+      'INSERT INTO asset_valuations (id, assetId, date, valueCents, createdAt) VALUES (?,?,?,?,?)',
+      [v.id, v.assetId, v.date, v.valueCents, v.createdAt]
+    );
+  }
+
+  async remove(id: string): Promise<void> {
+    await this.db.runAsync('DELETE FROM asset_valuations WHERE id=?', [id]);
+  }
+
+  async removeByAsset(assetId: string): Promise<void> {
+    await this.db.runAsync('DELETE FROM asset_valuations WHERE assetId=?', [assetId]);
+  }
+}
+
 let cached: Repositories | null = null;
 
 /** Repository 工廠(native):expo-sqlite 開庫 + migration(冪等) */
@@ -210,6 +273,8 @@ export async function createRepositories(): Promise<Repositories> {
     loans: new SqliteLoanRepository(db),
     invoices: new SqliteInvoiceRepository(db),
     prizes: new SqlitePrizeRepository(db),
+    assets: new SqliteAssetRepository(db),
+    valuations: new SqliteValuationRepository(db),
   };
   return cached;
 }

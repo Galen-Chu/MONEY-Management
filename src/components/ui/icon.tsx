@@ -15,6 +15,7 @@ export type IconName =
   | 'dashboard' // science
   | 'typewriter' // science
   | 'envelope' // science
+  | 'mountain' // dao
   | 'plus' // math
   | 'arrowLeft' // ui
   | 'arrowRight' // ui
@@ -70,6 +71,15 @@ const ICONS: Record<IconName, (fill: string) => ReactElement> = {
       <Circle cx={7.5} cy={13.5} r={0.9} fill={f} />
       <Circle cx={12} cy={13.5} r={0.9} fill={f} />
       <Circle cx={16.5} cy={13.5} r={0.9} fill={f} />
+    </>
+  ),
+  mountain: (f) => (
+    <>
+      <Rect x={5.25} y={5.18} width={2} height={15.65} rx={1} transform="rotate(-151.56 6.25 13)" fill={f} />
+      <Rect x={10.5} y={5.68} width={2} height={14.65} rx={1} transform="rotate(-18.43 11.5 13)" fill={f} />
+      <Rect x={12.5} y={9.05} width={2} height={11.39} rx={1} transform="rotate(-154.8 13.5 14.75)" fill={f} />
+      <Rect x={16.75} y={8.94} width={2} height={11.62} rx={1} transform="rotate(-27.9 17.75 14.75)" fill={f} />
+      <Rect x={3} y={18} width={18} height={2} rx={1} fill={f} />
     </>
   ),
   envelope: (f) => (

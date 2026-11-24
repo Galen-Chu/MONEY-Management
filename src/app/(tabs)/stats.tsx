@@ -8,10 +8,13 @@ import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '../../components/ui/empty-state';
 import { CATEGORY_COLORS, categoryLabelKey } from '../../domain/categories';
+import { netWorthTrend } from '../../domain/asset';
 import { categoryTotals, monthOf, monthTotals, monthlyCashflow, shiftMonth, todayKey } from '../../domain/ledger';
 import { formatCents } from '../../domain/money';
 import { formatMonthLabel } from '../../i18n/format';
+import { useAssetStore } from '../../state/assetStore';
 import { useLedgerStore } from '../../state/ledgerStore';
+import { useLoanStore } from '../../state/loanStore';
 import { currentLanguage, useSettings } from '../../state/settings';
 import { color, font, radius } from '../../theme';
 
@@ -20,6 +23,10 @@ export default function StatsScreen() {
   const settings = useSettings((s) => s.settings);
   const lang = currentLanguage(settings);
   const txns = useLedgerStore((s) => s.txns);
+  const accounts = useLedgerStore((s) => s.accounts);
+  const loans = useLoanStore((s) => s.loans);
+  const assets = useAssetStore((s) => s.assets);
+  const valuations = useAssetStore((s) => s.valuations);
 
   const [month, setMonth] = useState(() => monthOf(todayKey()));
 
@@ -32,6 +39,11 @@ export default function StatsScreen() {
   const maxCat = cats[0]?.amountCents ?? 1;
   const cashflow = useMemo(() => monthlyCashflow(txns, month), [txns, month]);
   const maxFlow = Math.max(1, ...cashflow.map((m) => Math.max(m.incomeCents, m.expenseCents)));
+  const trend = useMemo(
+    () => netWorthTrend(accounts, txns, loans, assets, valuations, todayKey()),
+    [accounts, txns, loans, assets, valuations]
+  );
+  const maxAbsNet = Math.max(1, ...trend.map((m) => Math.abs(m.netCents)));
 
   return (
     <ScrollView contentContainerStyle={styles.content}>
@@ -95,6 +107,30 @@ export default function StatsScreen() {
                 <View style={[styles.flowBarExpense, { width: `${expensePct}%` }]} />
               </View>
               <Text style={[styles.flowNet, m.netCents < 0 && { color: color.expense }]}>
+                {formatCents(m.netCents, lang)}
+              </Text>
+            </View>
+          );
+        })}
+      </View>
+
+      <Text style={styles.section}>{t('stats.netWorthTrendTitle')}</Text>
+      <View style={styles.flowCard}>
+        {trend.map((m) => {
+          const pct = Math.round((Math.abs(m.netCents) / maxAbsNet) * 100);
+          const positive = m.netCents >= 0;
+          return (
+            <View key={m.month} style={styles.flowRow}>
+              <Text style={styles.flowMonth}>{m.month.slice(2).replace('-', '/')}</Text>
+              <View style={styles.flowBars}>
+                <View
+                  style={[
+                    positive ? styles.flowBarIncome : styles.flowBarExpense,
+                    { width: `${pct}%` },
+                  ]}
+                />
+              </View>
+              <Text style={[styles.flowNet, !positive && { color: color.expense }]}>
                 {formatCents(m.netCents, lang)}
               </Text>
             </View>

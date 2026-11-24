@@ -10,10 +10,13 @@ import { Card } from '../../components/ui/card';
 import { Segmented } from '../../components/ui/segmented';
 import { restoreBackup, collectBackupData } from '../../data/backup';
 import { pickBackupFile, shareBackupFile } from '../../data/backup-io';
+import { ImportSheet } from '../../components/ledger/import-sheet';
 import { parseBackup, serializeBackup } from '../../domain/backup';
 import type { Language } from '../../i18n';
+import { useAssetStore } from '../../state/assetStore';
 import { useLedgerStore } from '../../state/ledgerStore';
 import { useLoanStore } from '../../state/loanStore';
+import { useInvoiceStore } from '../../state/invoiceStore';
 import { currentLanguage, useSettings } from '../../state/settings';
 import { color, font, radius } from '../../theme';
 
@@ -31,14 +34,19 @@ export default function SettingsScreen() {
   const accounts = useLedgerStore((s) => s.accounts);
   const txns = useLedgerStore((s) => s.txns);
   const loans = useLoanStore((s) => s.loans);
+  const assets = useAssetStore((s) => s.assets);
+  const valuations = useAssetStore((s) => s.valuations);
 
   const [status, setStatus] = useState<Status | null>(null);
   const [confirmImport, setConfirmImport] = useState(false);
   const confirmTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [csvVisible, setCsvVisible] = useState(false);
 
   async function onExport() {
     try {
-      const ok = await shareBackupFile(serializeBackup(collectBackupData(accounts, txns, loans)));
+      const ok = await shareBackupFile(
+        serializeBackup(collectBackupData(accounts, txns, loans, assets, valuations))
+      );
       setStatus(ok ? { kind: 'ok', text: t('settings.exportDone') } : { kind: 'err', text: t('settings.errExport') });
     } catch {
       setStatus({ kind: 'err', text: t('settings.errExport') });
@@ -74,7 +82,12 @@ export default function SettingsScreen() {
       const { createRepositories } = await import('../../data/db');
       const repos = await createRepositories();
       await restoreBackup(repos, parsed.data);
-      await Promise.all([useLedgerStore.getState().bootstrap(), useLoanStore.getState().bootstrap()]);
+      await Promise.all([
+        useLedgerStore.getState().bootstrap(),
+        useLoanStore.getState().bootstrap(),
+        useInvoiceStore.getState().bootstrap(),
+        useAssetStore.getState().bootstrap(),
+      ]);
       setStatus({
         kind: 'ok',
         text: t('settings.importDone', {
@@ -124,6 +137,13 @@ export default function SettingsScreen() {
       </Card>
 
       <Card style={styles.card}>
+        <Text style={styles.rowTitle}>{t('settings.csvImport')}</Text>
+        <Pressable accessibilityRole="button" style={styles.csvBtn} onPress={() => setCsvVisible(true)}>
+          <Text style={styles.csvBtnText}>{t('import.pickFile')}</Text>
+        </Pressable>
+      </Card>
+
+      <Card style={styles.card}>
         <Text style={styles.rowTitle}>{t('settings.privacyTitle')}</Text>
         <Text style={styles.privacyBody}>{t('settings.privacyBody')}</Text>
       </Card>
@@ -135,6 +155,7 @@ export default function SettingsScreen() {
           <Text style={styles.versionValue}>1.0.0</Text>
         </View>
       </Card>
+      <ImportSheet visible={csvVisible} onClose={() => setCsvVisible(false)} />
     </ScrollView>
   );
 }
@@ -206,6 +227,19 @@ const styles = StyleSheet.create({
   },
   statusErr: {
     color: color.danger,
+  },
+  csvBtn: {
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderRadius: radius.button,
+    backgroundColor: color.accentSoft,
+    borderWidth: 1,
+    borderColor: color.accent,
+  },
+  csvBtnText: {
+    color: color.accentDeep,
+    fontSize: font.size.body,
+    fontFamily: font.family.bold,
   },
   privacyBody: {
     fontSize: font.size.small,
