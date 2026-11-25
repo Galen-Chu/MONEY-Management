@@ -180,8 +180,8 @@
 
 | 項目 | 說明 | 備註 |
 |---|---|---|
-| 表單層測試 | TxnSheet/AccountSheet RNTL:類型切換/驗證訊息/轉帳雙戶分支 | P0 僅 TxnRow 有元件測試 |
-| 畫面層測試 | 四分頁 RNTL:空狀態/摘要卡/月導覽 | |
+| 表單層測試 | ✅ 2026-11-25:TxnSheet/AccountSheet RNTL——驗證訊息(金額/分類/同帳戶/名稱/期初)、類型切換(收入集/轉帳雙戶分支)、preset 預填、編輯+errInUse 擋刪 | async render 下互動包 `await act(async ...)`(overlapping act 教訓) |
+| 畫面層測試 | 七分頁 RNTL:空狀態/摘要卡/月導覽(今天/帳戶/發票已有,貸款/統計/資產/設定待補) | |
 | 真機驗證 | Expo Go 實測 native SQLite 路徑(SQLite repo 僅單元覆蓋,migration/CRUD 未真機跑過) | 比照 TIME 的 dev client 待辦模式 |
 | web 走查腳本 | Selenium 腳本(比照 TIME `scripts/*-walkthrough.py`;`window.__moneycareStore` 鉤子已備) | |
 | web 資料持久化 | InMemory→IndexedDB(若 web 成為正式交付目標) | 現況已知限制,同 TIME |

@@ -55,7 +55,7 @@ npm run verify         # lint+typecheck+test(同 CI)
 
 ## 待辦排隊(2026-11-25 更新·D9 功能優先/D10 功能軸)
 
-- **主線(功能軸)**:P5 載具發票查詢完成待驗收(golden;**卡維護者:統編→申請 appID→真機補驗**)、P6 通知管理批次一 ✅(批次二 Gmail 待 OAuth client);優化候選:CSV 各家 preset(收樣本中;分類月預算/定期交易/帳戶明細均 ✅ 2026-11-25)
-- **環境建置類(依 D9 暫緩,功能告一段落後依序)**:深色模式(Uniconsign 成對 token)、TestFlight 首建(**卡 Apple Developer 申請+`eas login`**,見 `docs/RELEASE.md`)、表單層 RNTL 測試、Uniconsign 套件依賴化
-- **優先度較高的工程項**:表單層 RNTL 測試、真機 Expo Go 驗證 SQLite 路徑、TestFlight 首建(卡 Apple Developer 申請)
+- **主線(功能軸)**:P5 載具發票查詢 ✅ 2026-11-25 完成(golden 驗收;**待維護者:統編→申請 appID→真機補驗**)、P6 通知管理批次一 ✅(批次二 Gmail 待 OAuth client);優化候選:CSV 各家 preset(收樣本中;分類月預算/定期交易/帳戶明細均 ✅ 2026-11-25)
+- **環境建置類(依 D9 暫緩,功能告一段落後依序)**:深色模式(Uniconsign 成對 token;**下一項**)、TestFlight 首建(**卡 Apple Developer 申請+`eas login`**,見 `docs/RELEASE.md`)、Uniconsign 套件依賴化
+- **優先度較高的工程項**:表單層 RNTL 測試 ✅ 2026-11-25(TxnSheet/AccountSheet:驗證訊息/類型切換/轉帳雙戶/preset/編輯刪除/errInUse;async render 下互動須包 `await act(async ...)`——見 state 記憶與測試檔註)、真機 Expo Go 驗證 SQLite 路徑、TestFlight 首建(卡 Apple Developer 申請)
 - 完整清單(產品優化候選+技術債):`docs/PLAN.md` §「待辦與優化清單」
