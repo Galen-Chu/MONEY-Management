@@ -16,7 +16,7 @@ npm run verify         # lint+typecheck+test(同 CI)
 ## 架構
 
 - `src/domain/` — 純函式:`money.ts`(分整數模型+Intl TWD 格式化)、`categories.ts`(固定分類+色票)、`ledger.ts`(Account/Txn 模型、餘額/淨值/月彙總/分類統計/依日分組/現金流/驗證/日期工具)、`loan.ts`(Loan 模型、攤還表/未償本金/額外還本與利率情境試算)、`invoice.ts`(期別數學/獎號模型/九獎項比對/公告頁解析)、`asset.ts`(Asset/估值模型、估值取值/完整淨值/歷史淨值與趨勢)、`csv.ts`(RFC4180 剖析/分隔符嗅探/欄位偵測/列→交易轉換)、`budget.ts`(分類月預算/用量)、`recurring.ts`(每月定期範本/到期判定/月底夾斷)、`notification.ts`(消費簡訊啟發式解析→草稿/TxnSheet 預填)、`backup.ts`(備份序列化/解析驗證/版本策略)
-- `src/data/` — `repository.ts`(介面+InMemory)、`db.native.ts`(expo-sqlite 實作+工廠)、`db.ts`(web InMemory 工廠;Metro 按平台選檔)、`migrations.ts`(介面注入可測;每版一交易+PRAGMA user_version)、`prize-source.ts`(獎號公告頁抓取)、`carrier-source.ts`(載具 carrierInvChk 查詢+正規化;皆 fetcher 可注入)、`backup.ts`(快照/還原編排)、`backup-io(.native).ts`(平台檔案 IO:web 下載選檔/native 檔案+分享)
+- `src/data/` — `repository.ts`(介面+InMemory)、`db.native.ts`(expo-sqlite 實作+工廠)、`db.ts`(web InMemory 工廠;Metro 按平台選檔)、`migrations.ts`(介面注入可測;每版一交易+PRAGMA user_version;**真 SQLite 整合測試**以 better-sqlite3 轉接覆蓋)、`prize-source.ts`(獎號公告頁抓取)、`carrier-source.ts`(載具 carrierInvChk 查詢+正規化;皆 fetcher 可注入)、`backup.ts`(快照/還原編排)、`backup-io(.native).ts`(平台檔案 IO:web 下載選檔/native 檔案+分享)
 - `src/state/` — `ledgerStore.ts`(帳戶/交易 CRUD,guard() 防護:錯誤寫 error 狀態不外拋;web 開發模式暴露 `window.__moneycareStore`)、`loanStore.ts`(貸款 CRUD)、`invoiceStore.ts`(發票 CRUD+獎號快取載入+載具欄位)、`assetStore.ts`(資產 CRUD+估值追加)、`budgetStore.ts`(預算 upsert)、`recurringStore.ts`(定期 CRUD+必經確認)、`notificationStore.ts`(貼上解析→待確認草稿)、`carrierStore.ts`(載具憑證+同步本期)、`settings.ts`(Zustand+AsyncStorage persist,僅語言)
 - `src/app/` — expo-router:`(tabs)/` 七分頁(index=今天、loans=貸款、accounts、stats、invoice=發票、assets=資產、settings);Repository 在 `(tabs)/_layout.tsx` 統一 attach+bootstrap
 - `src/components/` — `ui/`(Card/Segmented/BottomSheet/EmptyState/Icon)+ `ledger/`(TxnSheet/TxnRow/AccountSheet/LoanSheet/LoanDetailSheet)+ ErrorBanner
@@ -54,10 +54,10 @@ npm run verify         # lint+typecheck+test(同 CI)
 - 新增純邏輯一律配 Jest 單元測試;repo 類邏輯以介面注入(InMemory)可測;migration 測試斷言交易順序(PRAGMA user_version)
 - Windows 環境教訓(沿用 TIME-Management):Jest `testTimeout: 15000`(並行負載逾時 flake);**含中文的 .ps1 一律以 pwsh 7 執行**(WinPS 5.1 誤讀 UTF-8 為 CP950 會靜默漏行);**中文檔案寫入後必掃 U+FFFD、掃淨才 commit**(P0 建案實測 5 處損壞,其中 1 處由測試如實揪出);`formatCents` 勿依賴 Intl 貨幣符號(zh-TW ICU 對本幣 TWD 呈現裸 `$`)
 
-## 待辦排隊(2026-11-25 收尾歸檔)
+## 待辦排隊(2026-11-25 收尾歸檔·第三輪)
 
-- **待維護者解鎖**:P5 載具真機補驗(**卡統編→申請 appID**)、P6 批次二 Gmail(**卡 Google OAuth client**)、TestFlight 首建(**卡 Apple Developer 申請+`eas login`**,見 `docs/RELEASE.md`)
-- **工程項**:統計頁 RNTL(畫面層最後一塊,其餘六分頁已有)、真機 Expo Go 驗證 SQLite 路徑
+- **待維護者解鎖**:P5 載具真機補驗(**卡統編→申請 appID**)、P6 批次二 Gmail(**卡 Google OAuth client**)、TestFlight 首建(**卡 Apple Developer 申請+`eas login`**,見 `docs/RELEASE.md`)、**真機裝置檢查**(host 側 SQLite 整合測試 ✅;裝置側按 `docs/DEVICE-CHECK.md` 七項清單執行)
 - **暫緩(維護者 2026-11-25)**:Uniconsign 套件依賴化——與 TIME-Management 同步策略,`tokens.json`/`icon.tsx` 維持手動同步
 - **收樣本中**:CSV 各家銀行 preset
+- 測試工程:畫面層七分頁 RNTL ✅、表單層 ✅、SQLite 整合(better-sqlite3 真引擎)✅——**工程項全清**,僅餘裝置檢查
 - 完整清單(產品優化候選+技術債):`docs/PLAN.md` §「待辦與優化清單」

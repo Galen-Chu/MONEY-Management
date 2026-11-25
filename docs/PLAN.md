@@ -67,7 +67,8 @@
 - **P5 載具發票查詢**:查詢參數 golden(同月窗 yyyy/MM/dd、時戳+300s、swagger 對齊)+正規化(invPeriod 雙數月→奇數起始月、民國日期物件→ISO、金額字串→分)+同號同期去重(跨月/再同步/手動重複)+noSettings/noAppID/api 錯誤碼+migration v9;發票頁載具卡+同步+轉交易;**實際連線待 appID 核發後真機補驗**
 - **表單層 RNTL**:TxnSheet/AccountSheet 11 測(驗證訊息/類型切換/轉帳雙戶/同帳戶錯誤/preset/編輯/errInUse 擋刪);overlapping-act 教訓固化(互動包 `await act(async ...)`)
 - **深色模式(P0.6 批次三)**:雙盤 parity 測試+Provider 深淺覆寫;27 檔全量遷移 makeStyles(c);外觀設定(跟隨系統/淺色/深色)持久化;`userInterfaceStyle: automatic`、StatusBar 隨模式
-- **品質**:verify **207/207** 全綠(35 suites;本日 +58 測);CJK 雙閘門與 FFFD 掃描持續把關(本日實抓 1 起 Write 落盤損壞並修復)
+- **測試工程收口(第三輪,2026-11-25)**:統計頁 RNTL 4 測(畫面層七分頁齊);**SQLite 整合測試 5 測**(better-sqlite3 轉接 expo-sqlite:真引擎 v0→v9/v8→v9 ALTER 升級 default manual/全 repo CRUD/憑證與草稿可空欄往返);真機手冊 `docs/DEVICE-CHECK.md` 備妥
+- **品質**:verify **216/216** 全綠(36 suites;本日 +67 測);CJK 雙閘門與 FFFD 掃描持續把關(本日實抓 1 起 Write 落盤損壞並修復)
 
 ---
 
@@ -206,8 +207,8 @@
 | 項目 | 說明 | 備註 |
 |---|---|---|
 | 表單層測試 | ✅ 2026-11-25:TxnSheet/AccountSheet RNTL——驗證訊息(金額/分類/同帳戶/名稱/期初)、類型切換(收入集/轉帳雙戶分支)、preset 預填、編輯+errInUse 擋刪 | async render 下互動包 `await act(async ...)`(overlapping act 教訓) |
-| 畫面層測試 | 六分頁 RNTL 已有(今天/帳戶/發票/貸款/資產/設定);**統計頁待補**(空狀態/摘要卡/預算列) | |
-| 真機驗證 | Expo Go 實測 native SQLite 路徑(SQLite repo 僅單元覆蓋,migration/CRUD 未真機跑過) | 比照 TIME 的 dev client 待辦模式 |
+| 畫面層測試 | ✅ 2026-11-25:七分頁 RNTL 齊(統計頁補上——空狀態/三卡/分類列/預算摘要超支/月導覽) | |
+| 真機驗證 | **host 側 ✅ 2026-11-25**:SQLite 整合測試(better-sqlite3 轉接 expo-sqlite 介面)真引擎跑 v0→v9 遷移/v8→v9 ALTER 升級/全 repo CRUD;**裝置側待維護者**按 `docs/DEVICE-CHECK.md` 清單執行 | 手冊已備 |
 | web 走查腳本 | Selenium 腳本(比照 TIME `scripts/*-walkthrough.py`;`window.__moneycareStore` 鉤子已備) | |
 | web 資料持久化 | InMemory→IndexedDB(若 web 成為正式交付目標) | 現況已知限制,同 TIME |
 | SDK 58 升級批 | expo 58 轉正後一次升級(比照 TIME 依賴保鮮流程:改範圍+全新解析) | 58 目前仍在 next |
