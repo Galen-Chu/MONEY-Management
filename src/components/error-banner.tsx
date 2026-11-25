@@ -1,5 +1,5 @@
 /**
- * 頂部錯誤橫幅:danger 底白字 + 關閉鈕;合併呈現 ledger/loan/invoice/asset 四 store 的 error。
+ * 頂部錯誤橫幅:danger 底白字 + 關閉鈕;合併呈現各 store 的 error。
  */
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +9,7 @@ import { useLedgerStore } from '../state/ledgerStore';
 import { useLoanStore } from '../state/loanStore';
 import { useInvoiceStore } from '../state/invoiceStore';
 import { useAssetStore } from '../state/assetStore';
+import { useBudgetStore } from '../state/budgetStore';
 import { Icon } from './ui/icon';
 
 export function ErrorBanner() {
@@ -21,7 +22,9 @@ export function ErrorBanner() {
   const clearInvoiceError = useInvoiceStore((s) => s.clearError);
   const assetError = useAssetStore((s) => s.error);
   const clearAssetError = useAssetStore((s) => s.clearError);
-  const error = ledgerError ?? loanError ?? invoiceError ?? assetError;
+  const budgetError = useBudgetStore((s) => s.error);
+  const clearBudgetError = useBudgetStore((s) => s.clearError);
+  const error = ledgerError ?? loanError ?? invoiceError ?? assetError ?? budgetError;
   if (!error) return null;
 
   const clearError = () => {
@@ -29,6 +32,7 @@ export function ErrorBanner() {
     clearLoanError();
     clearInvoiceError();
     clearAssetError();
+    clearBudgetError();
   };
 
   return (

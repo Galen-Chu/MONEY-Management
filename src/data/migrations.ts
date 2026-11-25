@@ -91,6 +91,13 @@ export const MIGRATIONS: readonly string[] = [
   CREATE INDEX IF NOT EXISTS idx_valuations_asset ON asset_valuations(assetId);
   CREATE INDEX IF NOT EXISTS idx_valuations_date ON asset_valuations(date);
   `,
+  // v6:budgets(分類月預算)
+  `
+  CREATE TABLE IF NOT EXISTS budgets (
+    category TEXT PRIMARY KEY NOT NULL,
+    amountCents INTEGER NOT NULL
+  );
+  `,
 ];
 
 /** 依 PRAGMA user_version 依序套用未執行的 migration(冪等);回傳本次套用版數 */

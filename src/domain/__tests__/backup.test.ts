@@ -10,6 +10,7 @@ import {
 import type { Account, Txn } from '../ledger';
 import type { Loan } from '../loan';
 import type { Asset, AssetValuation } from '../asset';
+import type { Budget } from '../budget';
 
 const NOW = new Date('2026-11-24T08:30:00');
 
@@ -39,9 +40,11 @@ const valuations: AssetValuation[] = [
   { id: 'v1', assetId: 'as1', date: '2026-01-31', valueCents: 10_000_000_00, createdAt: 5 },
 ];
 
+const budgets: Budget[] = [{ category: 'food', amountCents: 100_000 }];
+
 describe('備份往返', () => {
   it('build → serialize → parse → 內容一致(深層相等、不共享參考)', () => {
-    const data = buildBackupData(accounts, txns, loans, assets, valuations, NOW);
+    const data = buildBackupData(accounts, txns, loans, assets, valuations, budgets, NOW);
     expect(data.version).toBe(BACKUP_VERSION);
     expect(data.exportedAt).toBe(NOW.toISOString());
     const parsed = parseBackup(serializeBackup(data));
@@ -52,12 +55,12 @@ describe('備份往返', () => {
   });
 
   it('序列化鍵序穩定(同輸入同輸出)', () => {
-    const a = serializeBackup(buildBackupData(accounts, txns, loans, assets, valuations, NOW));
-    const b = serializeBackup(buildBackupData(accounts, txns, loans, assets, valuations, NOW));
+    const a = serializeBackup(buildBackupData(accounts, txns, loans, assets, valuations, budgets, NOW));
+    const b = serializeBackup(buildBackupData(accounts, txns, loans, assets, valuations, budgets, NOW));
     expect(a).toBe(b);
   });
 
-  it('舊版備份(無 assets/valuations 欄位)→ 空陣列相容', () => {
+  it('舊版備份(無 assets/valuations/budgets 欄位)→ 空陣列相容', () => {
     const legacy = {
       app: 'moneycare',
       version: 1,
@@ -71,12 +74,13 @@ describe('備份往返', () => {
     if (parsed.ok) {
       expect(parsed.data.assets).toEqual([]);
       expect(parsed.data.valuations).toEqual([]);
+      expect(parsed.data.budgets).toEqual([]);
     }
   });
 });
 
 describe('parseBackup 驗證', () => {
-  const base = () => buildBackupData(accounts, txns, loans, assets, valuations, NOW);
+  const base = () => buildBackupData(accounts, txns, loans, assets, valuations, budgets, NOW);
 
   it('非 JSON → format', () => {
     expect(parseBackup('not json')).toEqual({ ok: false, error: 'format' });

@@ -7,6 +7,7 @@ import type { Account, Txn } from '../domain/ledger';
 import type { Loan } from '../domain/loan';
 import type { Invoice, PrizeNumbers } from '../domain/invoice';
 import type { Asset, AssetValuation } from '../domain/asset';
+import type { Budget } from '../domain/budget';
 
 export interface AccountRepository {
   list(): Promise<Account[]>;
@@ -54,6 +55,12 @@ export interface ValuationRepository {
   removeByAsset(assetId: string): Promise<void>;
 }
 
+export interface BudgetRepository {
+  list(): Promise<Budget[]>;
+  upsert(budget: Budget): Promise<void>;
+  remove(category: string): Promise<void>;
+}
+
 /** 平台工廠(db.ts / db.native.ts)回傳的組合 */
 export interface Repositories {
   accounts: AccountRepository;
@@ -63,6 +70,7 @@ export interface Repositories {
   prizes: PrizeRepository;
   assets: AssetRepository;
   valuations: ValuationRepository;
+  budgets: BudgetRepository;
 }
 
 export class InMemoryAccountRepository implements AccountRepository {
@@ -215,5 +223,25 @@ export class InMemoryValuationRepository implements ValuationRepository {
 
   async removeByAsset(assetId: string): Promise<void> {
     this.items = this.items.filter((v) => v.assetId !== assetId);
+  }
+}
+
+export class InMemoryBudgetRepository implements BudgetRepository {
+  private items = new Map<string, Budget>();
+
+  constructor(seed: Budget[] = []) {
+    for (const b of seed) this.items.set(b.category, { ...b });
+  }
+
+  async list(): Promise<Budget[]> {
+    return [...this.items.values()].map((b) => ({ ...b }));
+  }
+
+  async upsert(budget: Budget): Promise<void> {
+    this.items.set(budget.category, { ...budget });
+  }
+
+  async remove(category: string): Promise<void> {
+    this.items.delete(category);
   }
 }

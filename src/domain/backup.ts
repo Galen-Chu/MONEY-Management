@@ -6,6 +6,8 @@
 import type { Account, Txn } from './ledger';
 import type { Loan } from './loan';
 import type { Asset, AssetValuation } from './asset';
+import { EXPENSE_CATEGORIES } from './categories';
+import type { Budget } from './budget';
 
 export const BACKUP_VERSION = 1;
 
@@ -17,9 +19,10 @@ export interface BackupData {
   accounts: Account[];
   txns: Txn[];
   loans: Loan[];
-  /** v1 後期欄位——舊備份無此二陣列時視為空(向前相容) */
+  /** v1 後期欄位——舊備份無此等陣列時視為空(向前相容) */
   assets: Asset[];
   valuations: AssetValuation[];
+  budgets: Budget[];
 }
 
 export function buildBackupData(
@@ -28,6 +31,7 @@ export function buildBackupData(
   loans: Loan[],
   assets: Asset[],
   valuations: AssetValuation[],
+  budgets: Budget[],
   now: Date = new Date()
 ): BackupData {
   return {
@@ -39,6 +43,7 @@ export function buildBackupData(
     loans: loans.map((l) => ({ ...l })),
     assets: assets.map((a) => ({ ...a })),
     valuations: valuations.map((v) => ({ ...v })),
+    budgets: budgets.map((b) => ({ ...b })),
   };
 }
 
@@ -125,6 +130,7 @@ export function parseBackup(text: string): BackupParseResult {
   }
   const rawAssets = Array.isArray(raw.assets) ? raw.assets : [];
   const rawValuations = Array.isArray(raw.valuations) ? raw.valuations : [];
+  const rawBudgets = Array.isArray(raw.budgets) ? raw.budgets : [];
   for (const a of rawAssets) {
     if (!isObj(a) || !str(a.id) || !str(a.name) || !oneOf(a.type, ASSET_TYPES) || !int(a.createdAt) || !int(a.updatedAt)) {
       return { ok: false, error: 'format' };
@@ -135,8 +141,13 @@ export function parseBackup(text: string): BackupParseResult {
       return { ok: false, error: 'format' };
     }
   }
+  for (const b of rawBudgets) {
+    if (!isObj(b) || !oneOf(b.category, EXPENSE_CATEGORIES as readonly string[]) || !int(b.amountCents) || b.amountCents <= 0) {
+      return { ok: false, error: 'format' };
+    }
+  }
   return {
     ok: true,
-    data: { ...(raw as unknown as BackupData), assets: rawAssets, valuations: rawValuations },
+    data: { ...(raw as unknown as BackupData), assets: rawAssets, valuations: rawValuations, budgets: rawBudgets },
   };
 }

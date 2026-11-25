@@ -12,6 +12,7 @@ import { ErrorBanner } from '../../components/error-banner';
 import { Icon, type IconName } from '../../components/ui/icon';
 import { createRepositories } from '../../data/db';
 import { useAssetStore } from '../../state/assetStore';
+import { useBudgetStore } from '../../state/budgetStore';
 import { useInvoiceStore } from '../../state/invoiceStore';
 import { useLedgerStore } from '../../state/ledgerStore';
 import { useLoanStore } from '../../state/loanStore';
@@ -39,11 +40,13 @@ export default function TabsLayout() {
         useLoanStore.getState().attach(repos.loans);
         useInvoiceStore.getState().attach(repos.invoices, repos.prizes);
         useAssetStore.getState().attach(repos.assets, repos.valuations);
+        useBudgetStore.getState().attach(repos.budgets);
         await Promise.all([
           useLedgerStore.getState().bootstrap(),
           useLoanStore.getState().bootstrap(),
           useInvoiceStore.getState().bootstrap(),
           useAssetStore.getState().bootstrap(),
+          useBudgetStore.getState().bootstrap(),
         ]);
       } catch (e) {
         useLedgerStore.setState({ error: e instanceof Error ? e.message : String(e) });

@@ -8,6 +8,7 @@ import type { Account, Txn } from '../domain/ledger';
 import type { Loan } from '../domain/loan';
 import type { Invoice, PrizeNumbers } from '../domain/invoice';
 import type { Asset, AssetValuation } from '../domain/asset';
+import type { Budget } from '../domain/budget';
 import type {
   AccountRepository,
   TxnRepository,
@@ -16,6 +17,7 @@ import type {
   PrizeRepository,
   AssetRepository,
   ValuationRepository,
+  BudgetRepository,
   Repositories,
 } from './repository';
 import { applyMigrations } from './migrations';
@@ -259,6 +261,29 @@ export class SqliteValuationRepository implements ValuationRepository {
   }
 }
 
+export class SqliteBudgetRepository implements BudgetRepository {
+  constructor(private db: SQLite.SQLiteDatabase) {}
+
+  async list(): Promise<Budget[]> {
+    const rows = await this.db.getAllAsync<{ category: string; amountCents: number }>(
+      'SELECT * FROM budgets ORDER BY category'
+    );
+    return rows.map((r) => ({ category: r.category as Budget['category'], amountCents: r.amountCents }));
+  }
+
+  async upsert(b: Budget): Promise<void> {
+    await this.db.runAsync(
+      `INSERT INTO budgets (category, amountCents) VALUES (?,?)
+       ON CONFLICT(category) DO UPDATE SET amountCents=excluded.amountCents`,
+      [b.category, b.amountCents]
+    );
+  }
+
+  async remove(category: string): Promise<void> {
+    await this.db.runAsync('DELETE FROM budgets WHERE category=?', [category]);
+  }
+}
+
 let cached: Repositories | null = null;
 
 /** Repository 工廠(native):expo-sqlite 開庫 + migration(冪等) */
@@ -275,6 +300,7 @@ export async function createRepositories(): Promise<Repositories> {
     prizes: new SqlitePrizeRepository(db),
     assets: new SqliteAssetRepository(db),
     valuations: new SqliteValuationRepository(db),
+    budgets: new SqliteBudgetRepository(db),
   };
   return cached;
 }

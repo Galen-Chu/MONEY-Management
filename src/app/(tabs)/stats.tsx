@@ -1,18 +1,21 @@
 /**
- * 統計分頁:月份導覽(‹ ›)→ 收/支/淨三卡 + 支出分類長條(百分比,分類色)
- * + 現金流趨勢(近 12 個月,收/支雙長條+淨額)。
+ * 統計分頁:月份導覽(‹ ›)→ 收/支/淨三卡 + 分類月預算摘要(有設預算時)
+ * + 支出分類長條(有預算者顯示 用量/預算,超支轉紅)+ 現金流趨勢 + 淨值趨勢。
  */
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
+import { BudgetSheet } from '../../components/ledger/budget-sheet';
 import { EmptyState } from '../../components/ui/empty-state';
 import { CATEGORY_COLORS, categoryLabelKey } from '../../domain/categories';
+import { budgetUsages, totalBudgetUsage } from '../../domain/budget';
 import { netWorthTrend } from '../../domain/asset';
 import { categoryTotals, monthOf, monthTotals, monthlyCashflow, shiftMonth, todayKey } from '../../domain/ledger';
 import { formatCents } from '../../domain/money';
 import { formatMonthLabel } from '../../i18n/format';
 import { useAssetStore } from '../../state/assetStore';
+import { useBudgetStore } from '../../state/budgetStore';
 import { useLedgerStore } from '../../state/ledgerStore';
 import { useLoanStore } from '../../state/loanStore';
 import { currentLanguage, useSettings } from '../../state/settings';
@@ -27,8 +30,10 @@ export default function StatsScreen() {
   const loans = useLoanStore((s) => s.loans);
   const assets = useAssetStore((s) => s.assets);
   const valuations = useAssetStore((s) => s.valuations);
+  const budgets = useBudgetStore((s) => s.budgets);
 
   const [month, setMonth] = useState(() => monthOf(todayKey()));
+  const [budgetSheetVisible, setBudgetSheetVisible] = useState(false);
 
   const monthTxns = useMemo(() => txns.filter((x) => monthOf(x.date) === month), [txns, month]);
   const totals = useMemo(() => monthTotals(monthTxns), [monthTxns]);
@@ -37,6 +42,11 @@ export default function StatsScreen() {
     [monthTxns]
   );
   const maxCat = cats[0]?.amountCents ?? 1;
+  const totalBudget = useMemo(() => totalBudgetUsage(budgets, txns, month), [budgets, txns, month]);
+  const usageByCat = useMemo(
+    () => new Map(budgetUsages(budgets, txns, month).map((u) => [u.category, u])),
+    [budgets, txns, month]
+  );
   const cashflow = useMemo(() => monthlyCashflow(txns, month), [txns, month]);
   const maxFlow = Math.max(1, ...cashflow.map((m) => Math.max(m.incomeCents, m.expenseCents)));
   const trend = useMemo(
@@ -69,20 +79,60 @@ export default function StatsScreen() {
         />
       </View>
 
-      <Text style={styles.section}>{t('stats.byCategory')}</Text>
+      {totalBudget ? (
+        <View style={styles.budgetCard}>
+          <View style={styles.budgetHead}>
+            <Text style={styles.budgetLabel}>{t('budgets.summary')}</Text>
+            <Text style={[styles.budgetValue, totalBudget.over && { color: color.expense }]}>
+              {formatCents(totalBudget.spentCents, lang)} / {formatCents(totalBudget.budgetCents, lang)}
+            </Text>
+          </View>
+          <View style={styles.budgetTrack}>
+            <View
+              style={[
+                styles.budgetBar,
+                {
+                  width: `${Math.min(100, totalBudget.pct)}%`,
+                  backgroundColor: totalBudget.over ? color.expense : totalBudget.warning ? color.warning : color.accent,
+                },
+              ]}
+            />
+          </View>
+          {totalBudget.over ? <Text style={styles.budgetOver}>{t('budgets.over')}</Text> : null}
+        </View>
+      ) : null}
+
+      <View style={styles.sectionRow}>
+        <Text style={styles.section}>{t('stats.byCategory')}</Text>
+        <Pressable accessibilityRole="button" onPress={() => setBudgetSheetVisible(true)} style={styles.budgetEditBtn}>
+          <Text style={styles.budgetEditBtnText}>{t('budgets.edit')}</Text>
+        </Pressable>
+      </View>
       {cats.length === 0 ? (
         <EmptyState emoji="🧾" title={t('stats.noData')} body="" />
       ) : (
         cats.map((c) => {
-          const pct = Math.round((c.amountCents / maxCat) * 100);
+          const usage = usageByCat.get(c.category);
+          const barPct = usage ? Math.min(100, usage.pct) : Math.round((c.amountCents / maxCat) * 100);
+          const barColor = usage
+            ? usage.over
+              ? color.expense
+              : usage.warning
+                ? color.warning
+                : CATEGORY_COLORS[c.category]
+            : CATEGORY_COLORS[c.category];
           return (
             <View key={c.category} style={styles.catRow}>
               <View style={[styles.catDot, { backgroundColor: CATEGORY_COLORS[c.category] }]} />
               <Text style={styles.catLabel}>{t(categoryLabelKey(c.category))}</Text>
               <View style={styles.catTrack}>
-                <View style={[styles.catBar, { backgroundColor: CATEGORY_COLORS[c.category], width: `${pct}%` }]} />
+                <View style={[styles.catBar, { backgroundColor: barColor, width: `${barPct}%` }]} />
               </View>
-              <Text style={styles.catAmount}>{formatCents(c.amountCents, lang)}</Text>
+              <Text style={[styles.catAmount, usage?.over && { color: color.expense }]}>
+                {usage
+                  ? `${formatCents(usage.spentCents, lang)} / ${formatCents(usage.budgetCents, lang)}`
+                  : formatCents(c.amountCents, lang)}
+              </Text>
             </View>
           );
         })
@@ -137,6 +187,8 @@ export default function StatsScreen() {
           );
         })}
       </View>
+
+      <BudgetSheet visible={budgetSheetVisible} onClose={() => setBudgetSheetVisible(false)} />
     </ScrollView>
   );
 }
@@ -215,6 +267,63 @@ const styles = StyleSheet.create({
     fontFamily: font.family.bold,
     color: color.ink,
     marginTop: 8,
+  },
+  sectionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  budgetEditBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radius.chip,
+    backgroundColor: color.accentSoft,
+    borderWidth: 1,
+    borderColor: color.accent,
+    marginTop: 8,
+  },
+  budgetEditBtnText: {
+    fontSize: font.size.tiny,
+    color: color.accentDeep,
+    fontFamily: font.family.semibold,
+  },
+  budgetCard: {
+    backgroundColor: color.surface,
+    borderRadius: radius.row,
+    borderWidth: 1,
+    borderColor: color.line,
+    padding: 12,
+    gap: 8,
+  },
+  budgetHead: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  budgetLabel: {
+    fontSize: font.size.small,
+    color: color.inkSecondary,
+  },
+  budgetValue: {
+    fontSize: font.size.body,
+    color: color.ink,
+    fontFamily: font.family.bold,
+    fontVariant: ['tabular-nums'],
+  },
+  budgetTrack: {
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: color.track,
+    overflow: 'hidden',
+  },
+  budgetBar: {
+    height: 8,
+    borderRadius: 4,
+  },
+  budgetOver: {
+    fontSize: font.size.tiny,
+    color: color.expense,
+    fontFamily: font.family.semibold,
   },
   catRow: {
     flexDirection: 'row',

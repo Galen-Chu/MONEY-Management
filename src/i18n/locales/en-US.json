@@ -108,6 +108,14 @@
     "emptyTitle": "No loans yet",
     "emptyBody": "Add a mortgage, auto, or personal loan to track amortization and run simulations."
   },
+  "budgets": {
+    "title": "Category budgets",
+    "edit": "Edit budgets",
+    "noneHint": "Monthly amount; leave blank for no budget",
+    "summary": "Budget this month",
+    "over": "Over budget",
+    "errAmount": "Budget must be greater than 0"
+  },
   "import": {
     "title": "Import from CSV",
     "hint": "UTF-8 CSV (comma/tab); debit+credit columns or a signed amount column; Gregorian or ROC dates",

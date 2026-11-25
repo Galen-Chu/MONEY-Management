@@ -14,6 +14,7 @@ import { ImportSheet } from '../../components/ledger/import-sheet';
 import { parseBackup, serializeBackup } from '../../domain/backup';
 import type { Language } from '../../i18n';
 import { useAssetStore } from '../../state/assetStore';
+import { useBudgetStore } from '../../state/budgetStore';
 import { useLedgerStore } from '../../state/ledgerStore';
 import { useLoanStore } from '../../state/loanStore';
 import { useInvoiceStore } from '../../state/invoiceStore';
@@ -36,6 +37,7 @@ export default function SettingsScreen() {
   const loans = useLoanStore((s) => s.loans);
   const assets = useAssetStore((s) => s.assets);
   const valuations = useAssetStore((s) => s.valuations);
+  const budgets = useBudgetStore((s) => s.budgets);
 
   const [status, setStatus] = useState<Status | null>(null);
   const [confirmImport, setConfirmImport] = useState(false);
@@ -45,7 +47,7 @@ export default function SettingsScreen() {
   async function onExport() {
     try {
       const ok = await shareBackupFile(
-        serializeBackup(collectBackupData(accounts, txns, loans, assets, valuations))
+        serializeBackup(collectBackupData(accounts, txns, loans, assets, valuations, budgets))
       );
       setStatus(ok ? { kind: 'ok', text: t('settings.exportDone') } : { kind: 'err', text: t('settings.errExport') });
     } catch {
@@ -87,6 +89,7 @@ export default function SettingsScreen() {
         useLoanStore.getState().bootstrap(),
         useInvoiceStore.getState().bootstrap(),
         useAssetStore.getState().bootstrap(),
+        useBudgetStore.getState().bootstrap(),
       ]);
       setStatus({
         kind: 'ok',

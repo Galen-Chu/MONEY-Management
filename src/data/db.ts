@@ -5,6 +5,7 @@
 import {
   InMemoryAccountRepository,
   InMemoryAssetRepository,
+  InMemoryBudgetRepository,
   InMemoryInvoiceRepository,
   InMemoryLoanRepository,
   InMemoryPrizeRepository,
@@ -27,6 +28,7 @@ export async function createRepositories(): Promise<Repositories> {
     prizes: new InMemoryPrizeRepository(),
     assets: new InMemoryAssetRepository(),
     valuations: new InMemoryValuationRepository(),
+    budgets: new InMemoryBudgetRepository(),
   };
   return cached;
 }
