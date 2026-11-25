@@ -7,6 +7,7 @@ import type { Account, Txn } from '../domain/ledger';
 import type { Loan } from '../domain/loan';
 import type { Asset, AssetValuation } from '../domain/asset';
 import type { Budget } from '../domain/budget';
+import type { RecurringTxn } from '../domain/recurring';
 import type { Repositories } from './repository';
 
 export function collectBackupData(
@@ -15,19 +16,21 @@ export function collectBackupData(
   loans: Loan[],
   assets: Asset[],
   valuations: AssetValuation[],
-  budgets: Budget[]
+  budgets: Budget[],
+  recurring: RecurringTxn[]
 ): BackupData {
-  return buildBackupData(accounts, txns, loans, assets, valuations, budgets);
+  return buildBackupData(accounts, txns, loans, assets, valuations, budgets, recurring);
 }
 
 /** 還原:清空現有資料後整批寫入備份內容 */
 export async function restoreBackup(repos: Repositories, data: BackupData): Promise<void> {
-  const [accs, txns, loans, assets, budgets] = await Promise.all([
+  const [accs, txns, loans, assets, budgets, recurring] = await Promise.all([
     repos.accounts.list(),
     repos.txns.listAll(),
     repos.loans.list(),
     repos.assets.list(),
     repos.budgets.list(),
+    repos.recurring.list(),
   ]);
   await Promise.all([
     ...accs.map((a) => repos.accounts.remove(a.id)),
@@ -36,6 +39,7 @@ export async function restoreBackup(repos: Repositories, data: BackupData): Prom
     ...assets.map((a) => repos.valuations.removeByAsset(a.id)),
     ...assets.map((a) => repos.assets.remove(a.id)),
     ...budgets.map((b) => repos.budgets.remove(b.category)),
+    ...recurring.map((r) => repos.recurring.remove(r.id)),
   ]);
   await Promise.all([
     ...data.accounts.map((a) => repos.accounts.insert(a)),
@@ -44,5 +48,6 @@ export async function restoreBackup(repos: Repositories, data: BackupData): Prom
     ...data.assets.map((a) => repos.assets.insert(a)),
     ...data.valuations.map((v) => repos.valuations.insert(v)),
     ...data.budgets.map((b) => repos.budgets.upsert(b)),
+    ...data.recurring.map((r) => repos.recurring.insert(r)),
   ]);
 }

@@ -9,6 +9,7 @@ import type { Loan } from '../domain/loan';
 import type { Invoice, PrizeNumbers } from '../domain/invoice';
 import type { Asset, AssetValuation } from '../domain/asset';
 import type { Budget } from '../domain/budget';
+import type { RecurringTxn } from '../domain/recurring';
 import type {
   AccountRepository,
   TxnRepository,
@@ -18,6 +19,7 @@ import type {
   AssetRepository,
   ValuationRepository,
   BudgetRepository,
+  RecurringRepository,
   Repositories,
 } from './repository';
 import { applyMigrations } from './migrations';
@@ -284,6 +286,42 @@ export class SqliteBudgetRepository implements BudgetRepository {
   }
 }
 
+interface RecurringRow {
+  id: string; type: string; amountCents: number; category: string; accountId: string;
+  dayOfMonth: number; note: string; lastHandledMonth: string | null; createdAt: number; updatedAt: number;
+}
+
+export class SqliteRecurringRepository implements RecurringRepository {
+  constructor(private db: SQLite.SQLiteDatabase) {}
+
+  async list(): Promise<RecurringTxn[]> {
+    const rows = await this.db.getAllAsync<RecurringRow>('SELECT * FROM recurring ORDER BY createdAt');
+    return rows.map((r) => ({
+      ...r,
+      type: r.type as RecurringTxn['type'],
+      category: r.category as RecurringTxn['category'],
+    }));
+  }
+
+  async insert(r: RecurringTxn): Promise<void> {
+    await this.db.runAsync(
+      'INSERT INTO recurring (id, type, amountCents, category, accountId, dayOfMonth, note, lastHandledMonth, createdAt, updatedAt) VALUES (?,?,?,?,?,?,?,?,?,?)',
+      [r.id, r.type, r.amountCents, r.category, r.accountId, r.dayOfMonth, r.note, r.lastHandledMonth, r.createdAt, r.updatedAt]
+    );
+  }
+
+  async update(r: RecurringTxn): Promise<void> {
+    await this.db.runAsync(
+      'UPDATE recurring SET type=?, amountCents=?, category=?, accountId=?, dayOfMonth=?, note=?, lastHandledMonth=?, updatedAt=? WHERE id=?',
+      [r.type, r.amountCents, r.category, r.accountId, r.dayOfMonth, r.note, r.lastHandledMonth, r.updatedAt, r.id]
+    );
+  }
+
+  async remove(id: string): Promise<void> {
+    await this.db.runAsync('DELETE FROM recurring WHERE id=?', [id]);
+  }
+}
+
 let cached: Repositories | null = null;
 
 /** Repository 工廠(native):expo-sqlite 開庫 + migration(冪等) */
@@ -301,6 +339,7 @@ export async function createRepositories(): Promise<Repositories> {
     assets: new SqliteAssetRepository(db),
     valuations: new SqliteValuationRepository(db),
     budgets: new SqliteBudgetRepository(db),
+    recurring: new SqliteRecurringRepository(db),
   };
   return cached;
 }

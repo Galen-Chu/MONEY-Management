@@ -11,10 +11,13 @@ import { TxnRow } from '../../components/ledger/txn-row';
 import { TxnSheet } from '../../components/ledger/txn-sheet';
 import { EmptyState } from '../../components/ui/empty-state';
 import { Icon } from '../../components/ui/icon';
+import { categoryLabelKey } from '../../domain/categories';
+import { dueDateOf, isDue } from '../../domain/recurring';
 import { groupByDate, monthOf, monthTotals, shiftMonth, todayKey, type Txn } from '../../domain/ledger';
 import { formatCents } from '../../domain/money';
 import { formatDayLabel, formatMonthLabel } from '../../i18n/format';
 import { useLedgerStore } from '../../state/ledgerStore';
+import { useRecurringStore } from '../../state/recurringStore';
 import { currentLanguage, useSettings } from '../../state/settings';
 import { color, font, radius } from '../../theme';
 
@@ -25,6 +28,9 @@ export default function TodayScreen() {
   const lang = currentLanguage(settings);
   const accounts = useLedgerStore((s) => s.accounts);
   const txns = useLedgerStore((s) => s.txns);
+  const recurringItems = useRecurringStore((s) => s.items);
+  const confirmRecurring = useRecurringStore((s) => s.confirm);
+  const skipRecurring = useRecurringStore((s) => s.skipThisMonth);
 
   const [sheetVisible, setSheetVisible] = useState(false);
   const [editing, setEditing] = useState<Txn | null>(null);
@@ -44,6 +50,10 @@ export default function TodayScreen() {
     const map = new Map(accounts.map((a) => [a.id, a.name]));
     return (id: string) => map.get(id) ?? '—';
   }, [accounts]);
+
+  const asOf = todayKey();
+  const thisMonth = monthOf(asOf);
+  const pending = recurringItems.filter((r) => isDue(r, asOf));
 
   return (
     <View style={styles.shell}>
@@ -85,6 +95,38 @@ export default function TodayScreen() {
           placeholderTextColor={color.inkMuted}
           autoCorrect={false}
         />
+
+        {pending.length > 0 ? (
+          <View style={styles.recurringCard}>
+            <Text style={styles.recurringTitle}>{t('recurring.pendingTitle')}</Text>
+            {pending.map((r) => (
+              <View key={r.id} style={styles.recurringRow}>
+                <View style={styles.recurringMain}>
+                  <Text style={styles.recurringNote}>{r.note.trim() || t(categoryLabelKey(r.category))}</Text>
+                  <Text style={styles.recurringSub}>
+                    {formatDayLabel(dueDateOf(r, thisMonth), lang)} · {nameOf(r.accountId)}
+                  </Text>
+                </View>
+                <Text style={[styles.recurringAmount, r.type === 'expense' && { color: color.expense }]}>
+                  {r.type === 'expense' ? '−' : '+'}
+                  {formatCents(r.amountCents, lang)}
+                </Text>
+                <View style={styles.recurringActions}>
+                  <Pressable
+                    accessibilityRole="button"
+                    style={styles.recurringConfirmBtn}
+                    onPress={() => void confirmRecurring(r.id)}
+                  >
+                    <Text style={styles.recurringConfirmText}>{t('recurring.confirm')}</Text>
+                  </Pressable>
+                  <Pressable accessibilityRole="button" onPress={() => void skipRecurring(r.id)} hitSlop={6}>
+                    <Text style={styles.recurringSkipText}>{t('recurring.skip')}</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ))}
+          </View>
+        ) : null}
 
         {groups.length === 0 ? (
           q ? (
@@ -192,6 +234,64 @@ const styles = StyleSheet.create({
     paddingVertical: 9,
     fontSize: font.size.body,
     color: color.ink,
+  },
+  recurringCard: {
+    backgroundColor: color.accentSoft,
+    borderRadius: radius.row,
+    borderWidth: 1,
+    borderColor: color.accent,
+    padding: 14,
+    gap: 10,
+  },
+  recurringTitle: {
+    fontSize: font.size.small,
+    color: color.accentDeep,
+    fontFamily: font.family.bold,
+  },
+  recurringRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  recurringMain: {
+    flex: 1,
+    gap: 2,
+  },
+  recurringNote: {
+    fontSize: font.size.body,
+    color: color.ink,
+    fontFamily: font.family.semibold,
+  },
+  recurringSub: {
+    fontSize: font.size.tiny,
+    color: color.inkSecondary,
+  },
+  recurringAmount: {
+    fontSize: font.size.body,
+    color: color.income,
+    fontFamily: font.family.bold,
+    fontVariant: ['tabular-nums'],
+  },
+  recurringActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  recurringConfirmBtn: {
+    backgroundColor: color.accent,
+    borderRadius: radius.button,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  recurringConfirmText: {
+    color: color.onBrand,
+    fontSize: font.size.small,
+    fontFamily: font.family.bold,
+  },
+  recurringSkipText: {
+    fontSize: font.size.small,
+    color: color.inkSecondary,
+    fontFamily: font.family.semibold,
   },
   summary: {
     flexDirection: 'row',

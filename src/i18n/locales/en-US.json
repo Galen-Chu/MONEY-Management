@@ -108,6 +108,24 @@
     "emptyTitle": "No loans yet",
     "emptyBody": "Add a mortgage, auto, or personal loan to track amortization and run simulations."
   },
+  "recurring": {
+    "title": "Recurring",
+    "add": "Add recurring",
+    "edit": "Edit recurring",
+    "manage": "Manage",
+    "day": "Day of month (1-31)",
+    "everyMonth": "Every month",
+    "dayUnit": "",
+    "pendingTitle": "Recurring due",
+    "confirm": "Confirm",
+    "skip": "Skip this month",
+    "errAmount": "Amount must be greater than 0",
+    "errCategory": "Choose a category",
+    "errAccount": "Choose an account",
+    "errDay": "Day must be 1-31",
+    "emptyTitle": "No recurring items",
+    "emptyBody": "Add rent or subscriptions; due items prompt here."
+  },
   "budgets": {
     "title": "Category budgets",
     "edit": "Edit budgets",

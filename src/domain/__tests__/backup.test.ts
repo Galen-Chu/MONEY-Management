@@ -11,6 +11,7 @@ import type { Account, Txn } from '../ledger';
 import type { Loan } from '../loan';
 import type { Asset, AssetValuation } from '../asset';
 import type { Budget } from '../budget';
+import type { RecurringTxn } from '../recurring';
 
 const NOW = new Date('2026-11-24T08:30:00');
 
@@ -42,9 +43,16 @@ const valuations: AssetValuation[] = [
 
 const budgets: Budget[] = [{ category: 'food', amountCents: 100_000 }];
 
+const recurring: RecurringTxn[] = [
+  {
+    id: 'r1', type: 'expense', amountCents: 15_000_00, category: 'housing', accountId: 'a1',
+    dayOfMonth: 5, note: '房租', lastHandledMonth: null, createdAt: 6, updatedAt: 6,
+  },
+];
+
 describe('備份往返', () => {
   it('build → serialize → parse → 內容一致(深層相等、不共享參考)', () => {
-    const data = buildBackupData(accounts, txns, loans, assets, valuations, budgets, NOW);
+    const data = buildBackupData(accounts, txns, loans, assets, valuations, budgets, recurring, NOW);
     expect(data.version).toBe(BACKUP_VERSION);
     expect(data.exportedAt).toBe(NOW.toISOString());
     const parsed = parseBackup(serializeBackup(data));
@@ -55,12 +63,12 @@ describe('備份往返', () => {
   });
 
   it('序列化鍵序穩定(同輸入同輸出)', () => {
-    const a = serializeBackup(buildBackupData(accounts, txns, loans, assets, valuations, budgets, NOW));
-    const b = serializeBackup(buildBackupData(accounts, txns, loans, assets, valuations, budgets, NOW));
+    const a = serializeBackup(buildBackupData(accounts, txns, loans, assets, valuations, budgets, recurring, NOW));
+    const b = serializeBackup(buildBackupData(accounts, txns, loans, assets, valuations, budgets, recurring, NOW));
     expect(a).toBe(b);
   });
 
-  it('舊版備份(無 assets/valuations/budgets 欄位)→ 空陣列相容', () => {
+  it('舊版備份(無後期欄位)→ 空陣列相容', () => {
     const legacy = {
       app: 'moneycare',
       version: 1,
@@ -75,12 +83,13 @@ describe('備份往返', () => {
       expect(parsed.data.assets).toEqual([]);
       expect(parsed.data.valuations).toEqual([]);
       expect(parsed.data.budgets).toEqual([]);
+      expect(parsed.data.recurring).toEqual([]);
     }
   });
 });
 
 describe('parseBackup 驗證', () => {
-  const base = () => buildBackupData(accounts, txns, loans, assets, valuations, budgets, NOW);
+  const base = () => buildBackupData(accounts, txns, loans, assets, valuations, budgets, recurring, NOW);
 
   it('非 JSON → format', () => {
     expect(parseBackup('not json')).toEqual({ ok: false, error: 'format' });

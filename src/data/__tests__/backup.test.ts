@@ -6,6 +6,7 @@ import {
   InMemoryInvoiceRepository,
   InMemoryLoanRepository,
   InMemoryPrizeRepository,
+  InMemoryRecurringRepository,
   InMemoryTxnRepository,
   InMemoryValuationRepository,
   type Repositories,
@@ -16,6 +17,7 @@ import type { Account, Txn } from '../../domain/ledger';
 import type { Loan } from '../../domain/loan';
 import type { Asset, AssetValuation } from '../../domain/asset';
 import type { Budget } from '../../domain/budget';
+import type { RecurringTxn } from '../../domain/recurring';
 
 const accounts: Account[] = [{ id: 'a1', name: '現金', type: 'cash', initialCents: 100_000, createdAt: 1 }];
 const txns: Txn[] = [
@@ -37,6 +39,13 @@ const valuations: AssetValuation[] = [
 ];
 const budgets: Budget[] = [{ category: 'food', amountCents: 100_000 }];
 
+const recurring: RecurringTxn[] = [
+  {
+    id: 'r1', type: 'expense', amountCents: 15_000_00, category: 'housing', accountId: 'a1',
+    dayOfMonth: 5, note: '房租', lastHandledMonth: null, createdAt: 6, updatedAt: 6,
+  },
+];
+
 function makeRepos(seed: { seedAccounts?: Account[] }): Repositories {
   return {
     accounts: new InMemoryAccountRepository(seed.seedAccounts ?? []),
@@ -47,12 +56,13 @@ function makeRepos(seed: { seedAccounts?: Account[] }): Repositories {
     assets: new InMemoryAssetRepository(),
     valuations: new InMemoryValuationRepository(),
     budgets: new InMemoryBudgetRepository(),
+    recurring: new InMemoryRecurringRepository(),
   };
 }
 
 describe('collectBackupData', () => {
   it('快照含各表與版本', () => {
-    const data = collectBackupData(accounts, txns, loans, assets, valuations, budgets);
+    const data = collectBackupData(accounts, txns, loans, assets, valuations, budgets, recurring);
     expect(data).toMatchObject({ app: 'moneycare', version: 1 });
     expect(data.accounts).toHaveLength(1);
     expect(data.txns).toHaveLength(1);
@@ -60,6 +70,7 @@ describe('collectBackupData', () => {
     expect(data.assets).toHaveLength(1);
     expect(data.valuations).toHaveLength(1);
     expect(data.budgets).toHaveLength(1);
+    expect(data.recurring).toHaveLength(1);
   });
 });
 
@@ -73,17 +84,22 @@ describe('restoreBackup', () => {
     await repos.assets.insert({ id: 'old-as', name: '舊資產', type: 'other', createdAt: 9, updatedAt: 9 });
     await repos.valuations.insert({ id: 'old-v', assetId: 'old-as', date: '2026-01-01', valueCents: 1, createdAt: 9 });
     await repos.budgets.upsert({ category: 'food', amountCents: 1 });
-    const backup = buildBackupData(accounts, txns, loans, assets, valuations, budgets);
+    await repos.recurring.insert({
+      id: 'old-r', type: 'expense', amountCents: 1, category: 'other', accountId: 'old',
+      dayOfMonth: 1, note: '', lastHandledMonth: null, createdAt: 9, updatedAt: 9,
+    });
+    const backup = buildBackupData(accounts, txns, loans, assets, valuations, budgets, recurring);
 
     await restoreBackup(repos, backup);
 
-    const [accs, txnList, loanList, assetList, valList, budgetList] = await Promise.all([
+    const [accs, txnList, loanList, assetList, valList, budgetList, recurringList] = await Promise.all([
       repos.accounts.list(),
       repos.txns.listAll(),
       repos.loans.list(),
       repos.assets.list(),
       repos.valuations.listAll(),
       repos.budgets.list(),
+      repos.recurring.list(),
     ]);
     expect(accs.map((a) => a.id)).toEqual(['a1']);
     expect(txnList.map((t) => t.id)).toEqual(['t1']);
@@ -91,18 +107,20 @@ describe('restoreBackup', () => {
     expect(assetList.map((a) => a.id)).toEqual(['as1']);
     expect(valList.map((v) => v.id)).toEqual(['v1']);
     expect(budgetList).toEqual(budgets);
+    expect(recurringList).toEqual(recurring);
   });
 
   it('還原空備份 → 各表清空', async () => {
     const repos = makeRepos({ seedAccounts: accounts });
-    await restoreBackup(repos, buildBackupData([], [], [], [], [], []));
-    const [accs, txnList, loanList, assetList, valList, budgetList] = await Promise.all([
+    await restoreBackup(repos, buildBackupData([], [], [], [], [], [], []));
+    const [accs, txnList, loanList, assetList, valList, budgetList, recurringList] = await Promise.all([
       repos.accounts.list(),
       repos.txns.listAll(),
       repos.loans.list(),
       repos.assets.list(),
       repos.valuations.listAll(),
       repos.budgets.list(),
+      repos.recurring.list(),
     ]);
     expect(accs).toHaveLength(0);
     expect(txnList).toHaveLength(0);
@@ -110,5 +128,6 @@ describe('restoreBackup', () => {
     expect(assetList).toHaveLength(0);
     expect(valList).toHaveLength(0);
     expect(budgetList).toHaveLength(0);
+    expect(recurringList).toHaveLength(0);
   });
 });

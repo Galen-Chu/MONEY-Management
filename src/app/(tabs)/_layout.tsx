@@ -16,6 +16,7 @@ import { useBudgetStore } from '../../state/budgetStore';
 import { useInvoiceStore } from '../../state/invoiceStore';
 import { useLedgerStore } from '../../state/ledgerStore';
 import { useLoanStore } from '../../state/loanStore';
+import { useRecurringStore } from '../../state/recurringStore';
 import { color, font } from '../../theme';
 
 const TABS: { name: string; key: string; icon: IconName }[] = [
@@ -41,12 +42,14 @@ export default function TabsLayout() {
         useInvoiceStore.getState().attach(repos.invoices, repos.prizes);
         useAssetStore.getState().attach(repos.assets, repos.valuations);
         useBudgetStore.getState().attach(repos.budgets);
+        useRecurringStore.getState().attach(repos.recurring);
         await Promise.all([
           useLedgerStore.getState().bootstrap(),
           useLoanStore.getState().bootstrap(),
           useInvoiceStore.getState().bootstrap(),
           useAssetStore.getState().bootstrap(),
           useBudgetStore.getState().bootstrap(),
+          useRecurringStore.getState().bootstrap(),
         ]);
       } catch (e) {
         useLedgerStore.setState({ error: e instanceof Error ? e.message : String(e) });

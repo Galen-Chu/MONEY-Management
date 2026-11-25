@@ -8,6 +8,7 @@ import type { Loan } from './loan';
 import type { Asset, AssetValuation } from './asset';
 import { EXPENSE_CATEGORIES } from './categories';
 import type { Budget } from './budget';
+import type { RecurringTxn } from './recurring';
 
 export const BACKUP_VERSION = 1;
 
@@ -23,6 +24,7 @@ export interface BackupData {
   assets: Asset[];
   valuations: AssetValuation[];
   budgets: Budget[];
+  recurring: RecurringTxn[];
 }
 
 export function buildBackupData(
@@ -32,6 +34,7 @@ export function buildBackupData(
   assets: Asset[],
   valuations: AssetValuation[],
   budgets: Budget[],
+  recurring: RecurringTxn[],
   now: Date = new Date()
 ): BackupData {
   return {
@@ -44,6 +47,7 @@ export function buildBackupData(
     assets: assets.map((a) => ({ ...a })),
     valuations: valuations.map((v) => ({ ...v })),
     budgets: budgets.map((b) => ({ ...b })),
+    recurring: recurring.map((r) => ({ ...r })),
   };
 }
 
@@ -146,8 +150,24 @@ export function parseBackup(text: string): BackupParseResult {
       return { ok: false, error: 'format' };
     }
   }
+  const rawRecurring = Array.isArray(raw.recurring) ? raw.recurring : [];
+  for (const r of rawRecurring) {
+    if (
+      !isObj(r) || !str(r.id) || !oneOf(r.type, TXN_TYPES) || !int(r.amountCents) || !str(r.category) ||
+      !str(r.accountId) || !int(r.dayOfMonth) || !str(r.note) || !(r.lastHandledMonth === null || str(r.lastHandledMonth)) ||
+      !int(r.createdAt) || !int(r.updatedAt)
+    ) {
+      return { ok: false, error: 'format' };
+    }
+  }
   return {
     ok: true,
-    data: { ...(raw as unknown as BackupData), assets: rawAssets, valuations: rawValuations, budgets: rawBudgets },
+    data: {
+      ...(raw as unknown as BackupData),
+      assets: rawAssets,
+      valuations: rawValuations,
+      budgets: rawBudgets,
+      recurring: rawRecurring,
+    },
   };
 }

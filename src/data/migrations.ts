@@ -98,6 +98,21 @@ export const MIGRATIONS: readonly string[] = [
     amountCents INTEGER NOT NULL
   );
   `,
+  // v7:recurring(定期交易)
+  `
+  CREATE TABLE IF NOT EXISTS recurring (
+    id TEXT PRIMARY KEY NOT NULL,
+    type TEXT NOT NULL,
+    amountCents INTEGER NOT NULL,
+    category TEXT NOT NULL,
+    accountId TEXT NOT NULL,
+    dayOfMonth INTEGER NOT NULL,
+    note TEXT NOT NULL DEFAULT '',
+    lastHandledMonth TEXT,
+    createdAt INTEGER NOT NULL,
+    updatedAt INTEGER NOT NULL
+  );
+  `,
 ];
 
 /** 依 PRAGMA user_version 依序套用未執行的 migration(冪等);回傳本次套用版數 */

@@ -108,6 +108,24 @@
     "emptyTitle": "還沒有貸款",
     "emptyBody": "新增房貸、車貸或信貸,掌握攤還進度與提前還款試算。"
   },
+  "recurring": {
+    "title": "定期交易",
+    "add": "新增定期",
+    "edit": "編輯定期",
+    "manage": "管理",
+    "day": "每月日(1-31)",
+    "everyMonth": "每月",
+    "dayUnit": "日",
+    "pendingTitle": "定期交易待確認",
+    "confirm": "確認入帳",
+    "skip": "本月略過",
+    "errAmount": "金額需大於 0",
+    "errCategory": "請選擇分類",
+    "errAccount": "請選擇帳戶",
+    "errDay": "每月日需 1-31",
+    "emptyTitle": "還沒有定期交易",
+    "emptyBody": "新增房租或訂閱,到期自動提醒入帳。"
+  },
   "budgets": {
     "title": "分類月預算",
     "edit": "編輯預算",

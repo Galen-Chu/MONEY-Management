@@ -11,11 +11,13 @@ import { Segmented } from '../../components/ui/segmented';
 import { restoreBackup, collectBackupData } from '../../data/backup';
 import { pickBackupFile, shareBackupFile } from '../../data/backup-io';
 import { ImportSheet } from '../../components/ledger/import-sheet';
+import { RecurringManageSheet } from '../../components/ledger/recurring-manage-sheet';
 import { parseBackup, serializeBackup } from '../../domain/backup';
 import type { Language } from '../../i18n';
 import { useAssetStore } from '../../state/assetStore';
 import { useBudgetStore } from '../../state/budgetStore';
 import { useLedgerStore } from '../../state/ledgerStore';
+import { useRecurringStore } from '../../state/recurringStore';
 import { useLoanStore } from '../../state/loanStore';
 import { useInvoiceStore } from '../../state/invoiceStore';
 import { currentLanguage, useSettings } from '../../state/settings';
@@ -38,16 +40,18 @@ export default function SettingsScreen() {
   const assets = useAssetStore((s) => s.assets);
   const valuations = useAssetStore((s) => s.valuations);
   const budgets = useBudgetStore((s) => s.budgets);
+  const recurring = useRecurringStore((s) => s.items);
 
   const [status, setStatus] = useState<Status | null>(null);
   const [confirmImport, setConfirmImport] = useState(false);
   const confirmTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [csvVisible, setCsvVisible] = useState(false);
+  const [recurringVisible, setRecurringVisible] = useState(false);
 
   async function onExport() {
     try {
       const ok = await shareBackupFile(
-        serializeBackup(collectBackupData(accounts, txns, loans, assets, valuations, budgets))
+        serializeBackup(collectBackupData(accounts, txns, loans, assets, valuations, budgets, recurring))
       );
       setStatus(ok ? { kind: 'ok', text: t('settings.exportDone') } : { kind: 'err', text: t('settings.errExport') });
     } catch {
@@ -147,6 +151,13 @@ export default function SettingsScreen() {
       </Card>
 
       <Card style={styles.card}>
+        <Text style={styles.rowTitle}>{t('recurring.title')}</Text>
+        <Pressable accessibilityRole="button" style={styles.csvBtn} onPress={() => setRecurringVisible(true)}>
+          <Text style={styles.csvBtnText}>{t('recurring.manage')}</Text>
+        </Pressable>
+      </Card>
+
+      <Card style={styles.card}>
         <Text style={styles.rowTitle}>{t('settings.privacyTitle')}</Text>
         <Text style={styles.privacyBody}>{t('settings.privacyBody')}</Text>
       </Card>
@@ -159,6 +170,7 @@ export default function SettingsScreen() {
         </View>
       </Card>
       <ImportSheet visible={csvVisible} onClose={() => setCsvVisible(false)} />
+      <RecurringManageSheet visible={recurringVisible} onClose={() => setRecurringVisible(false)} />
     </ScrollView>
   );
 }

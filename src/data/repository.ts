@@ -8,6 +8,7 @@ import type { Loan } from '../domain/loan';
 import type { Invoice, PrizeNumbers } from '../domain/invoice';
 import type { Asset, AssetValuation } from '../domain/asset';
 import type { Budget } from '../domain/budget';
+import type { RecurringTxn } from '../domain/recurring';
 
 export interface AccountRepository {
   list(): Promise<Account[]>;
@@ -61,6 +62,13 @@ export interface BudgetRepository {
   remove(category: string): Promise<void>;
 }
 
+export interface RecurringRepository {
+  list(): Promise<RecurringTxn[]>;
+  insert(item: RecurringTxn): Promise<void>;
+  update(item: RecurringTxn): Promise<void>;
+  remove(id: string): Promise<void>;
+}
+
 /** 平台工廠(db.ts / db.native.ts)回傳的組合 */
 export interface Repositories {
   accounts: AccountRepository;
@@ -71,6 +79,7 @@ export interface Repositories {
   assets: AssetRepository;
   valuations: ValuationRepository;
   budgets: BudgetRepository;
+  recurring: RecurringRepository;
 }
 
 export class InMemoryAccountRepository implements AccountRepository {
@@ -243,5 +252,30 @@ export class InMemoryBudgetRepository implements BudgetRepository {
 
   async remove(category: string): Promise<void> {
     this.items.delete(category);
+  }
+}
+
+export class InMemoryRecurringRepository implements RecurringRepository {
+  private items: RecurringTxn[] = [];
+
+  constructor(seed: RecurringTxn[] = []) {
+    this.items = seed.map((r) => ({ ...r }));
+  }
+
+  async list(): Promise<RecurringTxn[]> {
+    return this.items.map((r) => ({ ...r }));
+  }
+
+  async insert(item: RecurringTxn): Promise<void> {
+    this.items.push({ ...item });
+  }
+
+  async update(item: RecurringTxn): Promise<void> {
+    const i = this.items.findIndex((r) => r.id === item.id);
+    if (i >= 0) this.items[i] = { ...item };
+  }
+
+  async remove(id: string): Promise<void> {
+    this.items = this.items.filter((r) => r.id !== id);
   }
 }
