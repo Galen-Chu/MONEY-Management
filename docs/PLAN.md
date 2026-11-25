@@ -49,7 +49,7 @@
 | 期 | 內容 | 狀態 |
 |---|---|---|
 | **P0** | 骨架 + 記帳:四分頁(今天/帳戶/統計/設定)、帳戶 CRUD、交易 CRUD(支出/收入/轉帳)、月度統計、分類分佈、淨值卡、雙語、CI | ✅ 2026-10-14 |
-| **P0.6** | UI 改版(Uniconsign):批次一 ✅ token 遷移語意層淺色值+硬編碼色清零(2026-11-24);批次二 ✅ Inter 字體(400-700,權重映射)+ Uniconsign 圖示系統(tab 五圖示/箭頭/關閉/加號,vendor 於 ui/icon.tsx)(2026-11-24);批次三=深色模式  2026-11-25 開工(設計見 🌗 區) |  批次三 |
+| **P0.6** | UI 改版(Uniconsign):批次一 ✅ token 遷移語意層淺色值+硬編碼色清零(2026-11-24);批次二 ✅ Inter 字體(400–700,權重映射)+ Uniconsign 圖示系統(2026-11-24);批次三 ✅ **深色模式**(雙盤 token/ThemeProvider/外觀設定/27 檔遷移,2026-11-25 收尾,§🌗) | ✅ |
 | **P0.7** | iOS 發佈管線:`eas.json`(production/simulator)、圖示與 splash 品牌換膚、發佈手冊 `docs/RELEASE.md` 備妥;**待維護者:Apple Developer 申請 + `eas login` 後執行首次雲端建置**(步驟見 RELEASE.md) | 🔄 管線備妥 |
 | **P0.8** | 資料匯出備份:JSON 匯出(web 下載/native 系統分享)+ 還原(兩段式確認、結構驗證、版本策略向前不相容拒絕) | ✅ 2026-11-24 |
 | P1 | **貸款管理**:貸款 CRUD(五類型×兩方式×寬限)、攤還表、提前還款/利率情境試算、淨值整合 | ✅ 2026-11-24(原「淨值報表深化」併入 P3 資產管理) |
@@ -58,6 +58,16 @@
 | P4 | CSV 匯入:通用剖析器(UTF-8/BOM、引號/定位點)+ 欄位自動偵測(表頭關鍵字/型態啟發,可人工調整)+ 預覽逐筆驗證匯入;**各家銀行 preset 待維護者提供樣本後疊加**;Big5 檔需先轉 UTF-8 | ✅ 2026-11-24 收尾歸檔 |
 | P5 | 載具發票查詢(視營業人資格申請 appID;維護者決策)——**mock 可測全功能完成** 2026-11-25(golden 驗收;appID 核發後真機補驗,§🔭) | ✅ 待 appID 補驗 |
 | P6 | **通知管理**(帳務通知歸集:簡訊貼上+郵件同步→交易草稿必經確認)——批次一(簡訊貼上+待確認草稿)✅ 2026-11-25;批次二 Gmail 遠期(待 OAuth client) | 🔄 批次二 |
+
+---
+
+## 🧪 驗收基準 · 2026-11-25 第二輪(通知管理/P5/表單層/深色模式,收尾歸檔)
+
+- **通知管理批次一(P6)**:簡訊貼上解析 golden(四家銀行制式+跨年/無效日期/整卡明碼邊界);必經確認(轉交易 TxnSheet 預填→validateTxn/忽略/同文重複擋);migration v8 草稿表不入備份;expo-clipboard 唯一新依賴
+- **P5 載具發票查詢**:查詢參數 golden(同月窗 yyyy/MM/dd、時戳+300s、swagger 對齊)+正規化(invPeriod 雙數月→奇數起始月、民國日期物件→ISO、金額字串→分)+同號同期去重(跨月/再同步/手動重複)+noSettings/noAppID/api 錯誤碼+migration v9;發票頁載具卡+同步+轉交易;**實際連線待 appID 核發後真機補驗**
+- **表單層 RNTL**:TxnSheet/AccountSheet 11 測(驗證訊息/類型切換/轉帳雙戶/同帳戶錯誤/preset/編輯/errInUse 擋刪);overlapping-act 教訓固化(互動包 `await act(async ...)`)
+- **深色模式(P0.6 批次三)**:雙盤 parity 測試+Provider 深淺覆寫;27 檔全量遷移 makeStyles(c);外觀設定(跟隨系統/淺色/深色)持久化;`userInterfaceStyle: automatic`、StatusBar 隨模式
+- **品質**:verify **207/207** 全綠(35 suites;本日 +58 測);CJK 雙閘門與 FFFD 掃描持續把關(本日實抓 1 起 Write 落盤損壞並修復)
 
 ---
 
@@ -175,9 +185,9 @@
 1. **P2 消費管理**——✅ 2026-11-24 收尾歸檔(發票+現金流)
 2. **P3 資產管理**——✅ 2026-11-24 收尾歸檔
 3. **P4 CSV 匯入**——✅ 2026-11-24 收尾歸檔(各家 preset 待樣本,持續收)
-4. **P5 載具發票查詢**——**待維護者拍板:是否有營業人(統編)資格申請財政資訊中心 appID**(API 規格與整合藍圖 ✅ 2026-11-25;定位定案:**納入發票分頁不另立**,見 §🔭)
-5. **P6 通知管理**——2026-11-25 改制定案(原「帳務郵件解析」):簡訊貼上(批次一,開發中)+郵件 Gmail 同步(批次二,待 OAuth client),見 §🔭
-6. **優化候選(功能軸)**——分類月預算、定期交易、帳戶交易過濾、CSV 各家 preset、Big5 轉檔支援
+4. **P5 載具發票查詢**——✅ 2026-11-25 完成(golden 驗收;**待維護者:統編→申請 appID→真機補驗**;定位:納入發票分頁,§🔭)
+5. **P6 通知管理**——批次一 ✅ 2026-11-25(簡訊貼上+待確認草稿);批次二 Gmail 遠期(待 Google OAuth client),見 §🔭
+6. **優化候選(功能軸)**——分類月預算 ✅、定期交易 ✅、帳戶交易過濾 ✅(均 2026-11-25);CSV 各家 preset(收樣本中)、Big5 轉檔支援
 
 ### 產品優化候選(P0 實際使用後按需求挑選)
 
@@ -196,13 +206,13 @@
 | 項目 | 說明 | 備註 |
 |---|---|---|
 | 表單層測試 | ✅ 2026-11-25:TxnSheet/AccountSheet RNTL——驗證訊息(金額/分類/同帳戶/名稱/期初)、類型切換(收入集/轉帳雙戶分支)、preset 預填、編輯+errInUse 擋刪 | async render 下互動包 `await act(async ...)`(overlapping act 教訓) |
-| 畫面層測試 | 七分頁 RNTL:空狀態/摘要卡/月導覽(今天/帳戶/發票已有,貸款/統計/資產/設定待補) | |
+| 畫面層測試 | 六分頁 RNTL 已有(今天/帳戶/發票/貸款/資產/設定);**統計頁待補**(空狀態/摘要卡/預算列) | |
 | 真機驗證 | Expo Go 實測 native SQLite 路徑(SQLite repo 僅單元覆蓋,migration/CRUD 未真機跑過) | 比照 TIME 的 dev client 待辦模式 |
 | web 走查腳本 | Selenium 腳本(比照 TIME `scripts/*-walkthrough.py`;`window.__moneycareStore` 鉤子已備) | |
 | web 資料持久化 | InMemory→IndexedDB(若 web 成為正式交付目標) | 現況已知限制,同 TIME |
 | SDK 58 升級批 | expo 58 轉正後一次升級(比照 TIME 依賴保鮮流程:改範圍+全新解析) | 58 目前仍在 next |
 | CI 基礎設施 | actions 版本/node 版本追蹤 | 借鏡 TIME:ubuntu-latest 映象遷移期 |
 | a11y 深化 | 對比度檢核腳本(TIME 有 contrast-audit 可鏡像)、動態字型複查 | |
-| Uniconsign 深色模式 | 成對深色 token(語意層已附 `$extensions.mode.dark`)+ `userInterfaceStyle` 切換 | D7 後續批次;元件雙模式複查 |
+| Uniconsign 深色模式 | ✅ 2026-11-25(P0.6 批次三;§🌗) | |
 | 圖示擴編 | `ui/icon.tsx` 目前 vendor 9 枚;依需求自 `@galen-chu/uniconsign` 增補(分類點、交易列轉帳符號) | 圖示集 241 枚 |
-| 設計系統套件依賴化 | `tokens.json`/`icon.tsx` 手動同步 → npm 依賴 `@galen-chu/uniconsign` | GitHub Packages 需 PAT(read:packages)+ CI secret |
+| 設計系統套件依賴化 | **暫緩(維護者 2026-11-25)**:與 TIME-Management 同步策略——`tokens.json`/`icon.tsx` 維持手動同步,不做 npm 依賴 | 未來要做仍需 GitHub Packages PAT(read:packages)+ CI secret |

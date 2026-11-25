@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-MoneyCare · 個人財務統合 App(repo Galen-Chu/MONEY-Management)——記帳為核心,發票/貸款/資產/帳務資料半自動歸集,**金融資料 100% 本機**。Expo SDK 57 + TypeScript strict,沿用 TIME-Management(TimeCare)技術棧與工程模式。主線 P0(骨架+記帳)、P0.6/P0.7/P0.8(UI 改版 Uniconsign/iOS TestFlight 管線/備份)、P1 貸款、P2 消費(發票+現金流)、P3 資產、P4 CSV 匯入皆已完成(2026-11-24 收尾,push `421612b`);2026-11-25 優化三項(分類月預算/定期交易/帳戶明細)+**P6 通知管理批次一**(簡訊貼上+待確認草稿)+**P5 載具發票查詢**(mock 可測;連線卡 appID/統編)+**P0.6 批次三深色模式**(雙盤 token/ThemeProvider/外觀設定)完成待驗收。
+MoneyCare · 個人財務統合 App(repo Galen-Chu/MONEY-Management)——記帳為核心,發票/貸款/資產/帳務資料半自動歸集,**金融資料 100% 本機**。Expo SDK 57 + TypeScript strict,沿用 TIME-Management(TimeCare)技術棧與工程模式。主線 P0(骨架+記帳)、P0.6/P0.7/P0.8(UI 改版 Uniconsign**含深色模式**/iOS TestFlight 管線/備份)、P1 貸款、P2 消費(發票+現金流)、P3 資產、P4 CSV 匯入皆已完成;2026-11-25 收尾歸檔:優化三項(分類月預算/定期交易/帳戶明細)+**P6 通知管理批次一**(簡訊貼上+待確認草稿)+**P5 載具發票查詢**(mock 可測全功能;連線卡 appID/統編)+**深色模式**(P0.6 批次三)+表單層 RNTL(push `e5a22f9`;verify **207 測**全綠、35 suites、七分頁)。
 
 ## 常用指令
 
@@ -33,7 +33,7 @@ npm run verify         # lint+typecheck+test(同 CI)
 - **帳戶明細**(優化項):點帳戶卡開明細 Sheet——餘額、本月收支小計(`accountMonthTotals`,轉帳不計)、該帳戶全部交易(`accountTxns` 含轉入/轉出端,依日分組);點交易列編輯、編輯帳戶鈕在明細內(卡片點擊不再直接編輯)
 - **貸款口徑**(P1):年利率以「千分之百分比」整數儲存(2.185%→2185),期內利息=round(剩餘×rateMilliPercent÷1,200,000);annuity 月繳四捨五入為常數、**末期強制結清**(利息逐期捨入殘留);寬限期只繳息;提前還本=月繳不變期數縮短;利率情境=自某期起新利率月繳重算;淨值=帳戶淨值−Σ未償本金
 - 刪除帳戶前必查 `accountInUse`(含轉入端引用);被引用 → false + UI 顯示 errInUse
-- **金融資料 100% 本機**(D5):不得引入任何雲端/後端儲存;settings 僅存語言
+- **金融資料 100% 本機**(D5):不得引入任何雲端/後端儲存;settings 僅存語言+外觀(偏好非金融資料)
 - **備份**(P0.8):匯出=JSON(web 瀏覽器下載/native 寫快取+系統分享,零上傳)涵蓋七表(帳戶/交易/貸款/資產/估值/預算/定期;獎號為公開資料不入檔);還原=**取代**裝置全部資料(兩段式確認);`parseBackup` 做結構驗證,備份版本較新一律拒絕,舊檔缺新欄位→空陣列相容;還原後各 store 重新 bootstrap
 - **分類月預算**(優化項):每月固定額(不分年月);用量=該月該分類支出;≥80% 提醒、超支轉紅(恰好用滿未超);統計頁摘要卡+分類列 `已用/預算`
 - **定期交易**(優化項):每月範本(1-31 日,超過月底夾到底);**必經確認**——到期只產「待確認」卡(今天頁),按「確認入帳」才建交易(走 validateTxn),「本月略過」與確認同記 lastHandledMonth 同月不再提示;管理入口在設定頁
@@ -54,9 +54,10 @@ npm run verify         # lint+typecheck+test(同 CI)
 - 新增純邏輯一律配 Jest 單元測試;repo 類邏輯以介面注入(InMemory)可測;migration 測試斷言交易順序(PRAGMA user_version)
 - Windows 環境教訓(沿用 TIME-Management):Jest `testTimeout: 15000`(並行負載逾時 flake);**含中文的 .ps1 一律以 pwsh 7 執行**(WinPS 5.1 誤讀 UTF-8 為 CP950 會靜默漏行);**中文檔案寫入後必掃 U+FFFD、掃淨才 commit**(P0 建案實測 5 處損壞,其中 1 處由測試如實揪出);`formatCents` 勿依賴 Intl 貨幣符號(zh-TW ICU 對本幣 TWD 呈現裸 `$`)
 
-## 待辦排隊(2026-11-25 更新·D9 功能優先/D10 功能軸)
+## 待辦排隊(2026-11-25 收尾歸檔)
 
-- **主線(功能軸)**:P5 載具發票查詢 ✅ 2026-11-25 完成(golden 驗收;**待維護者:統編→申請 appID→真機補驗**)、P6 通知管理批次一 ✅(批次二 Gmail 待 OAuth client);優化候選:CSV 各家 preset(收樣本中;分類月預算/定期交易/帳戶明細均 ✅ 2026-11-25)
-- **環境建置類(依 D9 暫緩,功能告一段落後依序)**:深色模式 ✅ 2026-11-25 完成待驗收(P0.6 批次三——設計見 PLAN §🌗;27 檔遷移 makeStyles(c)、207/207 綠)、TestFlight 首建(**卡 Apple Developer 申請+`eas login`**,見 `docs/RELEASE.md`)、Uniconsign 套件依賴化
-- **優先度較高的工程項**:表單層 RNTL 測試 ✅ 2026-11-25(TxnSheet/AccountSheet:驗證訊息/類型切換/轉帳雙戶/preset/編輯刪除/errInUse;async render 下互動須包 `await act(async ...)`——見 state 記憶與測試檔註)、真機 Expo Go 驗證 SQLite 路徑、TestFlight 首建(卡 Apple Developer 申請)
+- **待維護者解鎖**:P5 載具真機補驗(**卡統編→申請 appID**)、P6 批次二 Gmail(**卡 Google OAuth client**)、TestFlight 首建(**卡 Apple Developer 申請+`eas login`**,見 `docs/RELEASE.md`)
+- **工程項**:統計頁 RNTL(畫面層最後一塊,其餘六分頁已有)、真機 Expo Go 驗證 SQLite 路徑
+- **暫緩(維護者 2026-11-25)**:Uniconsign 套件依賴化——與 TIME-Management 同步策略,`tokens.json`/`icon.tsx` 維持手動同步
+- **收樣本中**:CSV 各家銀行 preset
 - 完整清單(產品優化候選+技術債):`docs/PLAN.md` §「待辦與優化清單」
