@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-MoneyCare · 個人財務統合 App(repo Galen-Chu/MONEY-Management)——記帳為核心,發票/貸款/資產/帳務資料半自動歸集,**金融資料 100% 本機**。Expo SDK 57 + TypeScript strict,沿用 TIME-Management(TimeCare)技術棧與工程模式。主線 P0(骨架+記帳)、P0.6/P0.7/P0.8(UI 改版 Uniconsign/iOS TestFlight 管線/備份)、P1 貸款、P2 消費(發票+現金流)、P3 資產、P4 CSV 匯入皆已完成;2026-11-24 收尾歸檔(push `421612b`;verify 128 測全綠、七分頁)。
+MoneyCare · 個人財務統合 App(repo Galen-Chu/MONEY-Management)——記帳為核心,發票/貸款/資產/帳務資料半自動歸集,**金融資料 100% 本機**。Expo SDK 57 + TypeScript strict,沿用 TIME-Management(TimeCare)技術棧與工程模式。主線 P0(骨架+記帳)、P0.6/P0.7/P0.8(UI 改版 Uniconsign/iOS TestFlight 管線/備份)、P1 貸款、P2 消費(發票+現金流)、P3 資產、P4 CSV 匯入皆已完成(2026-11-24 收尾,push `421612b`);2026-11-25 優化三項(分類月預算/定期交易/帳戶明細)+P5/P6 藍圖入 PLAN——P5 定案**納入發票分頁**(卡統編)、P6 改制**通知管理**(批次一:簡訊貼上+待確認草稿,開發中)。
 
 ## 常用指令
 
@@ -51,11 +51,9 @@ npm run verify         # lint+typecheck+test(同 CI)
 - 新增純邏輯一律配 Jest 單元測試;repo 類邏輯以介面注入(InMemory)可測;migration 測試斷言交易順序(PRAGMA user_version)
 - Windows 環境教訓(沿用 TIME-Management):Jest `testTimeout: 15000`(並行負載逾時 flake);**含中文的 .ps1 一律以 pwsh 7 執行**(WinPS 5.1 誤讀 UTF-8 為 CP950 會靜默漏行);**中文檔案寫入後必掃 U+FFFD、掃淨才 commit**(P0 建案實測 5 處損壞,其中 1 處由測試如實揪出);`formatCents` 勿依賴 Intl 貨幣符號(zh-TW ICU 對本幣 TWD 呈現裸 `$`)
 
-## 待辦排隊(2026-11-24 收尾歸檔·D9 功能優先/D10 功能軸)
+## 待辦排隊(2026-11-25 更新·D9 功能優先/D10 功能軸)
 
-- **主線(功能軸)**:P5 載具發票查詢(**卡維護者:有無統編申請 appID**)→ P6 帳務郵件解析(遠期);優化候選:分類月預算、定期交易、帳戶交易過濾、CSV 各家 preset(收樣本中)
+- **主線(功能軸)**:**P6 通知管理批次一(簡訊貼上解析+待確認草稿)開發中**;P5 載具發票查詢(**卡維護者:有無統編申請 appID**;定位定案:納入發票分頁不另立——藍圖 `docs/PLAN.md` §🔭);優化候選:CSV 各家 preset(收樣本中;分類月預算/定期交易/帳戶明細均 ✅ 2026-11-25)
 - **環境建置類(依 D9 暫緩,功能告一段落後依序)**:深色模式(Uniconsign 成對 token)、TestFlight 首建(**卡 Apple Developer 申請+`eas login`**,見 `docs/RELEASE.md`)、表單層 RNTL 測試、Uniconsign 套件依賴化
-- 完整清單:`docs/PLAN.md` §「待辦與優化清單」
-- **待維護者拍板**:P4 載具發票查詢(需營業人統編向財政資訊中心申請 appID——有無統編決定此路開關)
 - **優先度較高的工程項**:表單層 RNTL 測試、真機 Expo Go 驗證 SQLite 路徑、TestFlight 首建(卡 Apple Developer 申請)
 - 完整清單(產品優化候選+技術債):`docs/PLAN.md` §「待辦與優化清單」
