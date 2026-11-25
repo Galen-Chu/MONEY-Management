@@ -29,6 +29,7 @@ npm run verify         # lint+typecheck+test(同 CI)
 - **淨值口徑**(D4):餘額=期初+收入−支出+轉入−轉出;信用卡以餘額轉負呈現負債;淨值=Σ正餘額−Σ|負餘額|;**轉帳不計入收支統計**(只是位置移動)
 - **分類為固定集**(D3,支出 8+收入 4):label 走 `categories.*` i18n、色票在 `domain/categories.ts`;不做分類 CRUD(變更需同步兩份 locale+parity 測試)
 - **驗證單一來源**:交易驗證只走 `domain/ledger.validateTxn`(錯誤碼→`txn.err*` i18n)、貸款驗證只走 `domain/loan.validateLoan`(→`loans.err*`);store 動作重驗一次,UI 不自行發明規則
+- **帳戶明細**(優化項):點帳戶卡開明細 Sheet——餘額、本月收支小計(`accountMonthTotals`,轉帳不計)、該帳戶全部交易(`accountTxns` 含轉入/轉出端,依日分組);點交易列編輯、編輯帳戶鈕在明細內(卡片點擊不再直接編輯)
 - **貸款口徑**(P1):年利率以「千分之百分比」整數儲存(2.185%→2185),期內利息=round(剩餘×rateMilliPercent÷1,200,000);annuity 月繳四捨五入為常數、**末期強制結清**(利息逐期捨入殘留);寬限期只繳息;提前還本=月繳不變期數縮短;利率情境=自某期起新利率月繳重算;淨值=帳戶淨值−Σ未償本金
 - 刪除帳戶前必查 `accountInUse`(含轉入端引用);被引用 → false + UI 顯示 errInUse
 - **金融資料 100% 本機**(D5):不得引入任何雲端/後端儲存;settings 僅存語言

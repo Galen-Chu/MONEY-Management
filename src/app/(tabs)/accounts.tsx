@@ -6,6 +6,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
+import { AccountDetailSheet } from '../../components/ledger/account-detail-sheet';
 import { AccountSheet } from '../../components/ledger/account-sheet';
 import { EmptyState } from '../../components/ui/empty-state';
 import { Icon } from '../../components/ui/icon';
@@ -36,6 +37,7 @@ export default function AccountsScreen() {
 
   const [sheetVisible, setSheetVisible] = useState(false);
   const [editing, setEditing] = useState<Account | null>(null);
+  const [detail, setDetail] = useState<Account | null>(null);
 
   const worth = useMemo(
     () => netWorthFull(accounts, txns, loans, assets, valuations, todayKey()),
@@ -79,10 +81,7 @@ export default function AccountsScreen() {
             <Pressable
               key={account.id}
               accessibilityRole="button"
-              onPress={() => {
-                setEditing(account);
-                setSheetVisible(true);
-              }}
+              onPress={() => setDetail(account)}
               style={({ pressed }) => [styles.accountCard, pressed && { opacity: 0.75 }]}
             >
               <View style={styles.accountMain}>
@@ -110,6 +109,16 @@ export default function AccountsScreen() {
         <Text style={styles.addText}>{t('accounts.add')}</Text>
       </Pressable>
 
+      <AccountDetailSheet
+        visible={detail != null}
+        onClose={() => setDetail(null)}
+        account={detail}
+        onEditAccount={(account) => {
+          setDetail(null);
+          setEditing(account);
+          setSheetVisible(true);
+        }}
+      />
       <AccountSheet visible={sheetVisible} onClose={() => setSheetVisible(false)} initial={editing} />
     </View>
   );

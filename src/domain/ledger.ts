@@ -197,6 +197,25 @@ export function accountInUse(accountId: string, txns: Txn[]): boolean {
   );
 }
 
+/** 與該帳戶相關的交易(支出/收入/轉出/轉入端皆含) */
+export function accountTxns(txns: Txn[], accountId: string): Txn[] {
+  return txns.filter(
+    (t) => t.accountId === accountId || (t.toAccountId != null && t.toAccountId === accountId)
+  );
+}
+
+/** 某帳戶某月收支(轉帳不計——位置移動;只有該帳戶為收支主體時計入) */
+export function accountMonthTotals(txns: Txn[], accountId: string, month: string): MonthTotals {
+  let income = 0;
+  let expense = 0;
+  for (const t of txns) {
+    if (t.type === 'transfer' || monthOf(t.date) !== month || t.accountId !== accountId) continue;
+    if (t.type === 'income') income += t.amountCents;
+    else expense += t.amountCents;
+  }
+  return { incomeCents: income, expenseCents: expense, netCents: income - expense };
+}
+
 export interface MonthCashflow {
   month: string; // YYYY-MM
   incomeCents: number;

@@ -233,6 +233,8 @@
     "totalDebts": "總負債",
     "debtHint": "負債含貸款未償本金;資產含帳戶與持有估值",
     "netWorth": "淨值",
+    "balance": "餘額",
+    "detailEmpty": "此帳戶還沒有交易",
     "errName": "請輸入帳戶名稱",
     "errAmount": "期初餘額格式錯誤",
     "errInUse": "此帳戶仍有交易紀錄,無法刪除",

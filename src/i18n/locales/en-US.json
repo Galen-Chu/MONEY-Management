@@ -233,6 +233,8 @@
     "totalDebts": "Total debts",
     "debtHint": "Debts include loan outstanding; assets include accounts and holdings",
     "netWorth": "Net worth",
+    "balance": "Balance",
+    "detailEmpty": "No transactions for this account yet",
     "errName": "Please enter an account name",
     "errAmount": "Invalid opening balance",
     "errInUse": "This account still has transactions and cannot be deleted",
