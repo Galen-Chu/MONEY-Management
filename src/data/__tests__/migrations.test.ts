@@ -46,7 +46,7 @@ describe('applyMigrations', () => {
     expect(f.log[f.log.length - 1]).toBe('ROLLBACK;');
   });
 
-  it('DDL 內容:v1=accounts…v6=budgets、v7=recurring', () => {
+  it('DDL 內容:v1=accounts…v6=budgets、v7=recurring、v8=notification_drafts', () => {
     expect(MIGRATIONS[0]).toContain('CREATE TABLE IF NOT EXISTS accounts');
     expect(MIGRATIONS[1]).toContain('CREATE TABLE IF NOT EXISTS transactions');
     expect(MIGRATIONS[1]).toContain('idx_txns_date');
@@ -61,5 +61,7 @@ describe('applyMigrations', () => {
     expect(MIGRATIONS[5]).toContain('CREATE TABLE IF NOT EXISTS budgets');
     expect(MIGRATIONS[6]).toContain('CREATE TABLE IF NOT EXISTS recurring');
     expect(MIGRATIONS[6]).toContain('lastHandledMonth');
+    expect(MIGRATIONS[7]).toContain('CREATE TABLE IF NOT EXISTS notification_drafts');
+    expect(MIGRATIONS[7]).toContain('rawText');
   });
 });

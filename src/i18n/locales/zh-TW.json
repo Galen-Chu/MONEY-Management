@@ -126,6 +126,19 @@
     "emptyTitle": "還沒有定期交易",
     "emptyBody": "新增房租或訂閱,到期自動提醒入帳。"
   },
+  "notify": {
+    "paste": "貼上通知解析",
+    "pendingTitle": "通知待確認",
+    "toTxn": "轉為交易",
+    "skip": "忽略",
+    "sourceSms": "消費通知",
+    "noDate": "日期未辨識",
+    "cardLast4": "卡號 {{digits}}",
+    "errEmpty": "剪貼簿沒有內容",
+    "errNoAmount": "找不到金額,請確認是刷卡消費通知",
+    "errDuplicate": "這則通知已在待確認清單",
+    "errClipboard": "讀取剪貼簿失敗,請再試一次"
+  },
   "budgets": {
     "title": "分類月預算",
     "edit": "編輯預算",

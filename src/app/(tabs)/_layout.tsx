@@ -16,6 +16,7 @@ import { useBudgetStore } from '../../state/budgetStore';
 import { useInvoiceStore } from '../../state/invoiceStore';
 import { useLedgerStore } from '../../state/ledgerStore';
 import { useLoanStore } from '../../state/loanStore';
+import { useNotificationStore } from '../../state/notificationStore';
 import { useRecurringStore } from '../../state/recurringStore';
 import { color, font } from '../../theme';
 
@@ -43,6 +44,7 @@ export default function TabsLayout() {
         useAssetStore.getState().attach(repos.assets, repos.valuations);
         useBudgetStore.getState().attach(repos.budgets);
         useRecurringStore.getState().attach(repos.recurring);
+        useNotificationStore.getState().attach(repos.notificationDrafts);
         await Promise.all([
           useLedgerStore.getState().bootstrap(),
           useLoanStore.getState().bootstrap(),
@@ -50,6 +52,7 @@ export default function TabsLayout() {
           useAssetStore.getState().bootstrap(),
           useBudgetStore.getState().bootstrap(),
           useRecurringStore.getState().bootstrap(),
+          useNotificationStore.getState().bootstrap(),
         ]);
       } catch (e) {
         useLedgerStore.setState({ error: e instanceof Error ? e.message : String(e) });

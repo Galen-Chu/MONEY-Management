@@ -1,25 +1,33 @@
 /**
- * 今天分頁(P2 現金流管理):月份導覽(歷史瀏覽)+ 當月收支摘要 + 交易(依日分組,最新在上)
- * + 備註搜尋(跨全部月份)+ 右下「記一筆」鈕。點交易列 → 編輯 Sheet(含刪除)。
+ * 今天分頁(P2 現金流管理 + P6 通知管理批次一):月份導覽(歷史瀏覽)+ 當月收支摘要
+ * + 交易(依日分組,最新在上)+ 備註搜尋(跨全部月份)+ 定期/通知「待確認」卡
+ * + 「貼上通知解析」(剪貼簿 → 草稿;必經確認才入帳)+ 右下「記一筆」鈕。
  */
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import * as Clipboard from 'expo-clipboard';
 
 import { TxnRow } from '../../components/ledger/txn-row';
 import { TxnSheet } from '../../components/ledger/txn-sheet';
 import { EmptyState } from '../../components/ui/empty-state';
 import { Icon } from '../../components/ui/icon';
 import { categoryLabelKey } from '../../domain/categories';
+import { draftPreset, type NotificationDraft } from '../../domain/notification';
 import { dueDateOf, isDue } from '../../domain/recurring';
 import { groupByDate, monthOf, monthTotals, shiftMonth, todayKey, type Txn } from '../../domain/ledger';
 import { formatCents } from '../../domain/money';
 import { formatDayLabel, formatMonthLabel } from '../../i18n/format';
 import { useLedgerStore } from '../../state/ledgerStore';
+import { useNotificationStore, type NotificationAddErrorCode } from '../../state/notificationStore';
 import { useRecurringStore } from '../../state/recurringStore';
 import { currentLanguage, useSettings } from '../../state/settings';
 import { color, font, radius } from '../../theme';
+
+function pasteErrKey(code: NotificationAddErrorCode): string {
+  return code === 'repo' ? 'common.retryLater' : `notify.err${code.charAt(0).toUpperCase()}${code.slice(1)}`;
+}
 
 export default function TodayScreen() {
   const { t } = useTranslation();
@@ -31,12 +39,19 @@ export default function TodayScreen() {
   const recurringItems = useRecurringStore((s) => s.items);
   const confirmRecurring = useRecurringStore((s) => s.confirm);
   const skipRecurring = useRecurringStore((s) => s.skipThisMonth);
+  const drafts = useNotificationStore((s) => s.drafts);
+  const addFromText = useNotificationStore((s) => s.addFromText);
+  const removeDraft = useNotificationStore((s) => s.removeDraft);
 
   const [sheetVisible, setSheetVisible] = useState(false);
   const [editing, setEditing] = useState<Txn | null>(null);
+  const [draftEditing, setDraftEditing] = useState<NotificationDraft | null>(null);
+  const [pasteError, setPasteError] = useState<string | null>(null);
   const [month, setMonth] = useState(() => monthOf(todayKey()));
   const [query, setQuery] = useState('');
   const q = query.trim().toLowerCase();
+
+  const draftPresetValue = useMemo(() => (draftEditing ? draftPreset(draftEditing) : null), [draftEditing]);
 
   const monthTxns = useMemo(() => txns.filter((x) => monthOf(x.date) === month), [txns, month]);
   const searchTxns = useMemo(
@@ -54,6 +69,19 @@ export default function TodayScreen() {
   const asOf = todayKey();
   const thisMonth = monthOf(asOf);
   const pending = recurringItems.filter((r) => isDue(r, asOf));
+
+  async function pasteAndParse() {
+    setPasteError(null);
+    let text = '';
+    try {
+      text = await Clipboard.getStringAsync();
+    } catch {
+      setPasteError(t('notify.errClipboard'));
+      return;
+    }
+    const res = await addFromText(text);
+    if (!res.ok) setPasteError(t(pasteErrKey(res.code)));
+  }
 
   return (
     <View style={styles.shell}>
@@ -96,6 +124,16 @@ export default function TodayScreen() {
           autoCorrect={false}
         />
 
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('notify.paste')}
+          onPress={() => void pasteAndParse()}
+          style={styles.pasteBtn}
+        >
+          <Text style={styles.pasteText}>{t('notify.paste')}</Text>
+        </Pressable>
+        {pasteError ? <Text style={styles.pasteErr}>{pasteError}</Text> : null}
+
         {pending.length > 0 ? (
           <View style={styles.recurringCard}>
             <Text style={styles.recurringTitle}>{t('recurring.pendingTitle')}</Text>
@@ -128,6 +166,41 @@ export default function TodayScreen() {
           </View>
         ) : null}
 
+        {drafts.length > 0 ? (
+          <View style={styles.notifyCard}>
+            <Text style={styles.notifyTitle}>{t('notify.pendingTitle')}</Text>
+            {drafts.map((d) => (
+              <View key={d.id} style={styles.notifyRow}>
+                <View style={styles.notifyMain}>
+                  <Text style={styles.notifyNote}>{d.merchant ?? d.sender ?? t('notify.sourceSms')}</Text>
+                  <Text style={styles.notifySub}>
+                    {d.date ? formatDayLabel(d.date, lang) : t('notify.noDate')}
+                    {d.cardLast4 ? ` · ${t('notify.cardLast4', { digits: d.cardLast4 })}` : ''}
+                  </Text>
+                </View>
+                <Text style={[styles.notifyAmount, { color: color.expense }]}>
+                  −{formatCents(d.amountCents ?? 0, lang)}
+                </Text>
+                <View style={styles.notifyActions}>
+                  <Pressable
+                    accessibilityRole="button"
+                    style={styles.notifyConfirmBtn}
+                    onPress={() => {
+                      setDraftEditing(d);
+                      setSheetVisible(true);
+                    }}
+                  >
+                    <Text style={styles.notifyConfirmText}>{t('notify.toTxn')}</Text>
+                  </Pressable>
+                  <Pressable accessibilityRole="button" onPress={() => void removeDraft(d.id)} hitSlop={6}>
+                    <Text style={styles.notifySkipText}>{t('notify.skip')}</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ))}
+          </View>
+        ) : null}
+
         {groups.length === 0 ? (
           q ? (
             <EmptyState emoji="🔍" title={t('today.searchEmpty')} body="" />
@@ -153,6 +226,7 @@ export default function TodayScreen() {
                   accountName={nameOf}
                   onPress={(x) => {
                     setEditing(x);
+                    setDraftEditing(null);
                     setSheetVisible(true);
                   }}
                 />
@@ -167,6 +241,7 @@ export default function TodayScreen() {
         accessibilityLabel={t('today.fab')}
         onPress={() => {
           setEditing(null);
+          setDraftEditing(null);
           setSheetVisible(true);
         }}
         style={[styles.fab, { bottom: insets.bottom + 76 }]}
@@ -174,7 +249,19 @@ export default function TodayScreen() {
         <Icon name="plus" size={24} fill={color.onBrand} />
       </Pressable>
 
-      <TxnSheet visible={sheetVisible} onClose={() => setSheetVisible(false)} initial={editing} />
+      <TxnSheet
+        visible={sheetVisible}
+        onClose={() => {
+          setSheetVisible(false);
+          setEditing(null);
+          setDraftEditing(null);
+        }}
+        initial={editing}
+        preset={draftPresetValue}
+        onSaved={() => {
+          if (draftEditing) void removeDraft(draftEditing.id);
+        }}
+      />
     </View>
   );
 }
@@ -234,6 +321,81 @@ const styles = StyleSheet.create({
     paddingVertical: 9,
     fontSize: font.size.body,
     color: color.ink,
+  },
+  pasteBtn: {
+    alignSelf: 'flex-start',
+    backgroundColor: color.surface,
+    borderRadius: radius.row,
+    borderWidth: 1,
+    borderColor: color.info,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  pasteText: {
+    fontSize: font.size.small,
+    color: color.info,
+    fontFamily: font.family.semibold,
+  },
+  pasteErr: {
+    fontSize: font.size.small,
+    color: color.danger,
+  },
+  notifyCard: {
+    backgroundColor: color.surface,
+    borderRadius: radius.row,
+    borderWidth: 1,
+    borderColor: color.info,
+    padding: 14,
+    gap: 10,
+  },
+  notifyTitle: {
+    fontSize: font.size.small,
+    color: color.info,
+    fontFamily: font.family.bold,
+  },
+  notifyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  notifyMain: {
+    flex: 1,
+    gap: 2,
+  },
+  notifyNote: {
+    fontSize: font.size.body,
+    color: color.ink,
+    fontFamily: font.family.semibold,
+  },
+  notifySub: {
+    fontSize: font.size.tiny,
+    color: color.inkSecondary,
+  },
+  notifyAmount: {
+    fontSize: font.size.body,
+    fontFamily: font.family.bold,
+    fontVariant: ['tabular-nums'],
+  },
+  notifyActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  notifyConfirmBtn: {
+    backgroundColor: color.info,
+    borderRadius: radius.button,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  notifyConfirmText: {
+    color: color.onBrand,
+    fontSize: font.size.small,
+    fontFamily: font.family.bold,
+  },
+  notifySkipText: {
+    fontSize: font.size.small,
+    color: color.inkSecondary,
+    fontFamily: font.family.semibold,
   },
   recurringCard: {
     backgroundColor: color.accentSoft,

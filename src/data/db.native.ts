@@ -10,6 +10,7 @@ import type { Invoice, PrizeNumbers } from '../domain/invoice';
 import type { Asset, AssetValuation } from '../domain/asset';
 import type { Budget } from '../domain/budget';
 import type { RecurringTxn } from '../domain/recurring';
+import type { NotificationDraft } from '../domain/notification';
 import type {
   AccountRepository,
   TxnRepository,
@@ -20,6 +21,7 @@ import type {
   ValuationRepository,
   BudgetRepository,
   RecurringRepository,
+  NotificationDraftRepository,
   Repositories,
 } from './repository';
 import { applyMigrations } from './migrations';
@@ -322,6 +324,33 @@ export class SqliteRecurringRepository implements RecurringRepository {
   }
 }
 
+interface NotificationDraftRow {
+  id: string; source: string; rawText: string; amountCents: number | null; date: string | null;
+  merchant: string | null; sender: string | null; cardLast4: string | null; createdAt: number;
+}
+
+export class SqliteNotificationDraftRepository implements NotificationDraftRepository {
+  constructor(private db: SQLite.SQLiteDatabase) {}
+
+  async list(): Promise<NotificationDraft[]> {
+    const rows = await this.db.getAllAsync<NotificationDraftRow>(
+      'SELECT * FROM notification_drafts ORDER BY createdAt'
+    );
+    return rows.map((r) => ({ ...r, source: r.source as NotificationDraft['source'] }));
+  }
+
+  async insert(d: NotificationDraft): Promise<void> {
+    await this.db.runAsync(
+      'INSERT INTO notification_drafts (id, source, rawText, amountCents, date, merchant, sender, cardLast4, createdAt) VALUES (?,?,?,?,?,?,?,?,?)',
+      [d.id, d.source, d.rawText, d.amountCents, d.date, d.merchant, d.sender, d.cardLast4, d.createdAt]
+    );
+  }
+
+  async remove(id: string): Promise<void> {
+    await this.db.runAsync('DELETE FROM notification_drafts WHERE id=?', [id]);
+  }
+}
+
 let cached: Repositories | null = null;
 
 /** Repository 工廠(native):expo-sqlite 開庫 + migration(冪等) */
@@ -340,6 +369,7 @@ export async function createRepositories(): Promise<Repositories> {
     valuations: new SqliteValuationRepository(db),
     budgets: new SqliteBudgetRepository(db),
     recurring: new SqliteRecurringRepository(db),
+    notificationDrafts: new SqliteNotificationDraftRepository(db),
   };
   return cached;
 }

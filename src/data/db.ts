@@ -8,6 +8,7 @@ import {
   InMemoryBudgetRepository,
   InMemoryInvoiceRepository,
   InMemoryLoanRepository,
+  InMemoryNotificationDraftRepository,
   InMemoryPrizeRepository,
   InMemoryRecurringRepository,
   InMemoryTxnRepository,
@@ -31,6 +32,7 @@ export async function createRepositories(): Promise<Repositories> {
     valuations: new InMemoryValuationRepository(),
     budgets: new InMemoryBudgetRepository(),
     recurring: new InMemoryRecurringRepository(),
+    notificationDrafts: new InMemoryNotificationDraftRepository(),
   };
   return cached;
 }

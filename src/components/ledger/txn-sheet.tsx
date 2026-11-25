@@ -25,11 +25,22 @@ import { color, font, radius } from '../../theme';
 import { BottomSheet } from '../ui/bottom-sheet';
 import { Icon } from '../ui/icon';
 
+/** 新增模式的預填(通知草稿「轉為交易」);initial 有值時忽略 */
+export interface TxnPreset {
+  amountCents: number;
+  date: string;
+  note: string;
+  category: TxnInput['category'];
+}
+
 interface Props {
   visible: boolean;
   onClose: () => void;
   /** 編輯對象(null = 新增) */
   initial: Txn | null;
+  preset?: TxnPreset | null;
+  /** 新增儲存成功後回呼(例:移除通知草稿) */
+  onSaved?: () => void;
 }
 
 const TYPE_OPTIONS: ReadonlyArray<{ value: TxnType; labelKey: string }> = [
@@ -42,7 +53,7 @@ function errTextKey(code: TxnErrorCode): string {
   return `txn.err${code.charAt(0).toUpperCase()}${code.slice(1)}`;
 }
 
-export function TxnSheet({ visible, onClose, initial }: Props) {
+export function TxnSheet({ visible, onClose, initial, preset = null, onSaved }: Props) {
   const { t } = useTranslation();
   const settings = useSettings((s) => s.settings);
   const lang = currentLanguage(settings);
@@ -60,7 +71,7 @@ export function TxnSheet({ visible, onClose, initial }: Props) {
   const [note, setNote] = useState('');
   const [err, setErr] = useState<TxnErrorCode | null>(null);
 
-  // 開啟時重置(新增=空白;編輯=預填)
+  // 開啟時重置(新增=空白或 preset 預填;編輯=預填)
   useEffect(() => {
     if (!visible) return;
     setErr(null);
@@ -72,6 +83,14 @@ export function TxnSheet({ visible, onClose, initial }: Props) {
       setToAccountId(initial.toAccountId);
       setDate(initial.date);
       setNote(initial.note);
+    } else if (preset) {
+      setType('expense');
+      setAmountText(preset.amountCents % 100 === 0 ? String(preset.amountCents / 100) : (preset.amountCents / 100).toFixed(2));
+      setCategory(preset.category);
+      setAccountId(accounts[0]?.id ?? null);
+      setToAccountId(null);
+      setDate(preset.date);
+      setNote(preset.note);
     } else {
       setType('expense');
       setAmountText('');
@@ -82,7 +101,7 @@ export function TxnSheet({ visible, onClose, initial }: Props) {
       setNote('');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible, initial]);
+  }, [visible, initial, preset]);
 
   // 類型切換:清分類、修補帳戶選擇
   function changeType(next: TxnType) {
@@ -113,6 +132,7 @@ export function TxnSheet({ visible, onClose, initial }: Props) {
     }
     const ok = initial ? await updateTxn(initial.id, input) : await addTxn(input);
     if (ok) {
+      if (!initial) onSaved?.();
       onClose();
     } else {
       setErr('account');

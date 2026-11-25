@@ -9,6 +9,7 @@ import type { Invoice, PrizeNumbers } from '../domain/invoice';
 import type { Asset, AssetValuation } from '../domain/asset';
 import type { Budget } from '../domain/budget';
 import type { RecurringTxn } from '../domain/recurring';
+import type { NotificationDraft } from '../domain/notification';
 
 export interface AccountRepository {
   list(): Promise<Account[]>;
@@ -69,6 +70,12 @@ export interface RecurringRepository {
   remove(id: string): Promise<void>;
 }
 
+export interface NotificationDraftRepository {
+  list(): Promise<NotificationDraft[]>;
+  insert(draft: NotificationDraft): Promise<void>;
+  remove(id: string): Promise<void>;
+}
+
 /** 平台工廠(db.ts / db.native.ts)回傳的組合 */
 export interface Repositories {
   accounts: AccountRepository;
@@ -80,6 +87,7 @@ export interface Repositories {
   valuations: ValuationRepository;
   budgets: BudgetRepository;
   recurring: RecurringRepository;
+  notificationDrafts: NotificationDraftRepository;
 }
 
 export class InMemoryAccountRepository implements AccountRepository {
@@ -277,5 +285,25 @@ export class InMemoryRecurringRepository implements RecurringRepository {
 
   async remove(id: string): Promise<void> {
     this.items = this.items.filter((r) => r.id !== id);
+  }
+}
+
+export class InMemoryNotificationDraftRepository implements NotificationDraftRepository {
+  private items: NotificationDraft[] = [];
+
+  constructor(seed: NotificationDraft[] = []) {
+    this.items = seed.map((d) => ({ ...d }));
+  }
+
+  async list(): Promise<NotificationDraft[]> {
+    return this.items.map((d) => ({ ...d }));
+  }
+
+  async insert(draft: NotificationDraft): Promise<void> {
+    this.items.push({ ...draft });
+  }
+
+  async remove(id: string): Promise<void> {
+    this.items = this.items.filter((d) => d.id !== id);
   }
 }

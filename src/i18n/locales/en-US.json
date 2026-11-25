@@ -126,6 +126,19 @@
     "emptyTitle": "No recurring items",
     "emptyBody": "Add rent or subscriptions; due items prompt here."
   },
+  "notify": {
+    "paste": "Paste a notification",
+    "pendingTitle": "Notifications to confirm",
+    "toTxn": "Make entry",
+    "skip": "Dismiss",
+    "sourceSms": "Spend notice",
+    "noDate": "No date found",
+    "cardLast4": "Card {{digits}}",
+    "errEmpty": "Clipboard is empty",
+    "errNoAmount": "No amount found — is this a card spend notice?",
+    "errDuplicate": "Already in the pending list",
+    "errClipboard": "Cannot read the clipboard, please try again"
+  },
   "budgets": {
     "title": "Category budgets",
     "edit": "Edit budgets",

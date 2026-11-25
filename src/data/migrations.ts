@@ -113,6 +113,20 @@ export const MIGRATIONS: readonly string[] = [
     updatedAt INTEGER NOT NULL
   );
   `,
+  // v8:notification_drafts(P6 通知管理批次一——簡訊貼上解析的待確認草稿;暫時性質不入備份)
+  `
+  CREATE TABLE IF NOT EXISTS notification_drafts (
+    id TEXT PRIMARY KEY NOT NULL,
+    source TEXT NOT NULL,
+    rawText TEXT NOT NULL,
+    amountCents INTEGER,
+    date TEXT,
+    merchant TEXT,
+    sender TEXT,
+    cardLast4 TEXT,
+    createdAt INTEGER NOT NULL
+  );
+  `,
 ];
 
 /** 依 PRAGMA user_version 依序套用未執行的 migration(冪等);回傳本次套用版數 */
