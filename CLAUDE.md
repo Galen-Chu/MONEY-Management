@@ -57,7 +57,7 @@ npm run verify         # lint+typecheck+test(同 CI)
 ## 待辦排隊(2026-11-25 收尾歸檔·第三輪)
 
 - **待維護者解鎖**:P5 載具真機補驗(**卡統編→申請 appID**)、P6 批次二 Gmail(**卡 Google OAuth client**)、TestFlight 首建(**卡 Apple Developer 申請+`eas login`**,見 `docs/RELEASE.md`)、**真機裝置檢查**(host 側 SQLite 整合測試 ✅;裝置側按 `docs/DEVICE-CHECK.md` 七項清單執行)
-- **暫緩(維護者 2026-11-25)**:Uniconsign 套件依賴化——與 TIME-Management 同步策略,`tokens.json`/`icon.tsx` 維持手動同步
+- **不做(定案 2026-11-25)**:Uniconsign 套件依賴化——與 TIME-Management 同步策略,`tokens.json`/`icon.tsx` 永久手動同步(勿再提案)
 - **收樣本中**:CSV 各家銀行 preset
 - 測試工程:畫面層七分頁 RNTL ✅、表單層 ✅、SQLite 整合(better-sqlite3 真引擎)✅——**工程項全清**,僅餘裝置檢查
 - 完整清單(產品優化候選+技術債):`docs/PLAN.md` §「待辦與優化清單」

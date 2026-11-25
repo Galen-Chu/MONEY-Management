@@ -216,4 +216,4 @@
 | a11y 深化 | 對比度檢核腳本(TIME 有 contrast-audit 可鏡像)、動態字型複查 | |
 | Uniconsign 深色模式 | ✅ 2026-11-25(P0.6 批次三;§🌗) | |
 | 圖示擴編 | `ui/icon.tsx` 目前 vendor 9 枚;依需求自 `@galen-chu/uniconsign` 增補(分類點、交易列轉帳符號) | 圖示集 241 枚 |
-| 設計系統套件依賴化 | **暫緩(維護者 2026-11-25)**:與 TIME-Management 同步策略——`tokens.json`/`icon.tsx` 維持手動同步,不做 npm 依賴 | 未來要做仍需 GitHub Packages PAT(read:packages)+ CI secret |
+| 設計系統套件依賴化 | **不做(維護者定案 2026-11-25)**:與 TIME-Management 同步策略——`tokens.json`/`icon.tsx` **永久手動同步**,不成 npm 依賴 | 定案關閉;D7 的 token 單一事實來源即 `src/theme/tokens.json` |
