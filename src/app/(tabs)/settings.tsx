@@ -20,8 +20,8 @@ import { useLedgerStore } from '../../state/ledgerStore';
 import { useRecurringStore } from '../../state/recurringStore';
 import { useLoanStore } from '../../state/loanStore';
 import { useInvoiceStore } from '../../state/invoiceStore';
-import { currentLanguage, useSettings } from '../../state/settings';
-import { color, font, radius } from '../../theme';
+import { currentLanguage, useSettings, type Appearance } from '../../state/settings';
+import { font, radius, useStyles, type ThemeColors } from '../../theme';
 
 interface Status {
   kind: 'ok' | 'err';
@@ -30,8 +30,10 @@ interface Status {
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
+  const { styles } = useStyles(makeStyles);
   const settings = useSettings((s) => s.settings);
   const setLanguage = useSettings((s) => s.setLanguage);
+  const setAppearance = useSettings((s) => s.setAppearance);
   const lang = currentLanguage(settings);
 
   const accounts = useLedgerStore((s) => s.accounts);
@@ -126,6 +128,20 @@ export default function SettingsScreen() {
       </Card>
 
       <Card style={styles.card}>
+        <Text style={styles.rowTitle}>{t('settings.appearance')}</Text>
+        <Segmented<Appearance>
+          accessibilityLabel={t('settings.appearance')}
+          value={settings.appearance}
+          options={[
+            { value: 'system', label: t('settings.appearanceSystem') },
+            { value: 'light', label: t('settings.appearanceLight') },
+            { value: 'dark', label: t('settings.appearanceDark') },
+          ]}
+          onChange={setAppearance}
+        />
+      </Card>
+
+      <Card style={styles.card}>
         <Text style={styles.rowTitle}>{t('settings.backupTitle')}</Text>
         <Text style={styles.backupBody}>{t('settings.backupBody')}</Text>
         <View style={styles.backupRow}>
@@ -175,10 +191,10 @@ export default function SettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   shell: {
     flex: 1,
-    backgroundColor: color.bg,
+    backgroundColor: c.bg,
   },
   content: {
     paddingHorizontal: 16,
@@ -189,7 +205,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: font.size.title,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
     marginBottom: 4,
   },
   card: {
@@ -198,11 +214,11 @@ const styles = StyleSheet.create({
   rowTitle: {
     fontSize: font.size.h2,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   backupBody: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     lineHeight: 20,
   },
   backupRow: {
@@ -216,20 +232,20 @@ const styles = StyleSheet.create({
     borderRadius: radius.button,
   },
   backupBtnPrimary: {
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
   },
   backupBtnPrimaryText: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },
   backupBtnSecondary: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
   },
   backupBtnSecondaryText: {
-    color: color.ink,
+    color: c.ink,
     fontSize: font.size.body,
     fontFamily: font.family.semibold,
   },
@@ -238,27 +254,27 @@ const styles = StyleSheet.create({
     fontFamily: font.family.semibold,
   },
   statusOk: {
-    color: color.income,
+    color: c.income,
   },
   statusErr: {
-    color: color.danger,
+    color: c.danger,
   },
   csvBtn: {
     alignItems: 'center',
     paddingVertical: 12,
     borderRadius: radius.button,
-    backgroundColor: color.accentSoft,
+    backgroundColor: c.accentSoft,
     borderWidth: 1,
-    borderColor: color.accent,
+    borderColor: c.accent,
   },
   csvBtnText: {
-    color: color.accentDeep,
+    color: c.accentDeep,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },
   privacyBody: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     lineHeight: 20,
   },
   versionRow: {
@@ -268,11 +284,11 @@ const styles = StyleSheet.create({
   },
   versionLabel: {
     fontSize: font.size.small,
-    color: color.inkMuted,
+    color: c.inkMuted,
   },
   versionValue: {
     fontSize: font.size.small,
-    color: color.ink,
+    color: c.ink,
     fontFamily: font.family.semibold,
   },
 });

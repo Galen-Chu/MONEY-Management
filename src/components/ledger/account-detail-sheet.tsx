@@ -11,7 +11,7 @@ import { formatCents } from '../../domain/money';
 import { formatDayLabel } from '../../i18n/format';
 import { useLedgerStore } from '../../state/ledgerStore';
 import { currentLanguage, useSettings } from '../../state/settings';
-import { color, font, radius } from '../../theme';
+import { font, radius, useStyles, type ThemeColors } from '../../theme';
 import { BottomSheet } from '../ui/bottom-sheet';
 import { TxnRow } from './txn-row';
 import { TxnSheet } from './txn-sheet';
@@ -31,6 +31,7 @@ const TYPE_KEYS: Record<Account['type'], string> = {
 
 export function AccountDetailSheet({ visible, onClose, account, onEditAccount }: Props) {
   const { t } = useTranslation();
+  const { c, styles } = useStyles(makeStyles);
   const settings = useSettings((s) => s.settings);
   const lang = currentLanguage(settings);
   const { height } = useWindowDimensions();
@@ -82,10 +83,10 @@ export function AccountDetailSheet({ visible, onClose, account, onEditAccount }:
                 <View style={styles.dayHeader}>
                   <Text style={styles.dayDate}>{formatDayLabel(g.date, lang)}</Text>
                   {g.expenseCents > 0 ? (
-                    <Text style={[styles.dayTotal, { color: color.expense }]}>−{formatCents(g.expenseCents, lang)}</Text>
+                    <Text style={[styles.dayTotal, { color: c.expense }]}>−{formatCents(g.expenseCents, lang)}</Text>
                   ) : null}
                   {g.incomeCents > 0 ? (
-                    <Text style={[styles.dayTotal, { color: color.income }]}>+{formatCents(g.incomeCents, lang)}</Text>
+                    <Text style={[styles.dayTotal, { color: c.income }]}>+{formatCents(g.incomeCents, lang)}</Text>
                   ) : null}
                 </View>
                 {g.items.map((txn) => (
@@ -122,17 +123,18 @@ export function AccountDetailSheet({ visible, onClose, account, onEditAccount }:
 }
 
 function SummaryCell({ label, value, tone }: { label: string; value: string; tone: 'expense' | 'income' }) {
+  const { c, styles } = useStyles(makeStyles);
   return (
     <View style={styles.cell}>
       <Text style={styles.cellLabel}>{label}</Text>
-      <Text style={[styles.cellValue, tone === 'expense' ? { color: color.expense } : { color: color.income }]}>
+      <Text style={[styles.cellValue, tone === 'expense' ? { color: c.expense } : { color: c.income }]}>
         {value}
       </Text>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   wrap: {
     paddingHorizontal: 20,
     paddingTop: 6,
@@ -142,11 +144,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: font.size.title,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   subtitle: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     marginTop: -8,
   },
   summaryRow: {
@@ -155,16 +157,16 @@ const styles = StyleSheet.create({
   },
   cell: {
     flex: 1,
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     padding: 12,
     gap: 4,
   },
   cellLabel: {
     fontSize: font.size.tiny,
-    color: color.inkMuted,
+    color: c.inkMuted,
   },
   cellValue: {
     fontSize: font.size.body,
@@ -173,7 +175,7 @@ const styles = StyleSheet.create({
   },
   empty: {
     fontSize: font.size.small,
-    color: color.inkMuted,
+    color: c.inkMuted,
     textAlign: 'center',
     paddingVertical: 18,
   },
@@ -191,7 +193,7 @@ const styles = StyleSheet.create({
   dayDate: {
     flex: 1,
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     fontFamily: font.family.semibold,
   },
   dayTotal: {
@@ -203,11 +205,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 13,
     borderRadius: radius.button,
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
     marginTop: 4,
   },
   editBtnText: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },

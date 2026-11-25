@@ -19,7 +19,7 @@ import { useLedgerStore } from '../../state/ledgerStore';
 import { useLoanStore } from '../../state/loanStore';
 import { useNotificationStore } from '../../state/notificationStore';
 import { useRecurringStore } from '../../state/recurringStore';
-import { color, font } from '../../theme';
+import { font, useStyles, type ThemeColors } from '../../theme';
 
 const TABS: { name: string; key: string; icon: IconName }[] = [
   { name: 'index', key: 'tabs.today', icon: 'sun' },
@@ -33,6 +33,7 @@ const TABS: { name: string; key: string; icon: IconName }[] = [
 
 export default function TabsLayout() {
   const { t } = useTranslation();
+  const { c, styles } = useStyles(makeStyles);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
@@ -88,7 +89,7 @@ export default function TabsLayout() {
                   accessibilityRole="tab"
                   accessibilityState={{ selected: active }}
                 >
-                  <Icon name={tab.icon} size={22} fill={active ? color.accent : color.inkMuted} />
+                  <Icon name={tab.icon} size={22} fill={active ? c.accent : c.inkMuted} />
                   <Text style={[styles.label, active && styles.labelActive]}>{t(tab.key)}</Text>
                 </Pressable>
               );
@@ -109,16 +110,16 @@ export default function TabsLayout() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   shell: {
     flex: 1,
-    backgroundColor: color.bg,
+    backgroundColor: c.bg,
   },
   bar: {
     flexDirection: 'row',
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderTopWidth: 1,
-    borderTopColor: color.line,
+    borderTopColor: c.line,
     paddingTop: 10,
   },
   tab: {
@@ -128,10 +129,10 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: font.size.tiny,
-    color: color.inkMuted,
+    color: c.inkMuted,
     fontFamily: font.family.semibold,
   },
   labelActive: {
-    color: color.ink,
+    color: c.ink,
   },
 });

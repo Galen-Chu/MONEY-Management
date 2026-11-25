@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { ASSET_TYPES, validateAsset, type Asset, type AssetType } from '../../domain/asset';
 import { parseAmount, toCents } from '../../domain/money';
 import { useAssetStore } from '../../state/assetStore';
-import { color, font, radius } from '../../theme';
+import { font, radius, useStyles, type ThemeColors } from '../../theme';
 import { BottomSheet } from '../ui/bottom-sheet';
 
 interface Props {
@@ -33,6 +33,7 @@ function errKey(code: 'name' | 'type'): string {
 
 export function AssetSheet({ visible, onClose, initial }: Props) {
   const { t } = useTranslation();
+  const { c, styles } = useStyles(makeStyles);
   const addAsset = useAssetStore((s) => s.addAsset);
   const updateAsset = useAssetStore((s) => s.updateAsset);
   const deleteAsset = useAssetStore((s) => s.deleteAsset);
@@ -100,7 +101,7 @@ export function AssetSheet({ visible, onClose, initial }: Props) {
           value={name}
           onChangeText={setName}
           placeholder={t('assets.namePlaceholder')}
-          placeholderTextColor={color.inkMuted}
+          placeholderTextColor={c.inkMuted}
         />
 
         <View style={styles.field}>
@@ -129,7 +130,7 @@ export function AssetSheet({ visible, onClose, initial }: Props) {
               value={valueText}
               onChangeText={setValueText}
               placeholder="0"
-              placeholderTextColor={color.inkMuted}
+              placeholderTextColor={c.inkMuted}
             />
           </View>
         ) : null}
@@ -152,7 +153,7 @@ export function AssetSheet({ visible, onClose, initial }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   wrap: {
     paddingHorizontal: 20,
     paddingTop: 6,
@@ -161,18 +162,18 @@ const styles = StyleSheet.create({
   title: {
     fontSize: font.size.title,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   input: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     paddingHorizontal: 14,
     paddingVertical: 10,
     fontSize: font.size.h2,
     fontFamily: font.family.semibold,
-    color: color.ink,
+    color: c.ink,
     fontVariant: ['tabular-nums'],
   },
   field: {
@@ -180,7 +181,7 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     fontFamily: font.family.semibold,
   },
   chips: {
@@ -192,25 +193,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: radius.chip,
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
   },
   chipActive: {
-    borderColor: color.accent,
-    backgroundColor: color.accentSoft,
+    borderColor: c.accent,
+    backgroundColor: c.accentSoft,
   },
   chipLabel: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
   },
   chipLabelActive: {
-    color: color.accentDeep,
+    color: c.accentDeep,
     fontFamily: font.family.semibold,
   },
   err: {
     fontSize: font.size.small,
-    color: color.danger,
+    color: c.danger,
   },
   actions: {
     flexDirection: 'row',
@@ -224,20 +225,20 @@ const styles = StyleSheet.create({
     borderRadius: radius.button,
   },
   btnSecondary: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
   },
   btnSecondaryText: {
-    color: color.danger,
+    color: c.danger,
     fontSize: font.size.body,
     fontFamily: font.family.semibold,
   },
   btnPrimary: {
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
   },
   btnPrimaryText: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },

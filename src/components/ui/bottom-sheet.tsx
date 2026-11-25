@@ -6,7 +6,7 @@ import type { PropsWithChildren } from 'react';
 import { Animated, Pressable, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import { color, radius } from '../../theme';
+import { radius, useStyles, type ThemeColors } from '../../theme';
 
 interface Props {
   visible: boolean;
@@ -15,6 +15,7 @@ interface Props {
 
 export function BottomSheet({ visible, onClose, children }: PropsWithChildren<Props>) {
   const { t } = useTranslation();
+  const { styles } = useStyles(makeStyles);
   const progress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -45,21 +46,21 @@ export function BottomSheet({ visible, onClose, children }: PropsWithChildren<Pr
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   mask: {
-    backgroundColor: color.scrim,
+    backgroundColor: c.scrim,
   },
   panel: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: color.bg,
+    backgroundColor: c.bg,
     borderTopLeftRadius: radius.sheetTop,
     borderTopRightRadius: radius.sheetTop,
     paddingBottom: 24,
     elevation: 8,
-    shadowColor: color.shadow,
+    shadowColor: c.shadow,
     shadowOpacity: 0.12,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: -4 },
@@ -69,7 +70,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 4,
     borderRadius: 2,
-    backgroundColor: color.trackAlt,
+    backgroundColor: c.trackAlt,
     marginTop: 10,
     marginBottom: 6,
   },

@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { EXPENSE_CATEGORIES, categoryLabelKey } from '../../domain/categories';
 import { parseAmount, toCents } from '../../domain/money';
 import { useBudgetStore } from '../../state/budgetStore';
-import { color, font, radius } from '../../theme';
+import { font, radius, useStyles, type ThemeColors } from '../../theme';
 import { BottomSheet } from '../ui/bottom-sheet';
 
 interface Props {
@@ -19,6 +19,7 @@ interface Props {
 
 export function BudgetSheet({ visible, onClose }: Props) {
   const { t } = useTranslation();
+  const { c, styles } = useStyles(makeStyles);
   const { height } = useWindowDimensions();
   const budgets = useBudgetStore((s) => s.budgets);
   const setBudget = useBudgetStore((s) => s.setBudget);
@@ -31,19 +32,19 @@ export function BudgetSheet({ visible, onClose }: Props) {
     if (!visible) return;
     setErr(null);
     const next: Record<string, string> = {};
-    for (const c of EXPENSE_CATEGORIES) {
-      const b = budgets.find((x) => x.category === c);
-      next[c] = b ? String(b.amountCents / 100) : '';
+    for (const cat of EXPENSE_CATEGORIES) {
+      const b = budgets.find((x) => x.category === cat);
+      next[cat] = b ? String(b.amountCents / 100) : '';
     }
     setTexts(next);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   async function save() {
-    for (const c of EXPENSE_CATEGORIES) {
-      const text = (texts[c] ?? '').trim();
+    for (const cat of EXPENSE_CATEGORIES) {
+      const text = (texts[cat] ?? '').trim();
       if (!text) {
-        await removeBudget(c);
+        await removeBudget(cat);
         continue;
       }
       const yuan = parseAmount(text);
@@ -51,7 +52,7 @@ export function BudgetSheet({ visible, onClose }: Props) {
         setErr(t('budgets.errAmount'));
         return;
       }
-      await setBudget(c, toCents(yuan));
+      await setBudget(cat, toCents(yuan));
     }
     onClose();
   }
@@ -63,18 +64,18 @@ export function BudgetSheet({ visible, onClose }: Props) {
         <Text style={styles.hint}>{t('budgets.noneHint')}</Text>
 
         <View style={styles.list}>
-          {EXPENSE_CATEGORIES.map((c) => (
-            <View key={c} style={styles.row}>
-              <View style={[styles.dot, { backgroundColor: color.accent }]} />
-              <Text style={styles.label}>{t(categoryLabelKey(c))}</Text>
+          {EXPENSE_CATEGORIES.map((cat) => (
+            <View key={cat} style={styles.row}>
+              <View style={[styles.dot, { backgroundColor: c.accent }]} />
+              <Text style={styles.label}>{t(categoryLabelKey(cat))}</Text>
               <TextInput
-                accessibilityLabel={t(categoryLabelKey(c))}
+                accessibilityLabel={t(categoryLabelKey(cat))}
                 style={styles.input}
                 keyboardType="decimal-pad"
-                value={texts[c] ?? ''}
-                onChangeText={(v) => setTexts((s) => ({ ...s, [c]: v }))}
+                value={texts[cat] ?? ''}
+                onChangeText={(v) => setTexts((s) => ({ ...s, [cat]: v }))}
                 placeholder="0"
-                placeholderTextColor={color.inkMuted}
+                placeholderTextColor={c.inkMuted}
               />
             </View>
           ))}
@@ -90,7 +91,7 @@ export function BudgetSheet({ visible, onClose }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   wrap: {
     paddingHorizontal: 20,
     paddingTop: 6,
@@ -100,11 +101,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: font.size.title,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   hint: {
     fontSize: font.size.tiny,
-    color: color.inkMuted,
+    color: c.inkMuted,
     marginTop: -8,
   },
   list: {
@@ -123,35 +124,35 @@ const styles = StyleSheet.create({
   label: {
     flex: 1,
     fontSize: font.size.small,
-    color: color.ink,
+    color: c.ink,
     fontFamily: font.family.semibold,
   },
   input: {
     width: 120,
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     paddingHorizontal: 12,
     paddingVertical: 8,
     fontSize: font.size.body,
-    color: color.ink,
+    color: c.ink,
     textAlign: 'right',
     fontVariant: ['tabular-nums'],
   },
   err: {
     fontSize: font.size.small,
-    color: color.danger,
+    color: c.danger,
   },
   saveBtn: {
     alignItems: 'center',
     paddingVertical: 13,
     borderRadius: radius.button,
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
     marginTop: 4,
   },
   saveBtnText: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },

@@ -16,7 +16,7 @@ import { todayKey } from '../../domain/ledger';
 import { formatCents } from '../../domain/money';
 import { useAssetStore } from '../../state/assetStore';
 import { currentLanguage, useSettings } from '../../state/settings';
-import { color, font, radius } from '../../theme';
+import { font, radius, useStyles, type ThemeColors } from '../../theme';
 
 const TYPE_KEYS: Record<Asset['type'], string> = {
   'real-estate': 'assets.typeRealEstate',
@@ -28,6 +28,7 @@ const TYPE_KEYS: Record<Asset['type'], string> = {
 
 export default function AssetsScreen() {
   const { t } = useTranslation();
+  const { c, styles } = useStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const settings = useSettings((s) => s.settings);
   const lang = currentLanguage(settings);
@@ -98,7 +99,7 @@ export default function AssetsScreen() {
         }}
         style={[styles.addBtn, { bottom: insets.bottom + 96 }]}
       >
-        <Icon name="plus" size={14} fill={color.onBrand} />
+        <Icon name="plus" size={14} fill={c.onBrand} />
         <Text style={styles.addText}>{t('assets.add')}</Text>
       </Pressable>
 
@@ -117,10 +118,10 @@ export default function AssetsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   shell: {
     flex: 1,
-    backgroundColor: color.bg,
+    backgroundColor: c.bg,
   },
   content: {
     paddingHorizontal: 16,
@@ -131,22 +132,22 @@ const styles = StyleSheet.create({
   title: {
     fontSize: font.size.title,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   summaryCard: {
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
     borderRadius: radius.card,
     padding: 18,
     gap: 10,
   },
   sumLabel: {
     fontSize: font.size.small,
-    color: color.onBrandSecondary,
+    color: c.onBrandSecondary,
     fontFamily: font.family.semibold,
   },
   sumValue: {
     fontSize: 30,
-    color: color.onBrand,
+    color: c.onBrand,
     fontFamily: font.family.bold,
     fontVariant: ['tabular-nums'],
   },
@@ -157,18 +158,18 @@ const styles = StyleSheet.create({
   },
   sumCellLabel: {
     fontSize: font.size.tiny,
-    color: color.onBrandSecondary,
+    color: c.onBrandSecondary,
   },
   sumCellValue: {
     fontSize: font.size.body,
-    color: color.onBrand,
+    color: c.onBrand,
     fontFamily: font.family.bold,
     fontVariant: ['tabular-nums'],
   },
   assetCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     padding: 14,
     gap: 12,
@@ -180,11 +181,11 @@ const styles = StyleSheet.create({
   assetName: {
     fontSize: font.size.h2,
     fontFamily: font.family.semibold,
-    color: color.ink,
+    color: c.ink,
   },
   assetSub: {
     fontSize: font.size.tiny,
-    color: color.inkMuted,
+    color: c.inkMuted,
   },
   assetRight: {
     alignItems: 'flex-end',
@@ -193,7 +194,7 @@ const styles = StyleSheet.create({
   assetValue: {
     fontSize: font.size.h2,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
     fontVariant: ['tabular-nums'],
   },
   assetPct: {
@@ -202,15 +203,15 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
   },
   pctUp: {
-    color: color.income,
+    color: c.income,
   },
   pctDown: {
-    color: color.expense,
+    color: c.expense,
   },
   addBtn: {
     position: 'absolute',
     right: 20,
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
     borderRadius: radius.button,
     paddingHorizontal: 18,
     paddingVertical: 13,
@@ -218,13 +219,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     elevation: 6,
-    shadowColor: color.shadow,
+    shadowColor: c.shadow,
     shadowOpacity: 0.25,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
   },
   addText: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },

@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-MoneyCare · 個人財務統合 App(repo Galen-Chu/MONEY-Management)——記帳為核心,發票/貸款/資產/帳務資料半自動歸集,**金融資料 100% 本機**。Expo SDK 57 + TypeScript strict,沿用 TIME-Management(TimeCare)技術棧與工程模式。主線 P0(骨架+記帳)、P0.6/P0.7/P0.8(UI 改版 Uniconsign/iOS TestFlight 管線/備份)、P1 貸款、P2 消費(發票+現金流)、P3 資產、P4 CSV 匯入皆已完成(2026-11-24 收尾,push `421612b`);2026-11-25 優化三項(分類月預算/定期交易/帳戶明細)+**P6 通知管理批次一**(簡訊貼上+待確認草稿)+**P5 載具發票查詢**(mock 可測全功能;實際連線卡 appID/統編)完成待驗收。
+MoneyCare · 個人財務統合 App(repo Galen-Chu/MONEY-Management)——記帳為核心,發票/貸款/資產/帳務資料半自動歸集,**金融資料 100% 本機**。Expo SDK 57 + TypeScript strict,沿用 TIME-Management(TimeCare)技術棧與工程模式。主線 P0(骨架+記帳)、P0.6/P0.7/P0.8(UI 改版 Uniconsign/iOS TestFlight 管線/備份)、P1 貸款、P2 消費(發票+現金流)、P3 資產、P4 CSV 匯入皆已完成(2026-11-24 收尾,push `421612b`);2026-11-25 優化三項(分類月預算/定期交易/帳戶明細)+**P6 通知管理批次一**(簡訊貼上+待確認草稿)+**P5 載具發票查詢**(mock 可測;連線卡 appID/統編)+**P0.6 批次三深色模式**(雙盤 token/ThemeProvider/外觀設定)完成待驗收。
 
 ## 常用指令
 
@@ -57,6 +57,6 @@ npm run verify         # lint+typecheck+test(同 CI)
 ## 待辦排隊(2026-11-25 更新·D9 功能優先/D10 功能軸)
 
 - **主線(功能軸)**:P5 載具發票查詢 ✅ 2026-11-25 完成(golden 驗收;**待維護者:統編→申請 appID→真機補驗**)、P6 通知管理批次一 ✅(批次二 Gmail 待 OAuth client);優化候選:CSV 各家 preset(收樣本中;分類月預算/定期交易/帳戶明細均 ✅ 2026-11-25)
-- **環境建置類(依 D9 暫緩,功能告一段落後依序)**:深色模式 🔄 2026-11-25 開工(P0.6 批次三——設計見 PLAN §🌗)、TestFlight 首建(**卡 Apple Developer 申請+`eas login`**,見 `docs/RELEASE.md`)、Uniconsign 套件依賴化
+- **環境建置類(依 D9 暫緩,功能告一段落後依序)**:深色模式 ✅ 2026-11-25 完成待驗收(P0.6 批次三——設計見 PLAN §🌗;27 檔遷移 makeStyles(c)、207/207 綠)、TestFlight 首建(**卡 Apple Developer 申請+`eas login`**,見 `docs/RELEASE.md`)、Uniconsign 套件依賴化
 - **優先度較高的工程項**:表單層 RNTL 測試 ✅ 2026-11-25(TxnSheet/AccountSheet:驗證訊息/類型切換/轉帳雙戶/preset/編輯刪除/errInUse;async render 下互動須包 `await act(async ...)`——見 state 記憶與測試檔註)、真機 Expo Go 驗證 SQLite 路徑、TestFlight 首建(卡 Apple Developer 申請)
 - 完整清單(產品優化候選+技術債):`docs/PLAN.md` §「待辦與優化清單」

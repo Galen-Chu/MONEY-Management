@@ -21,7 +21,7 @@ import { parseAmount, toCents } from '../../domain/money';
 import { useLedgerStore } from '../../state/ledgerStore';
 import { useSettings, currentLanguage } from '../../state/settings';
 import { formatDayLabel } from '../../i18n/format';
-import { color, font, radius } from '../../theme';
+import { font, radius, useStyles, type ThemeColors } from '../../theme';
 import { BottomSheet } from '../ui/bottom-sheet';
 import { Icon } from '../ui/icon';
 
@@ -55,6 +55,7 @@ function errTextKey(code: TxnErrorCode): string {
 
 export function TxnSheet({ visible, onClose, initial, preset = null, onSaved }: Props) {
   const { t } = useTranslation();
+  const { c, styles } = useStyles(makeStyles);
   const settings = useSettings((s) => s.settings);
   const lang = currentLanguage(settings);
   const accounts = useLedgerStore((s) => s.accounts);
@@ -181,7 +182,7 @@ export function TxnSheet({ visible, onClose, initial, preset = null, onSaved }: 
             value={amountText}
             onChangeText={setAmountText}
             placeholder="0"
-            placeholderTextColor={color.inkMuted}
+            placeholderTextColor={c.inkMuted}
           />
         </View>
 
@@ -252,11 +253,11 @@ export function TxnSheet({ visible, onClose, initial, preset = null, onSaved }: 
         {/* 日期 */}
         <View style={styles.dateRow}>
           <Pressable accessibilityLabel={t('txn.prevDay')} onPress={() => setDate((d) => shiftDate(d, -1))} style={styles.dateBtn}>
-            <Icon name="arrowLeft" size={16} fill={color.inkSecondary} />
+            <Icon name="arrowLeft" size={16} fill={c.inkSecondary} />
           </Pressable>
           <Text style={styles.dateText}>{formatDayLabel(date, lang)}</Text>
           <Pressable accessibilityLabel={t('txn.nextDay')} onPress={() => setDate((d) => shiftDate(d, 1))} style={styles.dateBtn}>
-            <Icon name="arrowRight" size={16} fill={color.inkSecondary} />
+            <Icon name="arrowRight" size={16} fill={c.inkSecondary} />
           </Pressable>
         </View>
 
@@ -267,7 +268,7 @@ export function TxnSheet({ visible, onClose, initial, preset = null, onSaved }: 
           value={note}
           onChangeText={setNote}
           placeholder={t('txn.notePlaceholder')}
-          placeholderTextColor={color.inkMuted}
+          placeholderTextColor={c.inkMuted}
         />
 
         {errMessage ? <Text style={styles.err}>{errMessage}</Text> : null}
@@ -298,6 +299,7 @@ function Chip({
   active: boolean;
   onPress: () => void;
 }) {
+  const { styles } = useStyles(makeStyles);
   return (
     <Pressable
       accessibilityRole="button"
@@ -310,7 +312,7 @@ function Chip({
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   wrap: {
     paddingHorizontal: 20,
     paddingTop: 6,
@@ -319,11 +321,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: font.size.title,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   typeRow: {
     flexDirection: 'row',
-    backgroundColor: color.track,
+    backgroundColor: c.track,
     borderRadius: radius.chip,
     padding: 3,
     gap: 3,
@@ -335,37 +337,37 @@ const styles = StyleSheet.create({
     borderRadius: radius.chip - 3,
   },
   typeSegActive: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
   },
   typeLabel: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     fontFamily: font.family.medium,
   },
   typeLabelActive: {
-    color: color.accentDeep,
+    color: c.accentDeep,
     fontFamily: font.family.bold,
   },
   amountRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     paddingHorizontal: 14,
     paddingVertical: 8,
   },
   currency: {
     fontSize: font.size.h2,
-    color: color.inkMuted,
+    color: c.inkMuted,
     fontFamily: font.family.semibold,
   },
   amountInput: {
     flex: 1,
     fontSize: 24,
-    color: color.ink,
+    color: c.ink,
     fontFamily: font.family.bold,
     paddingVertical: 4,
     fontVariant: ['tabular-nums'],
@@ -375,7 +377,7 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     fontFamily: font.family.semibold,
   },
   chips: {
@@ -390,13 +392,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: radius.chip,
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
   },
   chipActive: {
-    borderColor: color.accent,
-    backgroundColor: color.accentSoft,
+    borderColor: c.accent,
+    backgroundColor: c.accentSoft,
   },
   chipDot: {
     width: 9,
@@ -404,14 +406,14 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   chipDotActive: {
-    backgroundColor: color.accentDeep,
+    backgroundColor: c.accentDeep,
   },
   chipLabel: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
   },
   chipLabelActive: {
-    color: color.accentDeep,
+    color: c.accentDeep,
     fontFamily: font.family.semibold,
   },
   dateRow: {
@@ -426,29 +428,29 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
   },
   dateText: {
     fontSize: font.size.h2,
-    color: color.ink,
+    color: c.ink,
     fontFamily: font.family.semibold,
     fontVariant: ['tabular-nums'],
   },
   noteInput: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     paddingHorizontal: 14,
     paddingVertical: 10,
     fontSize: font.size.body,
-    color: color.ink,
+    color: c.ink,
   },
   err: {
     fontSize: font.size.small,
-    color: color.danger,
+    color: c.danger,
   },
   actions: {
     flexDirection: 'row',
@@ -462,20 +464,20 @@ const styles = StyleSheet.create({
     borderRadius: radius.button,
   },
   btnSecondary: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
   },
   btnSecondaryText: {
-    color: color.danger,
+    color: c.danger,
     fontSize: font.size.body,
     fontFamily: font.family.semibold,
   },
   btnPrimary: {
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
   },
   btnPrimaryText: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },

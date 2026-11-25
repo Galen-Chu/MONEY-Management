@@ -9,7 +9,7 @@ import { CATEGORY_COLORS, categoryLabelKey } from '../../domain/categories';
 import type { Txn } from '../../domain/ledger';
 import { formatCents } from '../../domain/money';
 import { useSettings, currentLanguage } from '../../state/settings';
-import { color, font, radius } from '../../theme';
+import { font, radius, useStyles, type ThemeColors } from '../../theme';
 
 interface Props {
   txn: Txn;
@@ -19,6 +19,7 @@ interface Props {
 
 export function TxnRow({ txn, accountName, onPress }: Props) {
   const { t } = useTranslation();
+  const { c, styles } = useStyles(makeStyles);
   const settings = useSettings((s) => s.settings);
   const lang = currentLanguage(settings);
 
@@ -27,7 +28,7 @@ export function TxnRow({ txn, accountName, onPress }: Props) {
   const amountText = `${isExpense ? '−' : isIncome ? '+' : ''}${formatCents(txn.amountCents, lang)}`;
   const amountStyle = isExpense ? styles.expense : isIncome ? styles.income : styles.neutral;
 
-  const dotColor = txn.category ? CATEGORY_COLORS[txn.category] : color.inkMuted;
+  const dotColor = txn.category ? CATEGORY_COLORS[txn.category] : c.inkMuted;
   const title = txn.note.trim() || (txn.category ? t(categoryLabelKey(txn.category)) : '');
 
   const secondary = txn.category ? t(categoryLabelKey(txn.category)) : '';
@@ -58,7 +59,7 @@ export function TxnRow({ txn, accountName, onPress }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -68,7 +69,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.row,
   },
   pressed: {
-    backgroundColor: color.track,
+    backgroundColor: c.track,
   },
   dot: {
     width: 34,
@@ -78,7 +79,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dotArrow: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: 15,
     fontFamily: font.family.bold,
   },
@@ -88,12 +89,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: font.size.body,
-    color: color.ink,
+    color: c.ink,
     fontFamily: font.family.semibold,
   },
   secondary: {
     fontSize: font.size.tiny,
-    color: color.inkMuted,
+    color: c.inkMuted,
   },
   amount: {
     fontSize: font.size.body,
@@ -101,12 +102,12 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
   },
   expense: {
-    color: color.expense,
+    color: c.expense,
   },
   income: {
-    color: color.income,
+    color: c.income,
   },
   neutral: {
-    color: color.inkSecondary,
+    color: c.inkSecondary,
   },
 });

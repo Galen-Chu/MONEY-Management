@@ -18,7 +18,7 @@ import { formatCents } from '../../domain/money';
 import { formatDayLabel, formatRatePercent } from '../../i18n/format';
 import { useLoanStore } from '../../state/loanStore';
 import { currentLanguage, useSettings } from '../../state/settings';
-import { color, font, radius } from '../../theme';
+import { font, radius, useStyles, type ThemeColors } from '../../theme';
 
 const TYPE_KEYS: Record<Loan['type'], string> = {
   mortgage: 'loans.typeMortgage',
@@ -30,6 +30,7 @@ const TYPE_KEYS: Record<Loan['type'], string> = {
 
 export default function LoansScreen() {
   const { t } = useTranslation();
+  const { c, styles } = useStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const settings = useSettings((s) => s.settings);
   const lang = currentLanguage(settings);
@@ -122,7 +123,7 @@ export default function LoansScreen() {
         }}
         style={[styles.addBtn, { bottom: insets.bottom + 96 }]}
       >
-        <Icon name="plus" size={14} fill={color.onBrand} />
+        <Icon name="plus" size={14} fill={c.onBrand} />
         <Text style={styles.addText}>{t('loans.add')}</Text>
       </Pressable>
 
@@ -141,10 +142,10 @@ export default function LoansScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   shell: {
     flex: 1,
-    backgroundColor: color.bg,
+    backgroundColor: c.bg,
   },
   content: {
     paddingHorizontal: 16,
@@ -155,22 +156,22 @@ const styles = StyleSheet.create({
   title: {
     fontSize: font.size.title,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   summaryCard: {
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
     borderRadius: radius.card,
     padding: 18,
     gap: 12,
   },
   sumLabel: {
     fontSize: font.size.small,
-    color: color.onBrandSecondary,
+    color: c.onBrandSecondary,
     fontFamily: font.family.semibold,
   },
   sumValue: {
     fontSize: 30,
-    color: color.onBrand,
+    color: c.onBrand,
     fontFamily: font.family.bold,
     fontVariant: ['tabular-nums'],
   },
@@ -185,23 +186,23 @@ const styles = StyleSheet.create({
   },
   sumCellLabel: {
     fontSize: font.size.tiny,
-    color: color.onBrandSecondary,
+    color: c.onBrandSecondary,
   },
   sumCellValue: {
     fontSize: font.size.body,
     fontFamily: font.family.bold,
-    color: color.onBrand,
+    color: c.onBrand,
     fontVariant: ['tabular-nums'],
   },
   sumDivider: {
     width: 1,
     alignSelf: 'stretch',
-    backgroundColor: color.onBrandSoft,
+    backgroundColor: c.onBrandSoft,
   },
   loanCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     padding: 14,
     gap: 12,
@@ -213,23 +214,23 @@ const styles = StyleSheet.create({
   loanName: {
     fontSize: font.size.h2,
     fontFamily: font.family.semibold,
-    color: color.ink,
+    color: c.ink,
   },
   loanSub: {
     fontSize: font.size.tiny,
-    color: color.inkMuted,
+    color: c.inkMuted,
   },
   track: {
     height: 6,
     borderRadius: 3,
-    backgroundColor: color.track,
+    backgroundColor: c.track,
     overflow: 'hidden',
     marginTop: 4,
   },
   trackBar: {
     height: 6,
     borderRadius: 3,
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
   },
   loanRight: {
     alignItems: 'flex-end',
@@ -238,22 +239,22 @@ const styles = StyleSheet.create({
   loanRemaining: {
     fontSize: font.size.h2,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
     fontVariant: ['tabular-nums'],
   },
   loanPaidOff: {
-    color: color.accentDeep,
+    color: c.accentDeep,
     fontSize: font.size.small,
   },
   loanMonthly: {
     fontSize: font.size.tiny,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     fontVariant: ['tabular-nums'],
   },
   addBtn: {
     position: 'absolute',
     right: 20,
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
     borderRadius: radius.button,
     paddingHorizontal: 18,
     paddingVertical: 13,
@@ -261,13 +262,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     elevation: 6,
-    shadowColor: color.shadow,
+    shadowColor: c.shadow,
     shadowOpacity: 0.25,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
   },
   addText: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },

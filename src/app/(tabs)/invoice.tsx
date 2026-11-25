@@ -28,7 +28,7 @@ import { monthLabel, termPeriodInfo } from '../../i18n/format';
 import { useCarrierStore, type CarrierSyncCode } from '../../state/carrierStore';
 import { useInvoiceStore } from '../../state/invoiceStore';
 import { currentLanguage, useSettings } from '../../state/settings';
-import { color, font, radius } from '../../theme';
+import { font, radius, useStyles, type ThemeColors } from '../../theme';
 
 const TIER_KEYS: Record<PrizeTier, string> = {
   super: 'invoice.tierSuper',
@@ -64,6 +64,7 @@ function presetOfInvoice(inv: Invoice): TxnPreset {
 
 export default function InvoiceScreen({ initialTerm }: { initialTerm?: InvoiceTerm }) {
   const { t } = useTranslation();
+  const { c, styles } = useStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const settings = useSettings((s) => s.settings);
   const lang = currentLanguage(settings);
@@ -111,11 +112,11 @@ export default function InvoiceScreen({ initialTerm }: { initialTerm?: InvoiceTe
 
         <View style={styles.termNav}>
           <Pressable accessibilityRole="button" onPress={() => setTerm((x) => shiftTerm(x, -1))} style={styles.termBtn}>
-            <Icon name="arrowLeft" size={16} fill={color.inkSecondary} />
+            <Icon name="arrowLeft" size={16} fill={c.inkSecondary} />
           </Pressable>
           <Text style={styles.termText}>{termText}</Text>
           <Pressable accessibilityRole="button" onPress={() => setTerm((x) => shiftTerm(x, 1))} style={styles.termBtn}>
-            <Icon name="arrowRight" size={16} fill={color.inkSecondary} />
+            <Icon name="arrowRight" size={16} fill={c.inkSecondary} />
           </Pressable>
         </View>
 
@@ -246,7 +247,7 @@ export default function InvoiceScreen({ initialTerm }: { initialTerm?: InvoiceTe
         }}
         style={[styles.addBtn, { bottom: insets.bottom + 96 }]}
       >
-        <Icon name="plus" size={14} fill={color.onBrand} />
+        <Icon name="plus" size={14} fill={c.onBrand} />
         <Text style={styles.addText}>{t('invoice.add')}</Text>
       </Pressable>
 
@@ -265,6 +266,7 @@ export default function InvoiceScreen({ initialTerm }: { initialTerm?: InvoiceTe
 }
 
 function PrizeRow({ label, numbers, strong }: { label: string; numbers: string[]; strong?: boolean }) {
+  const { styles } = useStyles(makeStyles);
   return (
     <View style={styles.prizeRow}>
       <Text style={styles.prizeLabel}>{label}</Text>
@@ -273,10 +275,10 @@ function PrizeRow({ label, numbers, strong }: { label: string; numbers: string[]
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   shell: {
     flex: 1,
-    backgroundColor: color.bg,
+    backgroundColor: c.bg,
   },
   content: {
     paddingHorizontal: 16,
@@ -287,7 +289,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: font.size.title,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   termNav: {
     flexDirection: 'row',
@@ -301,27 +303,27 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
   },
   termText: {
     fontSize: font.size.h2,
-    color: color.ink,
+    color: c.ink,
     fontFamily: font.family.bold,
   },
   prizeCard: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     padding: 14,
     gap: 10,
   },
   cardTitle: {
     fontSize: font.size.h2,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   prizeList: {
     gap: 6,
@@ -333,11 +335,11 @@ const styles = StyleSheet.create({
   },
   prizeLabel: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
   },
   prizeNumbers: {
     fontSize: font.size.small,
-    color: color.ink,
+    color: c.ink,
     fontFamily: font.family.medium,
     fontVariant: ['tabular-nums'],
   },
@@ -347,30 +349,30 @@ const styles = StyleSheet.create({
   },
   source: {
     fontSize: font.size.tiny,
-    color: color.inkMuted,
+    color: c.inkMuted,
   },
   hint: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
   },
   downloadBtn: {
     alignItems: 'center',
     paddingVertical: 12,
     borderRadius: radius.button,
-    backgroundColor: color.accentSoft,
+    backgroundColor: c.accentSoft,
     borderWidth: 1,
-    borderColor: color.accent,
+    borderColor: c.accent,
   },
   downloadText: {
-    color: color.accentDeep,
+    color: c.accentDeep,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },
   carrierCard: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.info,
+    borderColor: c.info,
     padding: 14,
     gap: 10,
   },
@@ -382,53 +384,53 @@ const styles = StyleSheet.create({
   carrierTitle: {
     fontSize: font.size.h2,
     fontFamily: font.family.bold,
-    color: color.info,
+    color: c.info,
   },
   carrierEdit: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     fontFamily: font.family.semibold,
   },
   carrierInfo: {
     fontSize: font.size.body,
-    color: color.ink,
+    color: c.ink,
     fontFamily: font.family.semibold,
   },
   syncBtn: {
     alignItems: 'center',
     paddingVertical: 12,
     borderRadius: radius.button,
-    backgroundColor: color.accentSoft,
+    backgroundColor: c.accentSoft,
     borderWidth: 1,
-    borderColor: color.accent,
+    borderColor: c.accent,
   },
   syncText: {
-    color: color.accentDeep,
+    color: c.accentDeep,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },
   syncResult: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
   },
   syncErr: {
     fontSize: font.size.small,
-    color: color.danger,
+    color: c.danger,
   },
   carrierHint: {
     fontSize: font.size.tiny,
-    color: color.inkMuted,
+    color: c.inkMuted,
   },
   toTxnBtn: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: color.info,
+    borderColor: c.info,
     borderRadius: radius.button,
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
   toTxnText: {
-    color: color.info,
+    color: c.info,
     fontSize: font.size.small,
     fontFamily: font.family.bold,
   },
@@ -441,21 +443,21 @@ const styles = StyleSheet.create({
   section: {
     fontSize: font.size.h2,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   winTotal: {
     fontSize: font.size.h2,
-    color: color.income,
+    color: c.income,
     fontFamily: font.family.bold,
     fontVariant: ['tabular-nums'],
   },
   invoiceRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     padding: 14,
     gap: 12,
   },
@@ -465,13 +467,13 @@ const styles = StyleSheet.create({
   },
   invoiceNumber: {
     fontSize: font.size.h2,
-    color: color.ink,
+    color: c.ink,
     fontFamily: font.family.semibold,
     fontVariant: ['tabular-nums'],
   },
   invoiceNote: {
     fontSize: font.size.tiny,
-    color: color.inkMuted,
+    color: c.inkMuted,
   },
   badge: {
     alignItems: 'flex-end',
@@ -479,23 +481,23 @@ const styles = StyleSheet.create({
   },
   badgeTier: {
     fontSize: font.size.tiny,
-    color: color.income,
+    color: c.income,
     fontFamily: font.family.bold,
   },
   badgeAmount: {
     fontSize: font.size.body,
-    color: color.income,
+    color: c.income,
     fontFamily: font.family.bold,
     fontVariant: ['tabular-nums'],
   },
   noWin: {
     fontSize: font.size.h2,
-    color: color.inkMuted,
+    color: c.inkMuted,
   },
   addBtn: {
     position: 'absolute',
     right: 20,
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
     borderRadius: radius.button,
     paddingHorizontal: 18,
     paddingVertical: 13,
@@ -503,13 +505,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     elevation: 6,
-    shadowColor: color.shadow,
+    shadowColor: c.shadow,
     shadowOpacity: 0.25,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
   },
   addText: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },

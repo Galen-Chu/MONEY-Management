@@ -10,7 +10,7 @@ import { validateInvoice, type Invoice, type InvoiceTerm } from '../../domain/in
 import { useInvoiceStore } from '../../state/invoiceStore';
 import { currentLanguage, useSettings } from '../../state/settings';
 import { monthLabel, termPeriodInfo } from '../../i18n/format';
-import { color, font, radius } from '../../theme';
+import { font, radius, useStyles, type ThemeColors } from '../../theme';
 import { BottomSheet } from '../ui/bottom-sheet';
 
 interface Props {
@@ -23,6 +23,7 @@ interface Props {
 
 export function InvoiceSheet({ visible, onClose, initial, term }: Props) {
   const { t } = useTranslation();
+  const { c, styles } = useStyles(makeStyles);
   const settings = useSettings((s) => s.settings);
   const lang = currentLanguage(settings);
   const addInvoice = useInvoiceStore((s) => s.addInvoice);
@@ -82,7 +83,7 @@ export function InvoiceSheet({ visible, onClose, initial, term }: Props) {
             value={numberText}
             onChangeText={(v) => setNumberText(v.toUpperCase())}
             placeholder={t('invoice.numberPlaceholder')}
-            placeholderTextColor={color.inkMuted}
+            placeholderTextColor={c.inkMuted}
             autoCapitalize="characters"
             autoCorrect={false}
           />
@@ -97,7 +98,7 @@ export function InvoiceSheet({ visible, onClose, initial, term }: Props) {
             value={note}
             onChangeText={setNote}
             placeholder={t('invoice.notePlaceholder')}
-            placeholderTextColor={color.inkMuted}
+            placeholderTextColor={c.inkMuted}
           />
         </View>
 
@@ -118,7 +119,7 @@ export function InvoiceSheet({ visible, onClose, initial, term }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   wrap: {
     paddingHorizontal: 20,
     paddingTop: 6,
@@ -127,11 +128,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: font.size.title,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   termHint: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     marginTop: -8,
   },
   field: {
@@ -139,28 +140,28 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     fontFamily: font.family.semibold,
   },
   input: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     paddingHorizontal: 14,
     paddingVertical: 10,
     fontSize: font.size.h2,
     fontFamily: font.family.semibold,
-    color: color.ink,
+    color: c.ink,
     fontVariant: ['tabular-nums'],
   },
   hint: {
     fontSize: font.size.tiny,
-    color: color.inkMuted,
+    color: c.inkMuted,
   },
   err: {
     fontSize: font.size.small,
-    color: color.danger,
+    color: c.danger,
   },
   actions: {
     flexDirection: 'row',
@@ -174,20 +175,20 @@ const styles = StyleSheet.create({
     borderRadius: radius.button,
   },
   btnSecondary: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
   },
   btnSecondaryText: {
-    color: color.danger,
+    color: c.danger,
     fontSize: font.size.body,
     fontFamily: font.family.semibold,
   },
   btnPrimary: {
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
   },
   btnPrimaryText: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },

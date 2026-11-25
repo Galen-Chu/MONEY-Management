@@ -4,7 +4,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import { color, font } from '../theme';
+import { font, useStyles, type ThemeColors } from '../theme';
 import { useLedgerStore } from '../state/ledgerStore';
 import { useLoanStore } from '../state/loanStore';
 import { useInvoiceStore } from '../state/invoiceStore';
@@ -17,6 +17,7 @@ import { Icon } from './ui/icon';
 
 export function ErrorBanner() {
   const { t } = useTranslation();
+  const { c, styles } = useStyles(makeStyles);
   const ledgerError = useLedgerStore((s) => s.error);
   const clearLedgerError = useLedgerStore((s) => s.clearError);
   const loanError = useLoanStore((s) => s.error);
@@ -60,17 +61,17 @@ export function ErrorBanner() {
         onPress={clearError}
         hitSlop={8}
       >
-        <Icon name="close" size={16} fill={color.onBrand} />
+        <Icon name="close" size={16} fill={c.onBrand} />
       </Pressable>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   banner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: color.danger,
+    backgroundColor: c.danger,
     paddingHorizontal: 14,
     paddingVertical: 10,
     gap: 10,
@@ -80,12 +81,12 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   title: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },
   body: {
-    color: color.onBrandSecondary,
+    color: c.onBrandSecondary,
     fontSize: font.size.small,
   },
 });

@@ -20,7 +20,7 @@ import {
 import { toCents } from '../../domain/money';
 import { todayKey } from '../../domain/ledger';
 import { useLoanStore } from '../../state/loanStore';
-import { color, font, radius } from '../../theme';
+import { font, radius, useStyles, type ThemeColors } from '../../theme';
 import { BottomSheet } from '../ui/bottom-sheet';
 
 interface Props {
@@ -63,6 +63,7 @@ function parseCount(text: string, fallback = 0): number | null {
 
 export function LoanSheet({ visible, onClose, initial }: Props) {
   const { t } = useTranslation();
+  const { c, styles } = useStyles(makeStyles);
   const addLoan = useLoanStore((s) => s.addLoan);
   const updateLoan = useLoanStore((s) => s.updateLoan);
   const deleteLoan = useLoanStore((s) => s.deleteLoan);
@@ -143,7 +144,7 @@ export function LoanSheet({ visible, onClose, initial }: Props) {
           value={name}
           onChangeText={setName}
           placeholder={t('loans.namePlaceholder')}
-          placeholderTextColor={color.inkMuted}
+          placeholderTextColor={c.inkMuted}
         />
 
         <View style={styles.field}>
@@ -165,7 +166,7 @@ export function LoanSheet({ visible, onClose, initial }: Props) {
               value={principalText}
               onChangeText={setPrincipalText}
               placeholder="0"
-              placeholderTextColor={color.inkMuted}
+              placeholderTextColor={c.inkMuted}
             />
           </View>
           <View style={styles.rowCell}>
@@ -177,7 +178,7 @@ export function LoanSheet({ visible, onClose, initial }: Props) {
               value={rateText}
               onChangeText={setRateText}
               placeholder="0"
-              placeholderTextColor={color.inkMuted}
+              placeholderTextColor={c.inkMuted}
             />
           </View>
         </View>
@@ -192,7 +193,7 @@ export function LoanSheet({ visible, onClose, initial }: Props) {
               value={termText}
               onChangeText={setTermText}
               placeholder="360"
-              placeholderTextColor={color.inkMuted}
+              placeholderTextColor={c.inkMuted}
             />
             <Text style={styles.hint}>{t('loans.termHint')}</Text>
           </View>
@@ -204,7 +205,7 @@ export function LoanSheet({ visible, onClose, initial }: Props) {
               value={startText}
               onChangeText={setStartText}
               placeholder={t('loans.startDateHint')}
-              placeholderTextColor={color.inkMuted}
+              placeholderTextColor={c.inkMuted}
               autoCapitalize="none"
             />
           </View>
@@ -236,7 +237,7 @@ export function LoanSheet({ visible, onClose, initial }: Props) {
             value={graceText}
             onChangeText={setGraceText}
             placeholder="0"
-            placeholderTextColor={color.inkMuted}
+            placeholderTextColor={c.inkMuted}
           />
           <Text style={styles.hint}>{t('loans.graceHint')}</Text>
         </View>
@@ -259,6 +260,7 @@ export function LoanSheet({ visible, onClose, initial }: Props) {
 }
 
 function Chip({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
+  const { styles } = useStyles(makeStyles);
   return (
     <Pressable
       accessibilityRole="button"
@@ -270,7 +272,7 @@ function Chip({ label, active, onPress }: { label: string; active: boolean; onPr
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   wrap: {
     paddingHorizontal: 20,
     paddingTop: 6,
@@ -279,29 +281,29 @@ const styles = StyleSheet.create({
   title: {
     fontSize: font.size.title,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   input: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     paddingHorizontal: 14,
     paddingVertical: 10,
     fontSize: font.size.h2,
     fontFamily: font.family.semibold,
-    color: color.ink,
+    color: c.ink,
     fontVariant: ['tabular-nums'],
   },
   graceInput: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     paddingHorizontal: 14,
     paddingVertical: 10,
     fontSize: font.size.body,
-    color: color.ink,
+    color: c.ink,
     fontVariant: ['tabular-nums'],
     alignSelf: 'flex-start',
     minWidth: 120,
@@ -319,12 +321,12 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     fontFamily: font.family.semibold,
   },
   hint: {
     fontSize: font.size.tiny,
-    color: color.inkMuted,
+    color: c.inkMuted,
   },
   chips: {
     flexDirection: 'row',
@@ -335,25 +337,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: radius.chip,
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
   },
   chipActive: {
-    borderColor: color.accent,
-    backgroundColor: color.accentSoft,
+    borderColor: c.accent,
+    backgroundColor: c.accentSoft,
   },
   chipLabel: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
   },
   chipLabelActive: {
-    color: color.accentDeep,
+    color: c.accentDeep,
     fontFamily: font.family.semibold,
   },
   typeRow: {
     flexDirection: 'row',
-    backgroundColor: color.track,
+    backgroundColor: c.track,
     borderRadius: radius.chip,
     padding: 3,
     gap: 3,
@@ -365,20 +367,20 @@ const styles = StyleSheet.create({
     borderRadius: radius.chip - 3,
   },
   typeSegActive: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
   },
   typeLabel: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     fontFamily: font.family.medium,
   },
   typeLabelActive: {
-    color: color.accentDeep,
+    color: c.accentDeep,
     fontFamily: font.family.bold,
   },
   err: {
     fontSize: font.size.small,
-    color: color.danger,
+    color: c.danger,
   },
   actions: {
     flexDirection: 'row',
@@ -392,20 +394,20 @@ const styles = StyleSheet.create({
     borderRadius: radius.button,
   },
   btnSecondary: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
   },
   btnSecondaryText: {
-    color: color.danger,
+    color: c.danger,
     fontSize: font.size.body,
     fontFamily: font.family.semibold,
   },
   btnPrimary: {
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
   },
   btnPrimaryText: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },

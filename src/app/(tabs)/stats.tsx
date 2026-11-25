@@ -19,10 +19,11 @@ import { useBudgetStore } from '../../state/budgetStore';
 import { useLedgerStore } from '../../state/ledgerStore';
 import { useLoanStore } from '../../state/loanStore';
 import { currentLanguage, useSettings } from '../../state/settings';
-import { color, font, radius } from '../../theme';
+import { font, radius, useStyles, type ThemeColors } from '../../theme';
 
 export default function StatsScreen() {
   const { t } = useTranslation();
+  const { c, styles } = useStyles(makeStyles);
   const settings = useSettings((s) => s.settings);
   const lang = currentLanguage(settings);
   const txns = useLedgerStore((s) => s.txns);
@@ -83,7 +84,7 @@ export default function StatsScreen() {
         <View style={styles.budgetCard}>
           <View style={styles.budgetHead}>
             <Text style={styles.budgetLabel}>{t('budgets.summary')}</Text>
-            <Text style={[styles.budgetValue, totalBudget.over && { color: color.expense }]}>
+            <Text style={[styles.budgetValue, totalBudget.over && { color: c.expense }]}>
               {formatCents(totalBudget.spentCents, lang)} / {formatCents(totalBudget.budgetCents, lang)}
             </Text>
           </View>
@@ -93,7 +94,7 @@ export default function StatsScreen() {
                 styles.budgetBar,
                 {
                   width: `${Math.min(100, totalBudget.pct)}%`,
-                  backgroundColor: totalBudget.over ? color.expense : totalBudget.warning ? color.warning : color.accent,
+                  backgroundColor: totalBudget.over ? c.expense : totalBudget.warning ? c.warning : c.accent,
                 },
               ]}
             />
@@ -111,27 +112,27 @@ export default function StatsScreen() {
       {cats.length === 0 ? (
         <EmptyState emoji="🧾" title={t('stats.noData')} body="" />
       ) : (
-        cats.map((c) => {
-          const usage = usageByCat.get(c.category);
-          const barPct = usage ? Math.min(100, usage.pct) : Math.round((c.amountCents / maxCat) * 100);
+        cats.map((cat) => {
+          const usage = usageByCat.get(cat.category);
+          const barPct = usage ? Math.min(100, usage.pct) : Math.round((cat.amountCents / maxCat) * 100);
           const barColor = usage
             ? usage.over
-              ? color.expense
+              ? c.expense
               : usage.warning
-                ? color.warning
-                : CATEGORY_COLORS[c.category]
-            : CATEGORY_COLORS[c.category];
+                ? c.warning
+                : CATEGORY_COLORS[cat.category]
+            : CATEGORY_COLORS[cat.category];
           return (
-            <View key={c.category} style={styles.catRow}>
-              <View style={[styles.catDot, { backgroundColor: CATEGORY_COLORS[c.category] }]} />
-              <Text style={styles.catLabel}>{t(categoryLabelKey(c.category))}</Text>
+            <View key={cat.category} style={styles.catRow}>
+              <View style={[styles.catDot, { backgroundColor: CATEGORY_COLORS[cat.category] }]} />
+              <Text style={styles.catLabel}>{t(categoryLabelKey(cat.category))}</Text>
               <View style={styles.catTrack}>
                 <View style={[styles.catBar, { backgroundColor: barColor, width: `${barPct}%` }]} />
               </View>
-              <Text style={[styles.catAmount, usage?.over && { color: color.expense }]}>
+              <Text style={[styles.catAmount, usage?.over && { color: c.expense }]}>
                 {usage
                   ? `${formatCents(usage.spentCents, lang)} / ${formatCents(usage.budgetCents, lang)}`
-                  : formatCents(c.amountCents, lang)}
+                  : formatCents(cat.amountCents, lang)}
               </Text>
             </View>
           );
@@ -141,9 +142,9 @@ export default function StatsScreen() {
       <Text style={styles.section}>{t('stats.cashflowTitle')}</Text>
       <View style={styles.flowCard}>
         <View style={styles.flowLegend}>
-          <View style={[styles.flowDot, { backgroundColor: color.income }]} />
+          <View style={[styles.flowDot, { backgroundColor: c.income }]} />
           <Text style={styles.flowLegendText}>{t('stats.income')}</Text>
-          <View style={[styles.flowDot, { backgroundColor: color.expense }]} />
+          <View style={[styles.flowDot, { backgroundColor: c.expense }]} />
           <Text style={styles.flowLegendText}>{t('stats.expense')}</Text>
         </View>
         {cashflow.map((m) => {
@@ -156,7 +157,7 @@ export default function StatsScreen() {
                 <View style={[styles.flowBarIncome, { width: `${incomePct}%` }]} />
                 <View style={[styles.flowBarExpense, { width: `${expensePct}%` }]} />
               </View>
-              <Text style={[styles.flowNet, m.netCents < 0 && { color: color.expense }]}>
+              <Text style={[styles.flowNet, m.netCents < 0 && { color: c.expense }]}>
                 {formatCents(m.netCents, lang)}
               </Text>
             </View>
@@ -180,7 +181,7 @@ export default function StatsScreen() {
                   ]}
                 />
               </View>
-              <Text style={[styles.flowNet, !positive && { color: color.expense }]}>
+              <Text style={[styles.flowNet, !positive && { color: c.expense }]}>
                 {formatCents(m.netCents, lang)}
               </Text>
             </View>
@@ -194,17 +195,18 @@ export default function StatsScreen() {
 }
 
 function TotalCell({ label, value, tone }: { label: string; value: string; tone: 'expense' | 'income' }) {
+  const { c, styles } = useStyles(makeStyles);
   return (
     <View style={styles.totalCell}>
       <Text style={styles.totalLabel}>{label}</Text>
-      <Text style={[styles.totalValue, tone === 'expense' ? { color: color.expense } : { color: color.income }]}>
+      <Text style={[styles.totalValue, tone === 'expense' ? { color: c.expense } : { color: c.income }]}>
         {value}
       </Text>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   content: {
     paddingHorizontal: 16,
     paddingTop: 18,
@@ -214,7 +216,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: font.size.title,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   monthNav: {
     flexDirection: 'row',
@@ -228,18 +230,18 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
   },
   monthBtnText: {
     fontSize: 20,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     lineHeight: 24,
   },
   monthText: {
     fontSize: font.size.h2,
-    color: color.ink,
+    color: c.ink,
     fontFamily: font.family.bold,
   },
   totalsRow: {
@@ -248,14 +250,14 @@ const styles = StyleSheet.create({
   },
   totalCell: {
     flex: 1,
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     padding: 12,
     gap: 4,
   },
   totalLabel: {
     fontSize: font.size.tiny,
-    color: color.inkMuted,
+    color: c.inkMuted,
   },
   totalValue: {
     fontSize: font.size.body,
@@ -265,7 +267,7 @@ const styles = StyleSheet.create({
   section: {
     fontSize: font.size.h2,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
     marginTop: 8,
   },
   sectionRow: {
@@ -277,21 +279,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: radius.chip,
-    backgroundColor: color.accentSoft,
+    backgroundColor: c.accentSoft,
     borderWidth: 1,
-    borderColor: color.accent,
+    borderColor: c.accent,
     marginTop: 8,
   },
   budgetEditBtnText: {
     fontSize: font.size.tiny,
-    color: color.accentDeep,
+    color: c.accentDeep,
     fontFamily: font.family.semibold,
   },
   budgetCard: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     padding: 12,
     gap: 8,
   },
@@ -302,18 +304,18 @@ const styles = StyleSheet.create({
   },
   budgetLabel: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
   },
   budgetValue: {
     fontSize: font.size.body,
-    color: color.ink,
+    color: c.ink,
     fontFamily: font.family.bold,
     fontVariant: ['tabular-nums'],
   },
   budgetTrack: {
     height: 8,
     borderRadius: 4,
-    backgroundColor: color.track,
+    backgroundColor: c.track,
     overflow: 'hidden',
   },
   budgetBar: {
@@ -322,14 +324,14 @@ const styles = StyleSheet.create({
   },
   budgetOver: {
     fontSize: font.size.tiny,
-    color: color.expense,
+    color: c.expense,
     fontFamily: font.family.semibold,
   },
   catRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     padding: 12,
   },
@@ -341,14 +343,14 @@ const styles = StyleSheet.create({
   catLabel: {
     width: 64,
     fontSize: font.size.small,
-    color: color.ink,
+    color: c.ink,
     fontFamily: font.family.semibold,
   },
   catTrack: {
     flex: 1,
     height: 8,
     borderRadius: 4,
-    backgroundColor: color.track,
+    backgroundColor: c.track,
     overflow: 'hidden',
   },
   catBar: {
@@ -357,15 +359,15 @@ const styles = StyleSheet.create({
   },
   catAmount: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     fontFamily: font.family.semibold,
     fontVariant: ['tabular-nums'],
   },
   flowCard: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     padding: 14,
     gap: 8,
   },
@@ -382,7 +384,7 @@ const styles = StyleSheet.create({
   },
   flowLegendText: {
     fontSize: font.size.tiny,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     marginRight: 8,
   },
   flowRow: {
@@ -393,7 +395,7 @@ const styles = StyleSheet.create({
   flowMonth: {
     width: 44,
     fontSize: font.size.tiny,
-    color: color.inkMuted,
+    color: c.inkMuted,
     fontVariant: ['tabular-nums'],
   },
   flowBars: {
@@ -403,17 +405,17 @@ const styles = StyleSheet.create({
   flowBarIncome: {
     height: 5,
     borderRadius: 3,
-    backgroundColor: color.income,
+    backgroundColor: c.income,
   },
   flowBarExpense: {
     height: 5,
     borderRadius: 3,
-    backgroundColor: color.expense,
+    backgroundColor: c.expense,
   },
   flowNet: {
     width: 96,
     fontSize: font.size.tiny,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     textAlign: 'right',
     fontVariant: ['tabular-nums'],
   },

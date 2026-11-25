@@ -11,7 +11,7 @@ import { parseCsv, rowsToTxns, sniffSchema, type CsvSchema } from '../../domain/
 import { formatCents } from '../../domain/money';
 import { useLedgerStore } from '../../state/ledgerStore';
 import { currentLanguage, useSettings } from '../../state/settings';
-import { color, font, radius } from '../../theme';
+import { font, radius, useStyles, type ThemeColors } from '../../theme';
 import { BottomSheet } from '../ui/bottom-sheet';
 
 interface Props {
@@ -21,6 +21,7 @@ interface Props {
 
 export function ImportSheet({ visible, onClose }: Props) {
   const { t } = useTranslation();
+  const { styles } = useStyles(makeStyles);
   const settings = useSettings((s) => s.settings);
   const lang = currentLanguage(settings);
   const { height } = useWindowDimensions();
@@ -239,7 +240,7 @@ export function ImportSheet({ visible, onClose }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   wrap: {
     paddingHorizontal: 20,
     paddingTop: 6,
@@ -249,34 +250,34 @@ const styles = StyleSheet.create({
   title: {
     fontSize: font.size.title,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   hint: {
     fontSize: font.size.tiny,
-    color: color.inkMuted,
+    color: c.inkMuted,
     marginTop: -8,
   },
   pickBtn: {
     alignItems: 'center',
     paddingVertical: 12,
     borderRadius: radius.button,
-    backgroundColor: color.accentSoft,
+    backgroundColor: c.accentSoft,
     borderWidth: 1,
-    borderColor: color.accent,
+    borderColor: c.accent,
   },
   pickBtnText: {
-    color: color.accentDeep,
+    color: c.accentDeep,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },
   err: {
     fontSize: font.size.small,
-    color: color.danger,
+    color: c.danger,
   },
   section: {
     fontSize: font.size.h2,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
     marginTop: 4,
   },
   pickerField: {
@@ -284,7 +285,7 @@ const styles = StyleSheet.create({
   },
   pickerLabel: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     fontFamily: font.family.semibold,
   },
   chips: {
@@ -296,50 +297,50 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: radius.chip,
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
   },
   chipActive: {
-    borderColor: color.accent,
-    backgroundColor: color.accentSoft,
+    borderColor: c.accent,
+    backgroundColor: c.accentSoft,
   },
   chipLabel: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
   },
   chipLabelActive: {
-    color: color.accentDeep,
+    color: c.accentDeep,
     fontFamily: font.family.semibold,
   },
   previewCard: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     padding: 12,
     gap: 6,
   },
   previewRow: {
     fontSize: font.size.tiny,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     fontVariant: ['tabular-nums'],
   },
   importBtn: {
     alignItems: 'center',
     paddingVertical: 13,
     borderRadius: radius.button,
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
     marginTop: 4,
   },
   importBtnText: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },
   resultOk: {
     fontSize: font.size.small,
-    color: color.income,
+    color: c.income,
     fontFamily: font.family.semibold,
   },
 });

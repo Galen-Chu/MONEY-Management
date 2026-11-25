@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 import { CARD_TYPES, type CardType } from '../../data/carrier-source';
 import { useCarrierStore } from '../../state/carrierStore';
-import { color, font, radius } from '../../theme';
+import { font, radius, useStyles, type ThemeColors } from '../../theme';
 import { BottomSheet } from '../ui/bottom-sheet';
 
 interface Props {
@@ -24,6 +24,7 @@ const CARD_LABEL_KEYS: Record<CardType, string> = {
 
 export function CarrierSheet({ visible, onClose }: Props) {
   const { t } = useTranslation();
+  const { c, styles } = useStyles(makeStyles);
   const settings = useCarrierStore((s) => s.settings);
   const saveSettings = useCarrierStore((s) => s.saveSettings);
 
@@ -88,7 +89,7 @@ export function CarrierSheet({ visible, onClose }: Props) {
             value={cardNo}
             onChangeText={setCardNo}
             placeholder={t('carrier.cardNoHint')}
-            placeholderTextColor={color.inkMuted}
+            placeholderTextColor={c.inkMuted}
             autoCapitalize="none"
             autoCorrect={false}
           />
@@ -114,7 +115,7 @@ export function CarrierSheet({ visible, onClose }: Props) {
             value={appID}
             onChangeText={setAppID}
             placeholder={t('carrier.appIDHint')}
-            placeholderTextColor={color.inkMuted}
+            placeholderTextColor={c.inkMuted}
             autoCapitalize="none"
             autoCorrect={false}
           />
@@ -132,7 +133,7 @@ export function CarrierSheet({ visible, onClose }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   wrap: {
     paddingHorizontal: 20,
     paddingTop: 6,
@@ -141,11 +142,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: font.size.title,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   typeRow: {
     flexDirection: 'row',
-    backgroundColor: color.track,
+    backgroundColor: c.track,
     borderRadius: radius.chip,
     padding: 3,
     gap: 3,
@@ -157,15 +158,15 @@ const styles = StyleSheet.create({
     borderRadius: radius.chip - 3,
   },
   typeSegActive: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
   },
   typeLabel: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     fontFamily: font.family.medium,
   },
   typeLabelActive: {
-    color: color.accentDeep,
+    color: c.accentDeep,
     fontFamily: font.family.bold,
   },
   field: {
@@ -173,22 +174,22 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     fontFamily: font.family.semibold,
   },
   input: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     paddingHorizontal: 14,
     paddingVertical: 10,
     fontSize: font.size.body,
-    color: color.ink,
+    color: c.ink,
   },
   err: {
     fontSize: font.size.small,
-    color: color.danger,
+    color: c.danger,
   },
   actions: {
     flexDirection: 'row',
@@ -202,10 +203,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.button,
   },
   btnPrimary: {
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
   },
   btnPrimaryText: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },

@@ -6,7 +6,7 @@
 import type { ReactElement } from 'react';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
-import { color } from '../../theme';
+import { useColors } from '../../theme';
 
 export type IconName =
   | 'sun' // dao
@@ -116,10 +116,11 @@ const ICONS: Record<IconName, (fill: string) => ReactElement> = {
   ),
 };
 
-export function Icon({ name, size = 24, fill = color.ink }: { name: IconName; size?: number; fill?: string }) {
+export function Icon({ name, size = 24, fill }: { name: IconName; size?: number; fill?: string }) {
+  const c = useColors();
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      {ICONS[name](fill)}
+      {ICONS[name](fill ?? c.ink)}
     </Svg>
   );
 }

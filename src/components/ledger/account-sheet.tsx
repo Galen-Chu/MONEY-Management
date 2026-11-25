@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import type { Account, AccountType } from '../../domain/ledger';
 import { toCents } from '../../domain/money';
 import { useLedgerStore } from '../../state/ledgerStore';
-import { color, font, radius } from '../../theme';
+import { font, radius, useStyles, type ThemeColors } from '../../theme';
 import { BottomSheet } from '../ui/bottom-sheet';
 
 interface Props {
@@ -29,6 +29,7 @@ type ErrCode = 'name' | 'amount' | 'inUse';
 
 export function AccountSheet({ visible, onClose, initial }: Props) {
   const { t } = useTranslation();
+  const { c, styles } = useStyles(makeStyles);
   const addAccount = useLedgerStore((s) => s.addAccount);
   const updateAccount = useLedgerStore((s) => s.updateAccount);
   const deleteAccount = useLedgerStore((s) => s.deleteAccount);
@@ -97,7 +98,7 @@ export function AccountSheet({ visible, onClose, initial }: Props) {
           value={name}
           onChangeText={setName}
           placeholder={t('accounts.namePlaceholder')}
-          placeholderTextColor={color.inkMuted}
+          placeholderTextColor={c.inkMuted}
         />
 
         <View style={styles.typeRow}>
@@ -126,7 +127,7 @@ export function AccountSheet({ visible, onClose, initial }: Props) {
             value={initialText}
             onChangeText={setInitialText}
             placeholder="0"
-            placeholderTextColor={color.inkMuted}
+            placeholderTextColor={c.inkMuted}
           />
           <Text style={styles.hint}>{t('accounts.initialHint')}</Text>
         </View>
@@ -148,7 +149,7 @@ export function AccountSheet({ visible, onClose, initial }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   wrap: {
     paddingHorizontal: 20,
     paddingTop: 6,
@@ -157,21 +158,21 @@ const styles = StyleSheet.create({
   title: {
     fontSize: font.size.title,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   input: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     paddingHorizontal: 14,
     paddingVertical: 10,
     fontSize: font.size.body,
-    color: color.ink,
+    color: c.ink,
   },
   typeRow: {
     flexDirection: 'row',
-    backgroundColor: color.track,
+    backgroundColor: c.track,
     borderRadius: radius.chip,
     padding: 3,
     gap: 3,
@@ -183,15 +184,15 @@ const styles = StyleSheet.create({
     borderRadius: radius.chip - 3,
   },
   typeSegActive: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
   },
   typeLabel: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     fontFamily: font.family.medium,
   },
   typeLabelActive: {
-    color: color.accentDeep,
+    color: c.accentDeep,
     fontFamily: font.family.bold,
   },
   initialRow: {
@@ -199,28 +200,28 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     fontFamily: font.family.semibold,
   },
   initialInput: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     paddingHorizontal: 14,
     paddingVertical: 10,
     fontSize: font.size.h2,
     fontFamily: font.family.semibold,
-    color: color.ink,
+    color: c.ink,
     fontVariant: ['tabular-nums'],
   },
   hint: {
     fontSize: font.size.tiny,
-    color: color.inkMuted,
+    color: c.inkMuted,
   },
   err: {
     fontSize: font.size.small,
-    color: color.danger,
+    color: c.danger,
   },
   actions: {
     flexDirection: 'row',
@@ -234,20 +235,20 @@ const styles = StyleSheet.create({
     borderRadius: radius.button,
   },
   btnSecondary: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
   },
   btnSecondaryText: {
-    color: color.danger,
+    color: c.danger,
     fontSize: font.size.body,
     fontFamily: font.family.semibold,
   },
   btnPrimary: {
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
   },
   btnPrimaryText: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },

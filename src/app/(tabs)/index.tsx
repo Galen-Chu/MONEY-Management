@@ -23,7 +23,7 @@ import { useLedgerStore } from '../../state/ledgerStore';
 import { useNotificationStore, type NotificationAddErrorCode } from '../../state/notificationStore';
 import { useRecurringStore } from '../../state/recurringStore';
 import { currentLanguage, useSettings } from '../../state/settings';
-import { color, font, radius } from '../../theme';
+import { font, radius, useStyles, type ThemeColors } from '../../theme';
 
 function pasteErrKey(code: NotificationAddErrorCode): string {
   return code === 'repo' ? 'common.retryLater' : `notify.err${code.charAt(0).toUpperCase()}${code.slice(1)}`;
@@ -31,6 +31,7 @@ function pasteErrKey(code: NotificationAddErrorCode): string {
 
 export default function TodayScreen() {
   const { t } = useTranslation();
+  const { c, styles } = useStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const settings = useSettings((s) => s.settings);
   const lang = currentLanguage(settings);
@@ -95,7 +96,7 @@ export default function TodayScreen() {
             onPress={() => setMonth((m) => shiftMonth(m, -1))}
             style={styles.monthBtn}
           >
-            <Icon name="arrowLeft" size={16} fill={color.inkSecondary} />
+            <Icon name="arrowLeft" size={16} fill={c.inkSecondary} />
           </Pressable>
           <Text style={styles.month}>{formatMonthLabel(month, lang)}</Text>
           <Pressable
@@ -104,7 +105,7 @@ export default function TodayScreen() {
             onPress={() => setMonth((m) => shiftMonth(m, 1))}
             style={styles.monthBtn}
           >
-            <Icon name="arrowRight" size={16} fill={color.inkSecondary} />
+            <Icon name="arrowRight" size={16} fill={c.inkSecondary} />
           </Pressable>
         </View>
 
@@ -120,7 +121,7 @@ export default function TodayScreen() {
           value={query}
           onChangeText={setQuery}
           placeholder={t('today.searchPlaceholder')}
-          placeholderTextColor={color.inkMuted}
+          placeholderTextColor={c.inkMuted}
           autoCorrect={false}
         />
 
@@ -145,7 +146,7 @@ export default function TodayScreen() {
                     {formatDayLabel(dueDateOf(r, thisMonth), lang)} · {nameOf(r.accountId)}
                   </Text>
                 </View>
-                <Text style={[styles.recurringAmount, r.type === 'expense' && { color: color.expense }]}>
+                <Text style={[styles.recurringAmount, r.type === 'expense' && { color: c.expense }]}>
                   {r.type === 'expense' ? '−' : '+'}
                   {formatCents(r.amountCents, lang)}
                 </Text>
@@ -178,7 +179,7 @@ export default function TodayScreen() {
                     {d.cardLast4 ? ` · ${t('notify.cardLast4', { digits: d.cardLast4 })}` : ''}
                   </Text>
                 </View>
-                <Text style={[styles.notifyAmount, { color: color.expense }]}>
+                <Text style={[styles.notifyAmount, { color: c.expense }]}>
                   −{formatCents(d.amountCents ?? 0, lang)}
                 </Text>
                 <View style={styles.notifyActions}>
@@ -213,10 +214,10 @@ export default function TodayScreen() {
               <View style={styles.dayHeader}>
                 <Text style={styles.dayDate}>{formatDayLabel(g.date, lang)}</Text>
                 {g.expenseCents > 0 ? (
-                  <Text style={[styles.dayTotal, { color: color.expense }]}>−{formatCents(g.expenseCents, lang)}</Text>
+                  <Text style={[styles.dayTotal, { color: c.expense }]}>−{formatCents(g.expenseCents, lang)}</Text>
                 ) : null}
                 {g.incomeCents > 0 ? (
-                  <Text style={[styles.dayTotal, { color: color.income }]}>+{formatCents(g.incomeCents, lang)}</Text>
+                  <Text style={[styles.dayTotal, { color: c.income }]}>+{formatCents(g.incomeCents, lang)}</Text>
                 ) : null}
               </View>
               {g.items.map((txn) => (
@@ -246,7 +247,7 @@ export default function TodayScreen() {
         }}
         style={[styles.fab, { bottom: insets.bottom + 76 }]}
       >
-        <Icon name="plus" size={24} fill={color.onBrand} />
+        <Icon name="plus" size={24} fill={c.onBrand} />
       </Pressable>
 
       <TxnSheet
@@ -267,20 +268,21 @@ export default function TodayScreen() {
 }
 
 function SummaryCell({ label, value, tone }: { label: string; value: string; tone: 'expense' | 'income' }) {
+  const { c, styles } = useStyles(makeStyles);
   return (
     <View style={styles.cell}>
       <Text style={styles.cellLabel}>{label}</Text>
-      <Text style={[styles.cellValue, tone === 'expense' ? { color: color.expense } : { color: color.income }]}>
+      <Text style={[styles.cellValue, tone === 'expense' ? { color: c.expense } : { color: c.income }]}>
         {value}
       </Text>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   shell: {
     flex: 1,
-    backgroundColor: color.bg,
+    backgroundColor: c.bg,
   },
   content: {
     paddingHorizontal: 16,
@@ -291,7 +293,7 @@ const styles = StyleSheet.create({
   hello: {
     fontSize: font.size.title,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   monthNav: {
     flexDirection: 'row',
@@ -304,53 +306,53 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
   },
   month: {
     fontSize: font.size.small,
-    color: color.inkMuted,
+    color: c.inkMuted,
   },
   search: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     paddingHorizontal: 14,
     paddingVertical: 9,
     fontSize: font.size.body,
-    color: color.ink,
+    color: c.ink,
   },
   pasteBtn: {
     alignSelf: 'flex-start',
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.info,
+    borderColor: c.info,
     paddingHorizontal: 14,
     paddingVertical: 8,
   },
   pasteText: {
     fontSize: font.size.small,
-    color: color.info,
+    color: c.info,
     fontFamily: font.family.semibold,
   },
   pasteErr: {
     fontSize: font.size.small,
-    color: color.danger,
+    color: c.danger,
   },
   notifyCard: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.info,
+    borderColor: c.info,
     padding: 14,
     gap: 10,
   },
   notifyTitle: {
     fontSize: font.size.small,
-    color: color.info,
+    color: c.info,
     fontFamily: font.family.bold,
   },
   notifyRow: {
@@ -364,12 +366,12 @@ const styles = StyleSheet.create({
   },
   notifyNote: {
     fontSize: font.size.body,
-    color: color.ink,
+    color: c.ink,
     fontFamily: font.family.semibold,
   },
   notifySub: {
     fontSize: font.size.tiny,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
   },
   notifyAmount: {
     fontSize: font.size.body,
@@ -382,32 +384,32 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   notifyConfirmBtn: {
-    backgroundColor: color.info,
+    backgroundColor: c.info,
     borderRadius: radius.button,
     paddingHorizontal: 14,
     paddingVertical: 8,
   },
   notifyConfirmText: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: font.size.small,
     fontFamily: font.family.bold,
   },
   notifySkipText: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     fontFamily: font.family.semibold,
   },
   recurringCard: {
-    backgroundColor: color.accentSoft,
+    backgroundColor: c.accentSoft,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.accent,
+    borderColor: c.accent,
     padding: 14,
     gap: 10,
   },
   recurringTitle: {
     fontSize: font.size.small,
-    color: color.accentDeep,
+    color: c.accentDeep,
     fontFamily: font.family.bold,
   },
   recurringRow: {
@@ -421,16 +423,16 @@ const styles = StyleSheet.create({
   },
   recurringNote: {
     fontSize: font.size.body,
-    color: color.ink,
+    color: c.ink,
     fontFamily: font.family.semibold,
   },
   recurringSub: {
     fontSize: font.size.tiny,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
   },
   recurringAmount: {
     fontSize: font.size.body,
-    color: color.income,
+    color: c.income,
     fontFamily: font.family.bold,
     fontVariant: ['tabular-nums'],
   },
@@ -440,19 +442,19 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   recurringConfirmBtn: {
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
     borderRadius: radius.button,
     paddingHorizontal: 14,
     paddingVertical: 8,
   },
   recurringConfirmText: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: font.size.small,
     fontFamily: font.family.bold,
   },
   recurringSkipText: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     fontFamily: font.family.semibold,
   },
   summary: {
@@ -461,14 +463,14 @@ const styles = StyleSheet.create({
   },
   cell: {
     flex: 1,
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     padding: 12,
     gap: 4,
   },
   cellLabel: {
     fontSize: font.size.tiny,
-    color: color.inkMuted,
+    color: c.inkMuted,
   },
   cellValue: {
     fontSize: font.size.body,
@@ -489,7 +491,7 @@ const styles = StyleSheet.create({
   dayDate: {
     flex: 1,
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     fontFamily: font.family.semibold,
   },
   dayTotal: {
@@ -503,11 +505,11 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 6,
-    shadowColor: color.shadow,
+    shadowColor: c.shadow,
     shadowOpacity: 0.25,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },

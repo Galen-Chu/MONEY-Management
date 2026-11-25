@@ -10,7 +10,7 @@ import { categoryLabelKey } from '../../domain/categories';
 import { formatCents } from '../../domain/money';
 import { useRecurringStore } from '../../state/recurringStore';
 import { currentLanguage, useSettings } from '../../state/settings';
-import { color, font, radius } from '../../theme';
+import { font, radius, useStyles, type ThemeColors } from '../../theme';
 import { BottomSheet } from '../ui/bottom-sheet';
 import { Icon } from '../ui/icon';
 import { RecurringSheet } from './recurring-sheet';
@@ -22,6 +22,7 @@ interface Props {
 
 export function RecurringManageSheet({ visible, onClose }: Props) {
   const { t } = useTranslation();
+  const { c, styles } = useStyles(makeStyles);
   const settings = useSettings((s) => s.settings);
   const lang = currentLanguage(settings);
   const { height } = useWindowDimensions();
@@ -63,7 +64,7 @@ export function RecurringManageSheet({ visible, onClose }: Props) {
                   <Text
                     style={[
                       styles.itemAmount,
-                      r.type === 'expense' && { color: color.expense },
+                      r.type === 'expense' && { color: c.expense },
                     ]}
                   >
                     {r.type === 'expense' ? '−' : '+'}
@@ -82,7 +83,7 @@ export function RecurringManageSheet({ visible, onClose }: Props) {
               setFormVisible(true);
             }}
           >
-            <Icon name="plus" size={14} fill={color.onBrand} />
+            <Icon name="plus" size={14} fill={c.onBrand} />
             <Text style={styles.addBtnText}>{t('recurring.add')}</Text>
           </Pressable>
         </ScrollView>
@@ -93,7 +94,7 @@ export function RecurringManageSheet({ visible, onClose }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   wrap: {
     paddingHorizontal: 20,
     paddingTop: 6,
@@ -103,7 +104,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: font.size.title,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   empty: {
     alignItems: 'center',
@@ -113,11 +114,11 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: font.size.h2,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   emptyBody: {
     fontSize: font.size.small,
-    color: color.inkMuted,
+    color: c.inkMuted,
     textAlign: 'center',
   },
   list: {
@@ -126,10 +127,10 @@ const styles = StyleSheet.create({
   item: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     padding: 14,
     gap: 12,
   },
@@ -140,16 +141,16 @@ const styles = StyleSheet.create({
   itemNote: {
     fontSize: font.size.body,
     fontFamily: font.family.semibold,
-    color: color.ink,
+    color: c.ink,
   },
   itemSub: {
     fontSize: font.size.tiny,
-    color: color.inkMuted,
+    color: c.inkMuted,
   },
   itemAmount: {
     fontSize: font.size.body,
     fontFamily: font.family.bold,
-    color: color.income,
+    color: c.income,
     fontVariant: ['tabular-nums'],
   },
   addBtn: {
@@ -159,11 +160,11 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 13,
     borderRadius: radius.button,
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
     marginTop: 4,
   },
   addBtnText: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },

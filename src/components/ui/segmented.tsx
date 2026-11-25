@@ -3,7 +3,7 @@
  */
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { color, font, radius } from '../../theme';
+import { font, radius, useStyles, type ThemeColors } from '../../theme';
 
 interface Option<T extends string> {
   value: T;
@@ -18,6 +18,7 @@ interface Props<T extends string> {
 }
 
 export function Segmented<T extends string>({ accessibilityLabel, value, options, onChange }: Props<T>) {
+  const { styles } = useStyles(makeStyles);
   return (
     <View
       accessibilityRole="tablist"
@@ -42,10 +43,10 @@ export function Segmented<T extends string>({ accessibilityLabel, value, options
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   track: {
     flexDirection: 'row',
-    backgroundColor: color.track,
+    backgroundColor: c.track,
     borderRadius: radius.chip,
     padding: 3,
     gap: 3,
@@ -57,15 +58,15 @@ const styles = StyleSheet.create({
     borderRadius: radius.chip - 3,
   },
   segActive: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
   },
   label: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     fontFamily: font.family.medium,
   },
   labelActive: {
-    color: color.accentDeep,
+    color: c.accentDeep,
     fontFamily: font.family.bold,
   },
 });

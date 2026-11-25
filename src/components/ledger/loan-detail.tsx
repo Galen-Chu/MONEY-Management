@@ -21,7 +21,7 @@ import { todayKey } from '../../domain/ledger';
 import { formatCents, parseAmount, toCents } from '../../domain/money';
 import { formatDayLabel, formatRatePercent } from '../../i18n/format';
 import { currentLanguage, useSettings } from '../../state/settings';
-import { color, font, radius } from '../../theme';
+import { font, radius, useStyles, type ThemeColors } from '../../theme';
 import { BottomSheet } from '../ui/bottom-sheet';
 
 interface Props {
@@ -41,6 +41,7 @@ const TYPE_KEYS: Record<Loan['type'], string> = {
 
 export function LoanDetailSheet({ visible, onClose, loan, onEdit }: Props) {
   const { t } = useTranslation();
+  const { c, styles } = useStyles(makeStyles);
   const settings = useSettings((s) => s.settings);
   const lang = currentLanguage(settings);
   const { height } = useWindowDimensions();
@@ -125,7 +126,7 @@ export function LoanDetailSheet({ visible, onClose, loan, onEdit }: Props) {
               value={extraText}
               onChangeText={setExtraText}
               placeholder={t('loans.simExtraAmount')}
-              placeholderTextColor={color.inkMuted}
+              placeholderTextColor={c.inkMuted}
             />
             {sims?.extraSim ? (
               <View style={styles.simResult}>
@@ -142,7 +143,7 @@ export function LoanDetailSheet({ visible, onClose, loan, onEdit }: Props) {
               value={rateText}
               onChangeText={setRateText}
               placeholder={t('loans.simRateNew')}
-              placeholderTextColor={color.inkMuted}
+              placeholderTextColor={c.inkMuted}
             />
             {sims?.rateSim && diffText ? (
               <View style={styles.simResult}>
@@ -170,6 +171,7 @@ export function LoanDetailSheet({ visible, onClose, loan, onEdit }: Props) {
 }
 
 function InfoRow({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+  const { styles } = useStyles(makeStyles);
   return (
     <View style={styles.infoRow}>
       <Text style={styles.infoLabel}>{label}</Text>
@@ -178,7 +180,7 @@ function InfoRow({ label, value, strong }: { label: string; value: string; stron
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   wrap: {
     paddingHorizontal: 20,
     paddingTop: 6,
@@ -188,18 +190,18 @@ const styles = StyleSheet.create({
   title: {
     fontSize: font.size.title,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   subtitle: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     marginTop: -8,
   },
   infoCard: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     padding: 14,
     gap: 8,
   },
@@ -210,11 +212,11 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
   },
   infoValue: {
     fontSize: font.size.small,
-    color: color.ink,
+    color: c.ink,
     fontFamily: font.family.semibold,
     fontVariant: ['tabular-nums'],
   },
@@ -225,58 +227,58 @@ const styles = StyleSheet.create({
   section: {
     fontSize: font.size.h2,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
     marginTop: 4,
   },
   schedRow: {
     gap: 2,
     paddingBottom: 6,
     borderBottomWidth: 1,
-    borderBottomColor: color.line,
+    borderBottomColor: c.line,
   },
   schedDue: {
     fontSize: font.size.tiny,
-    color: color.inkMuted,
+    color: c.inkMuted,
   },
   schedPay: {
     fontSize: font.size.body,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
     fontVariant: ['tabular-nums'],
   },
   schedSplit: {
     fontSize: font.size.tiny,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     fontVariant: ['tabular-nums'],
   },
   simInput: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     paddingHorizontal: 14,
     paddingVertical: 10,
     fontSize: font.size.body,
-    color: color.ink,
+    color: c.ink,
     fontVariant: ['tabular-nums'],
   },
   simResult: {
-    backgroundColor: color.accentSoft,
+    backgroundColor: c.accentSoft,
     borderRadius: radius.row,
     padding: 12,
     gap: 4,
   },
   simLine: {
     fontSize: font.size.small,
-    color: color.ink,
+    color: c.ink,
     fontFamily: font.family.semibold,
     fontVariant: ['tabular-nums'],
   },
   simGood: {
-    color: color.accentDeep,
+    color: c.accentDeep,
   },
   simBad: {
-    color: color.expense,
+    color: c.expense,
   },
   paidOff: {
     alignItems: 'center',
@@ -285,17 +287,17 @@ const styles = StyleSheet.create({
   paidOffText: {
     fontSize: font.size.h2,
     fontFamily: font.family.bold,
-    color: color.accentDeep,
+    color: c.accentDeep,
   },
   editBtn: {
     alignItems: 'center',
     paddingVertical: 13,
     borderRadius: radius.button,
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
     marginTop: 4,
   },
   editBtnText: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },

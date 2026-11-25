@@ -1,7 +1,7 @@
 /** 空狀態:大 emoji + 標題 + 內文(置中、inkMuted) */
 import { StyleSheet, Text, View } from 'react-native';
 
-import { color, font } from '../../theme';
+import { font, useStyles, type ThemeColors } from '../../theme';
 
 interface Props {
   emoji: string;
@@ -10,6 +10,7 @@ interface Props {
 }
 
 export function EmptyState({ emoji, title, body }: Props) {
+  const { styles } = useStyles(makeStyles);
   return (
     <View style={styles.wrap}>
       <Text style={styles.emoji}>{emoji}</Text>
@@ -19,7 +20,7 @@ export function EmptyState({ emoji, title, body }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   wrap: {
     alignItems: 'center',
     paddingVertical: 36,
@@ -33,11 +34,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: font.size.h2,
     fontFamily: font.family.semibold,
-    color: color.ink,
+    color: c.ink,
   },
   body: {
     fontSize: font.size.small,
-    color: color.inkMuted,
+    color: c.inkMuted,
     textAlign: 'center',
     lineHeight: 19,
   },

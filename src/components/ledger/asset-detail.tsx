@@ -11,7 +11,7 @@ import { formatCents } from '../../domain/money';
 import { formatDayLabel } from '../../i18n/format';
 import { currentLanguage, useSettings } from '../../state/settings';
 import { useAssetStore } from '../../state/assetStore';
-import { color, font, radius } from '../../theme';
+import { font, radius, useStyles, type ThemeColors } from '../../theme';
 import { BottomSheet } from '../ui/bottom-sheet';
 
 interface Props {
@@ -31,6 +31,7 @@ const TYPE_KEYS: Record<Asset['type'], string> = {
 
 export function AssetDetailSheet({ visible, onClose, asset, onEdit }: Props) {
   const { t } = useTranslation();
+  const { c, styles } = useStyles(makeStyles);
   const settings = useSettings((s) => s.settings);
   const lang = currentLanguage(settings);
   const { height } = useWindowDimensions();
@@ -95,7 +96,7 @@ export function AssetDetailSheet({ visible, onClose, asset, onEdit }: Props) {
             value={valueText}
             onChangeText={setValueText}
             placeholder="0"
-            placeholderTextColor={color.inkMuted}
+            placeholderTextColor={c.inkMuted}
           />
           <TextInput
             accessibilityLabel={t('assets.valuationDate')}
@@ -103,7 +104,7 @@ export function AssetDetailSheet({ visible, onClose, asset, onEdit }: Props) {
             value={dateText}
             onChangeText={setDateText}
             placeholder={todayKey()}
-            placeholderTextColor={color.inkMuted}
+            placeholderTextColor={c.inkMuted}
             autoCapitalize="none"
           />
           <Pressable accessibilityRole="button" style={styles.valBtn} onPress={() => void submitValuation()}>
@@ -135,7 +136,7 @@ export function AssetDetailSheet({ visible, onClose, asset, onEdit }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   wrap: {
     paddingHorizontal: 20,
     paddingTop: 6,
@@ -145,34 +146,34 @@ const styles = StyleSheet.create({
   title: {
     fontSize: font.size.title,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   subtitle: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     marginTop: -8,
   },
   currentCard: {
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
     borderRadius: radius.row,
     padding: 16,
     gap: 4,
   },
   currentLabel: {
     fontSize: font.size.small,
-    color: color.onBrandSecondary,
+    color: c.onBrandSecondary,
     fontFamily: font.family.semibold,
   },
   currentValue: {
     fontSize: 28,
-    color: color.onBrand,
+    color: c.onBrand,
     fontFamily: font.family.bold,
     fontVariant: ['tabular-nums'],
   },
   section: {
     fontSize: font.size.h2,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
     marginTop: 4,
   },
   valRow: {
@@ -181,54 +182,54 @@ const styles = StyleSheet.create({
   },
   valInput: {
     flex: 2,
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     paddingHorizontal: 14,
     paddingVertical: 10,
     fontSize: font.size.body,
     fontFamily: font.family.semibold,
-    color: color.ink,
+    color: c.ink,
     fontVariant: ['tabular-nums'],
   },
   dateInput: {
     flex: 2,
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     paddingHorizontal: 14,
     paddingVertical: 10,
     fontSize: font.size.body,
-    color: color.ink,
+    color: c.ink,
   },
   valBtn: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
     borderRadius: radius.button,
     paddingHorizontal: 16,
   },
   valBtnText: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },
   hint: {
     fontSize: font.size.tiny,
-    color: color.inkMuted,
+    color: c.inkMuted,
     marginTop: -8,
   },
   err: {
     fontSize: font.size.small,
-    color: color.danger,
+    color: c.danger,
   },
   historyCard: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     padding: 14,
     gap: 8,
   },
@@ -238,27 +239,27 @@ const styles = StyleSheet.create({
   },
   historyDate: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
   },
   historyValue: {
     fontSize: font.size.small,
-    color: color.ink,
+    color: c.ink,
     fontFamily: font.family.semibold,
     fontVariant: ['tabular-nums'],
   },
   emptyHistory: {
     fontSize: font.size.small,
-    color: color.inkMuted,
+    color: c.inkMuted,
   },
   editBtn: {
     alignItems: 'center',
     paddingVertical: 13,
     borderRadius: radius.button,
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
     marginTop: 4,
   },
   editBtnText: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },

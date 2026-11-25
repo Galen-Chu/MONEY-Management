@@ -11,7 +11,7 @@ import { parseAmount, toCents } from '../../domain/money';
 import { validateRecurring, type RecurringErrorCode, type RecurringInput, type RecurringTxn } from '../../domain/recurring';
 import { useLedgerStore } from '../../state/ledgerStore';
 import { useRecurringStore } from '../../state/recurringStore';
-import { color, font, radius } from '../../theme';
+import { font, radius, useStyles, type ThemeColors } from '../../theme';
 import { BottomSheet } from '../ui/bottom-sheet';
 
 interface Props {
@@ -30,6 +30,7 @@ const ERR_KEYS: Record<RecurringErrorCode, string> = {
 
 export function RecurringSheet({ visible, onClose, initial }: Props) {
   const { t } = useTranslation();
+  const { c, styles } = useStyles(makeStyles);
   const accounts = useLedgerStore((s) => s.accounts);
   const addRecurring = useRecurringStore((s) => s.addRecurring);
   const updateRecurring = useRecurringStore((s) => s.updateRecurring);
@@ -128,7 +129,7 @@ export function RecurringSheet({ visible, onClose, initial }: Props) {
               value={amountText}
               onChangeText={setAmountText}
               placeholder="0"
-              placeholderTextColor={color.inkMuted}
+              placeholderTextColor={c.inkMuted}
             />
           </View>
           <View style={styles.rowCell}>
@@ -140,7 +141,7 @@ export function RecurringSheet({ visible, onClose, initial }: Props) {
               value={dayText}
               onChangeText={setDayText}
               placeholder="1"
-              placeholderTextColor={color.inkMuted}
+              placeholderTextColor={c.inkMuted}
             />
           </View>
         </View>
@@ -185,7 +186,7 @@ export function RecurringSheet({ visible, onClose, initial }: Props) {
             value={note}
             onChangeText={setNote}
             placeholder={t('txn.notePlaceholder')}
-            placeholderTextColor={color.inkMuted}
+            placeholderTextColor={c.inkMuted}
           />
         </View>
 
@@ -206,7 +207,7 @@ export function RecurringSheet({ visible, onClose, initial }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   wrap: {
     paddingHorizontal: 20,
     paddingTop: 6,
@@ -215,11 +216,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: font.size.title,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   typeRow: {
     flexDirection: 'row',
-    backgroundColor: color.track,
+    backgroundColor: c.track,
     borderRadius: radius.chip,
     padding: 3,
     gap: 3,
@@ -231,14 +232,14 @@ const styles = StyleSheet.create({
     borderRadius: radius.chip - 3,
   },
   typeSegActive: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
   },
   typeLabel: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
   },
   typeLabelActive: {
-    color: color.accentDeep,
+    color: c.accentDeep,
     fontFamily: font.family.bold,
   },
   row: {
@@ -254,19 +255,19 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
     fontFamily: font.family.semibold,
   },
   input: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
     paddingHorizontal: 14,
     paddingVertical: 10,
     fontSize: font.size.h2,
     fontFamily: font.family.semibold,
-    color: color.ink,
+    color: c.ink,
     fontVariant: ['tabular-nums'],
   },
   chips: {
@@ -278,25 +279,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: radius.chip,
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
   },
   chipActive: {
-    borderColor: color.accent,
-    backgroundColor: color.accentSoft,
+    borderColor: c.accent,
+    backgroundColor: c.accentSoft,
   },
   chipLabel: {
     fontSize: font.size.small,
-    color: color.inkSecondary,
+    color: c.inkSecondary,
   },
   chipLabelActive: {
-    color: color.accentDeep,
+    color: c.accentDeep,
     fontFamily: font.family.semibold,
   },
   err: {
     fontSize: font.size.small,
-    color: color.danger,
+    color: c.danger,
   },
   actions: {
     flexDirection: 'row',
@@ -310,20 +311,20 @@ const styles = StyleSheet.create({
     borderRadius: radius.button,
   },
   btnSecondary: {
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: color.line,
+    borderColor: c.line,
   },
   btnSecondaryText: {
-    color: color.danger,
+    color: c.danger,
     fontSize: font.size.body,
     fontFamily: font.family.semibold,
   },
   btnPrimary: {
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
   },
   btnPrimaryText: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },

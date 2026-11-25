@@ -17,7 +17,7 @@ import { useAssetStore } from '../../state/assetStore';
 import { useLedgerStore } from '../../state/ledgerStore';
 import { useLoanStore } from '../../state/loanStore';
 import { currentLanguage, useSettings } from '../../state/settings';
-import { color, font, radius } from '../../theme';
+import { font, radius, useStyles, type ThemeColors } from '../../theme';
 
 const TYPE_KEY: Record<Account['type'], string> = {
   cash: 'accounts.typeCash',
@@ -27,6 +27,7 @@ const TYPE_KEY: Record<Account['type'], string> = {
 
 export default function AccountsScreen() {
   const { t } = useTranslation();
+  const { c, styles } = useStyles(makeStyles);
   const settings = useSettings((s) => s.settings);
   const lang = currentLanguage(settings);
   const accounts = useLedgerStore((s) => s.accounts);
@@ -55,18 +56,18 @@ export default function AccountsScreen() {
 
         <View style={styles.worthCard}>
           <Text style={styles.netLabel}>{t('accounts.netWorth')}</Text>
-          <Text style={[styles.netValue, worth.netCents < 0 && { color: color.expense }]}>
+          <Text style={[styles.netValue, worth.netCents < 0 && { color: c.expense }]}>
             {formatCents(worth.netCents, lang)}
           </Text>
           <View style={styles.worthRow}>
             <View style={styles.worthCell}>
               <Text style={styles.worthCellLabel}>{t('accounts.totalAssets')}</Text>
-              <Text style={[styles.worthCellValue, { color: color.income }]}>{formatCents(worth.totalAssetsCents, lang)}</Text>
+              <Text style={[styles.worthCellValue, { color: c.income }]}>{formatCents(worth.totalAssetsCents, lang)}</Text>
             </View>
             <View style={styles.worthDivider} />
             <View style={styles.worthCell}>
               <Text style={styles.worthCellLabel}>{t('accounts.totalDebts')}</Text>
-              <Text style={[styles.worthCellValue, { color: color.expense }]}>{formatCents(-worth.totalDebtsCents, lang)}</Text>
+              <Text style={[styles.worthCellValue, { color: c.expense }]}>{formatCents(-worth.totalDebtsCents, lang)}</Text>
             </View>
           </View>
           {worth.loanDebtsCents > 0 ? (
@@ -88,7 +89,7 @@ export default function AccountsScreen() {
                 <Text style={styles.accountName}>{account.name}</Text>
                 <Text style={styles.accountType}>{t(TYPE_KEY[account.type])}</Text>
               </View>
-              <Text style={[styles.accountBalance, cents < 0 && { color: color.expense }]}>
+              <Text style={[styles.accountBalance, cents < 0 && { color: c.expense }]}>
                 {formatCents(cents, lang)}
               </Text>
             </Pressable>
@@ -105,7 +106,7 @@ export default function AccountsScreen() {
         }}
         style={styles.addBtn}
       >
-        <Icon name="plus" size={14} fill={color.onBrand} />
+        <Icon name="plus" size={14} fill={c.onBrand} />
         <Text style={styles.addText}>{t('accounts.add')}</Text>
       </Pressable>
 
@@ -124,10 +125,10 @@ export default function AccountsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeColors) => StyleSheet.create({
   shell: {
     flex: 1,
-    backgroundColor: color.bg,
+    backgroundColor: c.bg,
   },
   content: {
     paddingHorizontal: 16,
@@ -138,22 +139,22 @@ const styles = StyleSheet.create({
   title: {
     fontSize: font.size.title,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
   },
   worthCard: {
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
     borderRadius: radius.card,
     padding: 18,
     gap: 12,
   },
   netLabel: {
     fontSize: font.size.small,
-    color: color.onBrandSecondary,
+    color: c.onBrandSecondary,
     fontFamily: font.family.semibold,
   },
   netValue: {
     fontSize: 30,
-    color: color.onBrand,
+    color: c.onBrand,
     fontFamily: font.family.bold,
     fontVariant: ['tabular-nums'],
   },
@@ -168,28 +169,28 @@ const styles = StyleSheet.create({
   },
   worthCellLabel: {
     fontSize: font.size.tiny,
-    color: color.onBrandSecondary,
+    color: c.onBrandSecondary,
   },
   worthCellValue: {
     fontSize: font.size.body,
     fontFamily: font.family.bold,
-    color: color.onBrand,
+    color: c.onBrand,
     fontVariant: ['tabular-nums'],
   },
   worthDivider: {
     width: 1,
     alignSelf: 'stretch',
-    backgroundColor: color.onBrandSoft,
+    backgroundColor: c.onBrandSoft,
   },
   worthHint: {
     fontSize: font.size.tiny,
-    color: color.onBrandSecondary,
+    color: c.onBrandSecondary,
     marginTop: -4,
   },
   accountCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: color.surface,
+    backgroundColor: c.surface,
     borderRadius: radius.row,
     padding: 14,
     gap: 12,
@@ -201,23 +202,23 @@ const styles = StyleSheet.create({
   accountName: {
     fontSize: font.size.h2,
     fontFamily: font.family.semibold,
-    color: color.ink,
+    color: c.ink,
   },
   accountType: {
     fontSize: font.size.tiny,
-    color: color.inkMuted,
+    color: c.inkMuted,
   },
   accountBalance: {
     fontSize: font.size.h2,
     fontFamily: font.family.bold,
-    color: color.ink,
+    color: c.ink,
     fontVariant: ['tabular-nums'],
   },
   addBtn: {
     position: 'absolute',
     right: 20,
     bottom: 96,
-    backgroundColor: color.accent,
+    backgroundColor: c.accent,
     borderRadius: radius.button,
     paddingHorizontal: 18,
     paddingVertical: 13,
@@ -225,13 +226,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     elevation: 6,
-    shadowColor: color.shadow,
+    shadowColor: c.shadow,
     shadowOpacity: 0.25,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
   },
   addText: {
-    color: color.onBrand,
+    color: c.onBrand,
     fontSize: font.size.body,
     fontFamily: font.family.bold,
   },
