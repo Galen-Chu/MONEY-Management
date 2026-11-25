@@ -99,9 +99,9 @@ describe('對獎(golden=11507 期)', () => {
 
   it('totalPrizeCents 只計該期', () => {
     const invoices: Invoice[] = [
-      { id: '1', term: '11507', number: 'EF54348835', note: '', createdAt: 1 },
-      { id: '2', term: '11507', number: 'OP99999835', note: '', createdAt: 2 },
-      { id: '3', term: '11509', number: 'EF54348835', note: '', createdAt: 3 },
+      { id: '1', term: '11507', number: 'EF54348835', note: '', createdAt: 1, source: 'manual', date: null, sellerName: null, amountCents: null, cardType: null },
+      { id: '2', term: '11507', number: 'OP99999835', note: '', createdAt: 2, source: 'manual', date: null, sellerName: null, amountCents: null, cardType: null },
+      { id: '3', term: '11509', number: 'EF54348835', note: '', createdAt: 3, source: 'manual', date: null, sellerName: null, amountCents: null, cardType: null },
     ];
     expect(totalPrizeCents(invoices, PRIZES_11507)).toBe(20_000_000 + 20_000);
   });

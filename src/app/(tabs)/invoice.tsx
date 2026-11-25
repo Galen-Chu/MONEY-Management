@@ -1,13 +1,16 @@
 /**
  * 發票分頁:期別導覽(‹ ›)→ 本期中獎號碼卡(未載入可下載,來源=稅務入口網公告)
- * + 我的發票(該期號碼列表,自動比對中獎徽章與金額)+ 中獎總額 + 新增鈕。
+ * + 載具卡(綁定/同步本期——P5)→ 我的發票(該期號碼列表,自動比對中獎徽章與金額;
+ * 載具發票標來源、可「轉為交易」)+ 中獎總額 + 新增鈕。
  */
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
+import { CarrierSheet } from '../../components/ledger/carrier-sheet';
 import { InvoiceSheet } from '../../components/ledger/invoice-sheet';
+import { TxnSheet, type TxnPreset } from '../../components/ledger/txn-sheet';
 import { EmptyState } from '../../components/ui/empty-state';
 import { Icon } from '../../components/ui/icon';
 import {
@@ -19,8 +22,10 @@ import {
   type InvoiceTerm,
   type PrizeTier,
 } from '../../domain/invoice';
+import { todayKey } from '../../domain/ledger';
 import { formatCents } from '../../domain/money';
 import { monthLabel, termPeriodInfo } from '../../i18n/format';
+import { useCarrierStore, type CarrierSyncCode } from '../../state/carrierStore';
 import { useInvoiceStore } from '../../state/invoiceStore';
 import { currentLanguage, useSettings } from '../../state/settings';
 import { color, font, radius } from '../../theme';
@@ -37,6 +42,26 @@ const TIER_KEYS: Record<PrizeTier, string> = {
   extraSixth: 'invoice.tierExtraSixth',
 };
 
+const CARD_LABEL_KEYS: Record<string, string> = {
+  '3J0002': 'carrier.typePhone',
+  '1K0001': 'carrier.typeEasy',
+  '1H0001': 'carrier.typeIpass',
+};
+
+function syncErrKey(code: CarrierSyncCode): string {
+  return `carrier.err${code.charAt(0).toUpperCase()}${code.slice(1)}`;
+}
+
+/** 載具發票 → TxnSheet 預填(分類預設 other,確認前可改) */
+function presetOfInvoice(inv: Invoice): TxnPreset {
+  return {
+    date: inv.date ?? todayKey(),
+    amountCents: inv.amountCents ?? 0,
+    note: (inv.sellerName ?? '').trim(),
+    category: 'other',
+  };
+}
+
 export default function InvoiceScreen({ initialTerm }: { initialTerm?: InvoiceTerm }) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -46,10 +71,24 @@ export default function InvoiceScreen({ initialTerm }: { initialTerm?: InvoiceTe
   const prizesMap = useInvoiceStore((s) => s.prizes);
   const prizeLoadingTerm = useInvoiceStore((s) => s.prizeLoadingTerm);
   const loadPrizes = useInvoiceStore((s) => s.loadPrizes);
+  const carrierSettings = useCarrierStore((s) => s.settings);
+  const carrierSyncing = useCarrierStore((s) => s.syncing);
+  const lastSync = useCarrierStore((s) => s.lastSync);
+  const syncTerm = useCarrierStore((s) => s.syncTerm);
 
   const [term, setTerm] = useState(() => initialTerm ?? latestDrawnTerm());
   const [formVisible, setFormVisible] = useState(false);
   const [editing, setEditing] = useState<Invoice | null>(null);
+  const [carrierFormVisible, setCarrierFormVisible] = useState(false);
+  const [txnVisible, setTxnVisible] = useState(false);
+  const [txnPresetValue, setTxnPresetValue] = useState<TxnPreset | null>(null);
+  const [syncError, setSyncError] = useState<string | null>(null);
+
+  async function doSync() {
+    setSyncError(null);
+    const res = await syncTerm(term);
+    if (!res.ok) setSyncError(t(syncErrKey(res.code)));
+  }
 
   const prizes = prizesMap[term];
   const periodInvoices = useMemo(() => invoices.filter((i) => i.term === term), [invoices, term]);
@@ -101,6 +140,47 @@ export default function InvoiceScreen({ initialTerm }: { initialTerm?: InvoiceTe
           )}
         </View>
 
+        <View style={styles.carrierCard}>
+          <View style={styles.carrierHead}>
+            <Text style={styles.carrierTitle}>{t('carrier.title')}</Text>
+            {carrierSettings ? (
+              <Pressable accessibilityRole="button" onPress={() => setCarrierFormVisible(true)} hitSlop={6}>
+                <Text style={styles.carrierEdit}>{t('common.edit')}</Text>
+              </Pressable>
+            ) : null}
+          </View>
+          {carrierSettings ? (
+            <>
+              <Text style={styles.carrierInfo}>
+                {t(CARD_LABEL_KEYS[carrierSettings.cardType] ?? 'carrier.title')} · {carrierSettings.cardNo}
+              </Text>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('carrier.sync')}
+                disabled={carrierSyncing}
+                onPress={() => void doSync()}
+                style={styles.syncBtn}
+              >
+                <Text style={styles.syncText}>{carrierSyncing ? t('carrier.syncing') : t('carrier.sync')}</Text>
+              </Pressable>
+              {lastSync && lastSync.term === term && !syncError ? (
+                <Text style={styles.syncResult}>{t('carrier.result', { added: lastSync.added })}</Text>
+              ) : null}
+              {syncError ? <Text style={styles.syncErr}>{syncError}</Text> : null}
+            </>
+          ) : (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('carrier.setup')}
+              onPress={() => setCarrierFormVisible(true)}
+              style={styles.syncBtn}
+            >
+              <Text style={styles.syncText}>{t('carrier.setup')}</Text>
+            </Pressable>
+          )}
+          <Text style={styles.carrierHint}>{t('carrier.hint')}</Text>
+        </View>
+
         <View style={styles.winRow}>
           <Text style={styles.section}>{t('invoice.myInvoices')}</Text>
           {totalWin > 0 ? <Text style={styles.winTotal}>{formatCents(totalWin, lang)}</Text> : null}
@@ -121,8 +201,29 @@ export default function InvoiceScreen({ initialTerm }: { initialTerm?: InvoiceTe
             >
               <View style={styles.invoiceMain}>
                 <Text style={styles.invoiceNumber}>{invoice.number}</Text>
-                {invoice.note ? <Text style={styles.invoiceNote}>{invoice.note}</Text> : null}
+                {invoice.source === 'carrier' ? (
+                  <Text style={styles.invoiceNote}>
+                    {t('carrier.badge')}
+                    {invoice.sellerName ? ` · ${invoice.sellerName}` : ''}
+                    {invoice.amountCents != null ? ` · ${formatCents(invoice.amountCents, lang)}` : ''}
+                  </Text>
+                ) : invoice.note ? (
+                  <Text style={styles.invoiceNote}>{invoice.note}</Text>
+                ) : null}
               </View>
+              {invoice.source === 'carrier' ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t('carrier.toTxn')}
+                  onPress={() => {
+                    setTxnPresetValue(presetOfInvoice(invoice));
+                    setTxnVisible(true);
+                  }}
+                  style={styles.toTxnBtn}
+                >
+                  <Text style={styles.toTxnText}>{t('carrier.toTxn')}</Text>
+                </Pressable>
+              ) : null}
               {tier ? (
                 <View style={styles.badge}>
                   <Text style={styles.badgeTier}>{t(TIER_KEYS[tier])}</Text>
@@ -155,6 +256,10 @@ export default function InvoiceScreen({ initialTerm }: { initialTerm?: InvoiceTe
         initial={editing}
         term={term}
       />
+
+      <CarrierSheet visible={carrierFormVisible} onClose={() => setCarrierFormVisible(false)} />
+
+      <TxnSheet visible={txnVisible} onClose={() => setTxnVisible(false)} initial={null} preset={txnPresetValue} />
     </View>
   );
 }
@@ -259,6 +364,72 @@ const styles = StyleSheet.create({
   downloadText: {
     color: color.accentDeep,
     fontSize: font.size.body,
+    fontFamily: font.family.bold,
+  },
+  carrierCard: {
+    backgroundColor: color.surface,
+    borderRadius: radius.row,
+    borderWidth: 1,
+    borderColor: color.info,
+    padding: 14,
+    gap: 10,
+  },
+  carrierHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  carrierTitle: {
+    fontSize: font.size.h2,
+    fontFamily: font.family.bold,
+    color: color.info,
+  },
+  carrierEdit: {
+    fontSize: font.size.small,
+    color: color.inkSecondary,
+    fontFamily: font.family.semibold,
+  },
+  carrierInfo: {
+    fontSize: font.size.body,
+    color: color.ink,
+    fontFamily: font.family.semibold,
+  },
+  syncBtn: {
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderRadius: radius.button,
+    backgroundColor: color.accentSoft,
+    borderWidth: 1,
+    borderColor: color.accent,
+  },
+  syncText: {
+    color: color.accentDeep,
+    fontSize: font.size.body,
+    fontFamily: font.family.bold,
+  },
+  syncResult: {
+    fontSize: font.size.small,
+    color: color.inkSecondary,
+  },
+  syncErr: {
+    fontSize: font.size.small,
+    color: color.danger,
+  },
+  carrierHint: {
+    fontSize: font.size.tiny,
+    color: color.inkMuted,
+  },
+  toTxnBtn: {
+    backgroundColor: color.surface,
+    borderWidth: 1,
+    borderColor: color.info,
+    borderRadius: radius.button,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  toTxnText: {
+    color: color.info,
+    fontSize: font.size.small,
     fontFamily: font.family.bold,
   },
   winRow: {

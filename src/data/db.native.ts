@@ -11,6 +11,7 @@ import type { Asset, AssetValuation } from '../domain/asset';
 import type { Budget } from '../domain/budget';
 import type { RecurringTxn } from '../domain/recurring';
 import type { NotificationDraft } from '../domain/notification';
+import type { CarrierSettings } from './carrier-source';
 import type {
   AccountRepository,
   TxnRepository,
@@ -22,6 +23,7 @@ import type {
   BudgetRepository,
   RecurringRepository,
   NotificationDraftRepository,
+  CarrierSettingsRepository,
   Repositories,
 } from './repository';
 import { applyMigrations } from './migrations';
@@ -152,26 +154,47 @@ export class SqliteLoanRepository implements LoanRepository {
 
 interface InvoiceRow {
   id: string; term: string; number: string; note: string; createdAt: number;
+  source: string; date: string | null; sellerName: string | null; amountCents: number | null; cardType: string | null;
 }
 
 export class SqliteInvoiceRepository implements InvoiceRepository {
   constructor(private db: SQLite.SQLiteDatabase) {}
 
   async list(): Promise<Invoice[]> {
-    return await this.db.getAllAsync<InvoiceRow>(
-      'SELECT * FROM invoices ORDER BY createdAt DESC'
-    );
+    const rows = await this.db.getAllAsync<InvoiceRow>('SELECT * FROM invoices ORDER BY createdAt DESC');
+    return rows.map((r) => ({ ...r, source: r.source === 'carrier' ? 'carrier' as const : 'manual' as const }));
   }
 
   async insert(i: Invoice): Promise<void> {
     await this.db.runAsync(
-      'INSERT INTO invoices (id, term, number, note, createdAt) VALUES (?,?,?,?,?)',
-      [i.id, i.term, i.number, i.note, i.createdAt]
+      'INSERT INTO invoices (id, term, number, note, createdAt, source, date, sellerName, amountCents, cardType) VALUES (?,?,?,?,?,?,?,?,?,?)',
+      [i.id, i.term, i.number, i.note, i.createdAt, i.source, i.date, i.sellerName, i.amountCents, i.cardType]
     );
   }
 
   async remove(id: string): Promise<void> {
     await this.db.runAsync('DELETE FROM invoices WHERE id=?', [id]);
+  }
+}
+
+interface CarrierSettingsRow {
+  cardType: string; cardNo: string; cardEncrypt: string; appID: string; updatedAt: number;
+}
+
+export class SqliteCarrierSettingsRepository implements CarrierSettingsRepository {
+  constructor(private db: SQLite.SQLiteDatabase) {}
+
+  async get(): Promise<(CarrierSettings & { updatedAt: number }) | null> {
+    const r = await this.db.getFirstAsync<CarrierSettingsRow>('SELECT * FROM carrier_settings WHERE id=1');
+    if (!r) return null;
+    return { cardType: r.cardType as CarrierSettings['cardType'], cardNo: r.cardNo, cardEncrypt: r.cardEncrypt, appID: r.appID, updatedAt: r.updatedAt };
+  }
+
+  async save(s: CarrierSettings & { updatedAt: number }): Promise<void> {
+    await this.db.runAsync(
+      'INSERT OR REPLACE INTO carrier_settings (id, cardType, cardNo, cardEncrypt, appID, updatedAt) VALUES (1,?,?,?,?,?)',
+      [s.cardType, s.cardNo, s.cardEncrypt, s.appID, s.updatedAt]
+    );
   }
 }
 
@@ -370,6 +393,7 @@ export async function createRepositories(): Promise<Repositories> {
     budgets: new SqliteBudgetRepository(db),
     recurring: new SqliteRecurringRepository(db),
     notificationDrafts: new SqliteNotificationDraftRepository(db),
+    carrier: new SqliteCarrierSettingsRepository(db),
   };
   return cached;
 }

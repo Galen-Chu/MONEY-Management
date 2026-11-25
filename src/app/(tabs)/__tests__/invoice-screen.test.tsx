@@ -1,5 +1,5 @@
-/** 發票分頁渲染測試(RNTL):中獎號碼卡、發票列與中獎徽章、總額。 */
-import { render } from '@testing-library/react-native';
+/** 發票分頁渲染測試(RNTL):中獎號碼卡、發票列與中獎徽章、總額、載具列與轉為交易。 */
+import { fireEvent, render } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import i18n from '../../../i18n';
@@ -36,8 +36,8 @@ async function seed(invoices: Invoice[]) {
 
 describe('InvoiceScreen', () => {
   it('有發票與獎號:中獎號碼卡 + 發票號碼 + 中獎徽章與總額', async () => {
-    const invoice: Invoice = { id: '1', term: '11507', number: 'EF54348835', note: '早餐店', createdAt: 1 };
-    await seed([invoice, { id: '2', term: '11507', number: 'ZZ00000000', note: '', createdAt: 2 }]);
+    const invoice: Invoice = { id: '1', term: '11507', number: 'EF54348835', note: '早餐店', createdAt: 1, source: 'manual', date: null, sellerName: null, amountCents: null, cardType: null };
+    await seed([invoice, { id: '2', term: '11507', number: 'ZZ00000000', note: '', createdAt: 2, source: 'manual', date: null, sellerName: null, amountCents: null, cardType: null }]);
     const { getByText, getAllByText } = await render(
       <SafeAreaProvider initialMetrics={INITIAL_METRICS}>
         <InvoiceScreen initialTerm="11507" />
@@ -59,5 +59,25 @@ describe('InvoiceScreen', () => {
       </SafeAreaProvider>
     );
     expect(getByText('這期還沒有發票')).toBeTruthy();
+  });
+
+  it('載具:未綁定顯示綁定鈕;載具發票列標來源+商家金額,轉為交易預填 TxnSheet', async () => {
+    await seed([
+      {
+        id: '3', term: '11507', number: 'EV54838339', note: '', createdAt: 3,
+        source: 'carrier', date: '2026-07-20', sellerName: '統一超商', amountCents: 4500, cardType: '3J0002',
+      },
+    ]);
+    const { getByText, getByLabelText, findByDisplayValue } = await render(
+      <SafeAreaProvider initialMetrics={INITIAL_METRICS}>
+        <InvoiceScreen initialTerm="11507" />
+      </SafeAreaProvider>
+    );
+    expect(getByLabelText('綁定載具')).toBeTruthy(); // 未綁定 → 綁定鈕
+    expect(getByText(/統一超商/)).toBeTruthy(); // 列副行:來源 · 商家 · 金額
+    expect(getByText(/NT\$45/)).toBeTruthy();
+    fireEvent.press(getByText('轉為交易'));
+    expect(await findByDisplayValue('45')).toBeTruthy(); // 金額(元)
+    expect(await findByDisplayValue('統一超商')).toBeTruthy(); // 備註=商家
   });
 });

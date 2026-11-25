@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-MoneyCare · 個人財務統合 App(repo Galen-Chu/MONEY-Management)——記帳為核心,發票/貸款/資產/帳務資料半自動歸集,**金融資料 100% 本機**。Expo SDK 57 + TypeScript strict,沿用 TIME-Management(TimeCare)技術棧與工程模式。主線 P0(骨架+記帳)、P0.6/P0.7/P0.8(UI 改版 Uniconsign/iOS TestFlight 管線/備份)、P1 貸款、P2 消費(發票+現金流)、P3 資產、P4 CSV 匯入皆已完成(2026-11-24 收尾,push `421612b`);2026-11-25 優化三項(分類月預算/定期交易/帳戶明細)+P5/P6 藍圖入 PLAN——P5 定案**納入發票分頁**(卡統編)、P6 改制**通知管理**(批次一:簡訊貼上+待確認草稿,開發中)。
+MoneyCare · 個人財務統合 App(repo Galen-Chu/MONEY-Management)——記帳為核心,發票/貸款/資產/帳務資料半自動歸集,**金融資料 100% 本機**。Expo SDK 57 + TypeScript strict,沿用 TIME-Management(TimeCare)技術棧與工程模式。主線 P0(骨架+記帳)、P0.6/P0.7/P0.8(UI 改版 Uniconsign/iOS TestFlight 管線/備份)、P1 貸款、P2 消費(發票+現金流)、P3 資產、P4 CSV 匯入皆已完成(2026-11-24 收尾,push `421612b`);2026-11-25 優化三項(分類月預算/定期交易/帳戶明細)+**P6 通知管理批次一**(簡訊貼上+待確認草稿)+**P5 載具發票查詢**(mock 可測全功能;實際連線卡 appID/統編)完成待驗收。
 
 ## 常用指令
 
@@ -16,8 +16,8 @@ npm run verify         # lint+typecheck+test(同 CI)
 ## 架構
 
 - `src/domain/` — 純函式:`money.ts`(分整數模型+Intl TWD 格式化)、`categories.ts`(固定分類+色票)、`ledger.ts`(Account/Txn 模型、餘額/淨值/月彙總/分類統計/依日分組/現金流/驗證/日期工具)、`loan.ts`(Loan 模型、攤還表/未償本金/額外還本與利率情境試算)、`invoice.ts`(期別數學/獎號模型/九獎項比對/公告頁解析)、`asset.ts`(Asset/估值模型、估值取值/完整淨值/歷史淨值與趨勢)、`csv.ts`(RFC4180 剖析/分隔符嗅探/欄位偵測/列→交易轉換)、`budget.ts`(分類月預算/用量)、`recurring.ts`(每月定期範本/到期判定/月底夾斷)、`notification.ts`(消費簡訊啟發式解析→草稿/TxnSheet 預填)、`backup.ts`(備份序列化/解析驗證/版本策略)
-- `src/data/` — `repository.ts`(介面+InMemory)、`db.native.ts`(expo-sqlite 實作+工廠)、`db.ts`(web InMemory 工廠;Metro 按平台選檔)、`migrations.ts`(介面注入可測;每版一交易+PRAGMA user_version)、`backup.ts`(快照/還原編排)、`backup-io(.native).ts`(平台檔案 IO:web 下載選檔/native 檔案+分享)
-- `src/state/` — `ledgerStore.ts`(帳戶/交易 CRUD,guard() 防護:錯誤寫 error 狀態不外拋;web 開發模式暴露 `window.__moneycareStore`)、`loanStore.ts`(貸款 CRUD)、`invoiceStore.ts`(發票 CRUD+獎號快取載入)、`assetStore.ts`(資產 CRUD+估值追加)、`budgetStore.ts`(預算 upsert)、`recurringStore.ts`(定期 CRUD+必經確認)、`notificationStore.ts`(貼上解析→待確認草稿)、`settings.ts`(Zustand+AsyncStorage persist,僅語言)
+- `src/data/` — `repository.ts`(介面+InMemory)、`db.native.ts`(expo-sqlite 實作+工廠)、`db.ts`(web InMemory 工廠;Metro 按平台選檔)、`migrations.ts`(介面注入可測;每版一交易+PRAGMA user_version)、`prize-source.ts`(獎號公告頁抓取)、`carrier-source.ts`(載具 carrierInvChk 查詢+正規化;皆 fetcher 可注入)、`backup.ts`(快照/還原編排)、`backup-io(.native).ts`(平台檔案 IO:web 下載選檔/native 檔案+分享)
+- `src/state/` — `ledgerStore.ts`(帳戶/交易 CRUD,guard() 防護:錯誤寫 error 狀態不外拋;web 開發模式暴露 `window.__moneycareStore`)、`loanStore.ts`(貸款 CRUD)、`invoiceStore.ts`(發票 CRUD+獎號快取載入+載具欄位)、`assetStore.ts`(資產 CRUD+估值追加)、`budgetStore.ts`(預算 upsert)、`recurringStore.ts`(定期 CRUD+必經確認)、`notificationStore.ts`(貼上解析→待確認草稿)、`carrierStore.ts`(載具憑證+同步本期)、`settings.ts`(Zustand+AsyncStorage persist,僅語言)
 - `src/app/` — expo-router:`(tabs)/` 七分頁(index=今天、loans=貸款、accounts、stats、invoice=發票、assets=資產、settings);Repository 在 `(tabs)/_layout.tsx` 統一 attach+bootstrap
 - `src/components/` — `ui/`(Card/Segmented/BottomSheet/EmptyState/Icon)+ `ledger/`(TxnSheet/TxnRow/AccountSheet/LoanSheet/LoanDetailSheet)+ ErrorBanner
 - `src/i18n/` — i18next 單例(zh-TW 預設/en-US 全量;**不跟隨系統**,僅手動切換)+ `format.ts`(Intl 日期/月份)
@@ -40,6 +40,7 @@ npm run verify         # lint+typecheck+test(同 CI)
 - **資產**(P3):估值帶日期,「目前值」=asOf 前最新估值(同日比 createdAt);完整淨值=帳戶淨值+Σ資產估值−貸款未償;歷史淨值依截至日交易+當時估值+當時貸款未償計算
 - **CSV 匯入**(P4):限 UTF-8(含 BOM;Big5 需先轉檔);分隔符嗅探(逗號/分號/定位點);欄位自動偵測+人工可調;支出/存入雙欄或正負單欄;西元+民國日期;每筆仍走 `validateTxn` 單一來源驗證,分類預設 other/otherIncome(匯入後可改)
 - **發票對獎**(P2):期別=民國年+奇數起始月(11507);獎號來源=稅務入口網公告頁 `ETW183W2_{term}`(唯網路抓取,只抓公開獎號、快取本機 prize_numbers;比對純本機);比對只看後 8 碼、同張多獎項取最高一獎;原始碼 CJK 閘門下解析關鍵字以 `\u` 轉義維持
+- **載具發票查詢**(P5):納入發票分頁不另立——載具卡(綁定/編輯 CarrierSheet+「同步本期」);同步=期別的兩個日曆月各查 `carrierInvChk` v0.3(同月窗 `yyyy/MM/dd`,POST、參數在 query string、appID=ApiKeyAuth)→ 正規化(invPeriod 雙數結束月→本專案奇數起始月、民國日期物件→ISO、金額字串→分)→ 與既有發票「同號同期」去重 → `addInvoice(source='carrier')` 走 validateInvoice;憑證(卡別/號碼/驗證碼/appID)僅存本機 carrier_settings(v9)**不入備份**;卡別僅手機條碼/悠遊卡/一卡通(愛金卡規格不支援直查);**appID 核發前以可注入 fetcher+golden 完成開發測試驗收,實際連線待 appID 後補驗**;載具發票列可「轉為交易」(TxnSheet 預填、分類預設 other)
 - **不做網銀爬蟲**(紅線);外部串接前依「串接類開發紀律」查當下官方文件(查證結論與分期見 `docs/PLAN.md`)
 - web 走 InMemory 不持久化(native SQLite);web 開發模式有 `window.__moneycareStore` 走查鉤子(僅 NODE_ENV≠production)
 
@@ -54,7 +55,7 @@ npm run verify         # lint+typecheck+test(同 CI)
 
 ## 待辦排隊(2026-11-25 更新·D9 功能優先/D10 功能軸)
 
-- **主線(功能軸)**:**P6 通知管理批次一(簡訊貼上解析+待確認草稿)開發中**;P5 載具發票查詢(**卡維護者:有無統編申請 appID**;定位定案:納入發票分頁不另立——藍圖 `docs/PLAN.md` §🔭);優化候選:CSV 各家 preset(收樣本中;分類月預算/定期交易/帳戶明細均 ✅ 2026-11-25)
+- **主線(功能軸)**:P5 載具發票查詢完成待驗收(golden;**卡維護者:統編→申請 appID→真機補驗**)、P6 通知管理批次一 ✅(批次二 Gmail 待 OAuth client);優化候選:CSV 各家 preset(收樣本中;分類月預算/定期交易/帳戶明細均 ✅ 2026-11-25)
 - **環境建置類(依 D9 暫緩,功能告一段落後依序)**:深色模式(Uniconsign 成對 token)、TestFlight 首建(**卡 Apple Developer 申請+`eas login`**,見 `docs/RELEASE.md`)、表單層 RNTL 測試、Uniconsign 套件依賴化
 - **優先度較高的工程項**:表單層 RNTL 測試、真機 Expo Go 驗證 SQLite 路徑、TestFlight 首建(卡 Apple Developer 申請)
 - 完整清單(產品優化候選+技術債):`docs/PLAN.md` §「待辦與優化清單」

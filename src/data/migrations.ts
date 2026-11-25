@@ -127,6 +127,22 @@ export const MIGRATIONS: readonly string[] = [
     createdAt INTEGER NOT NULL
   );
   `,
+  // v9:invoices 擴充載具欄位(P5——手動/載具同表,同號同期去重)+ carrier_settings(憑證僅存本機,不入備份)
+  `
+  ALTER TABLE invoices ADD COLUMN source TEXT NOT NULL DEFAULT 'manual';
+  ALTER TABLE invoices ADD COLUMN date TEXT;
+  ALTER TABLE invoices ADD COLUMN sellerName TEXT;
+  ALTER TABLE invoices ADD COLUMN amountCents INTEGER;
+  ALTER TABLE invoices ADD COLUMN cardType TEXT;
+  CREATE TABLE IF NOT EXISTS carrier_settings (
+    id INTEGER PRIMARY KEY NOT NULL CHECK (id = 1),
+    cardType TEXT NOT NULL,
+    cardNo TEXT NOT NULL,
+    cardEncrypt TEXT NOT NULL,
+    appID TEXT NOT NULL DEFAULT '',
+    updatedAt INTEGER NOT NULL
+  );
+  `,
 ];
 
 /** 依 PRAGMA user_version 依序套用未執行的 migration(冪等);回傳本次套用版數 */

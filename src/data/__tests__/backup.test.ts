@@ -4,6 +4,7 @@ import {
   InMemoryAssetRepository,
   InMemoryBudgetRepository,
   InMemoryInvoiceRepository,
+  InMemoryCarrierSettingsRepository,
   InMemoryLoanRepository,
   InMemoryNotificationDraftRepository,
   InMemoryPrizeRepository,
@@ -59,6 +60,7 @@ function makeRepos(seed: { seedAccounts?: Account[] }): Repositories {
     budgets: new InMemoryBudgetRepository(),
     recurring: new InMemoryRecurringRepository(),
     notificationDrafts: new InMemoryNotificationDraftRepository(),
+    carrier: new InMemoryCarrierSettingsRepository(),
   };
 }
 

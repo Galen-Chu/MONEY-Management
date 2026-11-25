@@ -12,7 +12,11 @@ import {
 } from '../domain/invoice';
 import { fetchPrizeNumbers, type HtmlFetcher } from '../data/prize-source';
 import type { InvoiceRepository, PrizeRepository } from '../data/repository';
+import type { NormalizedCarrierInvoice } from '../data/carrier-source';
 import { uid } from '../utils/uid';
+
+/** 載具欄位(帶入=source 'carrier';正規化後必過驗證) */
+export type CarrierInvoiceFields = Pick<NormalizedCarrierInvoice, 'date' | 'sellerName' | 'amountCents' | 'cardType'>;
 
 interface InvoiceStore {
   loading: boolean;
@@ -26,7 +30,7 @@ interface InvoiceStore {
   bootstrap: () => Promise<void>;
   clearError: () => void;
 
-  addInvoice: (number: string, term: InvoiceTerm, note: string) => Promise<boolean>;
+  addInvoice: (number: string, term: InvoiceTerm, note: string, carrier?: CarrierInvoiceFields | undefined) => Promise<boolean>;
   deleteInvoice: (id: string) => Promise<void>;
 
   /** 載入某期獎號(先進快取;無則抓取後入庫) */
@@ -71,11 +75,22 @@ export const useInvoiceStore = create<InvoiceStore>((set, get) => ({
 
   clearError: () => set({ error: null }),
 
-  addInvoice: async (number, term, note) => {
+  addInvoice: async (number, term, note, carrier) => {
     if (validateInvoice(number, term)) return false;
     return (await guard(set, async () => {
       if (!invoiceRepo) return false;
-      const invoice: Invoice = { id: uid(), term, number, note: note.trim(), createdAt: Date.now() };
+      const invoice: Invoice = {
+        id: uid(),
+        term,
+        number,
+        note: note.trim(),
+        createdAt: Date.now(),
+        source: carrier ? 'carrier' : 'manual',
+        date: carrier?.date ?? null,
+        sellerName: carrier?.sellerName ?? null,
+        amountCents: carrier?.amountCents ?? null,
+        cardType: carrier?.cardType ?? null,
+      };
       await invoiceRepo.insert(invoice);
       set((s) => ({ invoices: [invoice, ...s.invoices] }));
       return true;

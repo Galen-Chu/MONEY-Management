@@ -13,6 +13,7 @@ import { Icon, type IconName } from '../../components/ui/icon';
 import { createRepositories } from '../../data/db';
 import { useAssetStore } from '../../state/assetStore';
 import { useBudgetStore } from '../../state/budgetStore';
+import { useCarrierStore } from '../../state/carrierStore';
 import { useInvoiceStore } from '../../state/invoiceStore';
 import { useLedgerStore } from '../../state/ledgerStore';
 import { useLoanStore } from '../../state/loanStore';
@@ -45,6 +46,7 @@ export default function TabsLayout() {
         useBudgetStore.getState().attach(repos.budgets);
         useRecurringStore.getState().attach(repos.recurring);
         useNotificationStore.getState().attach(repos.notificationDrafts);
+        useCarrierStore.getState().attach(repos.carrier);
         await Promise.all([
           useLedgerStore.getState().bootstrap(),
           useLoanStore.getState().bootstrap(),
@@ -53,6 +55,7 @@ export default function TabsLayout() {
           useBudgetStore.getState().bootstrap(),
           useRecurringStore.getState().bootstrap(),
           useNotificationStore.getState().bootstrap(),
+          useCarrierStore.getState().bootstrap(),
         ]);
       } catch (e) {
         useLedgerStore.setState({ error: e instanceof Error ? e.message : String(e) });

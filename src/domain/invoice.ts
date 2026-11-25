@@ -54,7 +54,19 @@ export interface Invoice {
   number: string;
   note: string;
   createdAt: number;
+  /** 來源(手動輸入/載具同步;v9 遷移前的既有列一律 manual) */
+  source: InvoiceSource;
+  /** 開立日 YYYY-MM-DD(載具) */
+  date: string | null;
+  /** 賣方名稱(載具) */
+  sellerName: string | null;
+  /** 消費總額(分;載具) */
+  amountCents: number | null;
+  /** 卡別代碼(載具;3J0002 等) */
+  cardType: string | null;
 }
+
+export type InvoiceSource = 'manual' | 'carrier';
 
 export type InvoiceErrorCode = 'number' | 'term';
 

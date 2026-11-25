@@ -10,6 +10,7 @@ import type { Asset, AssetValuation } from '../domain/asset';
 import type { Budget } from '../domain/budget';
 import type { RecurringTxn } from '../domain/recurring';
 import type { NotificationDraft } from '../domain/notification';
+import type { CarrierSettings } from './carrier-source';
 
 export interface AccountRepository {
   list(): Promise<Account[]>;
@@ -76,6 +77,12 @@ export interface NotificationDraftRepository {
   remove(id: string): Promise<void>;
 }
 
+/** 載具設定(單列;憑證僅存本機——刻意不入備份) */
+export interface CarrierSettingsRepository {
+  get(): Promise<(CarrierSettings & { updatedAt: number }) | null>;
+  save(settings: CarrierSettings & { updatedAt: number }): Promise<void>;
+}
+
 /** 平台工廠(db.ts / db.native.ts)回傳的組合 */
 export interface Repositories {
   accounts: AccountRepository;
@@ -88,6 +95,7 @@ export interface Repositories {
   budgets: BudgetRepository;
   recurring: RecurringRepository;
   notificationDrafts: NotificationDraftRepository;
+  carrier: CarrierSettingsRepository;
 }
 
 export class InMemoryAccountRepository implements AccountRepository {
@@ -305,5 +313,17 @@ export class InMemoryNotificationDraftRepository implements NotificationDraftRep
 
   async remove(id: string): Promise<void> {
     this.items = this.items.filter((d) => d.id !== id);
+  }
+}
+
+export class InMemoryCarrierSettingsRepository implements CarrierSettingsRepository {
+  private row: (CarrierSettings & { updatedAt: number }) | null = null;
+
+  async get(): Promise<(CarrierSettings & { updatedAt: number }) | null> {
+    return this.row ? { ...this.row } : null;
+  }
+
+  async save(settings: CarrierSettings & { updatedAt: number }): Promise<void> {
+    this.row = { ...settings };
   }
 }

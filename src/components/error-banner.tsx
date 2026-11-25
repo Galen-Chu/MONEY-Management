@@ -10,6 +10,7 @@ import { useLoanStore } from '../state/loanStore';
 import { useInvoiceStore } from '../state/invoiceStore';
 import { useAssetStore } from '../state/assetStore';
 import { useBudgetStore } from '../state/budgetStore';
+import { useCarrierStore } from '../state/carrierStore';
 import { useNotificationStore } from '../state/notificationStore';
 import { useRecurringStore } from '../state/recurringStore';
 import { Icon } from './ui/icon';
@@ -30,8 +31,10 @@ export function ErrorBanner() {
   const clearRecurringError = useRecurringStore((s) => s.clearError);
   const notifyError = useNotificationStore((s) => s.error);
   const clearNotifyError = useNotificationStore((s) => s.clearError);
+  const carrierError = useCarrierStore((s) => s.error);
+  const clearCarrierError = useCarrierStore((s) => s.clearError);
   const error =
-    ledgerError ?? loanError ?? invoiceError ?? assetError ?? budgetError ?? recurringError ?? notifyError;
+    ledgerError ?? loanError ?? invoiceError ?? assetError ?? budgetError ?? recurringError ?? notifyError ?? carrierError;
   if (!error) return null;
 
   const clearError = () => {
@@ -42,6 +45,7 @@ export function ErrorBanner() {
     clearBudgetError();
     clearRecurringError();
     clearNotifyError();
+    clearCarrierError();
   };
 
   return (

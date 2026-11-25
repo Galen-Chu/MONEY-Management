@@ -6,6 +6,7 @@ import {
   InMemoryAccountRepository,
   InMemoryAssetRepository,
   InMemoryBudgetRepository,
+  InMemoryCarrierSettingsRepository,
   InMemoryInvoiceRepository,
   InMemoryLoanRepository,
   InMemoryNotificationDraftRepository,
@@ -33,6 +34,7 @@ export async function createRepositories(): Promise<Repositories> {
     budgets: new InMemoryBudgetRepository(),
     recurring: new InMemoryRecurringRepository(),
     notificationDrafts: new InMemoryNotificationDraftRepository(),
+    carrier: new InMemoryCarrierSettingsRepository(),
   };
   return cached;
 }
