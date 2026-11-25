@@ -21,13 +21,14 @@ npm run verify         # lint+typecheck+test(同 CI)
 - `src/app/` — expo-router:`(tabs)/` 七分頁(index=今天、loans=貸款、accounts、stats、invoice=發票、assets=資產、settings);Repository 在 `(tabs)/_layout.tsx` 統一 attach+bootstrap
 - `src/components/` — `ui/`(Card/Segmented/BottomSheet/EmptyState/Icon)+ `ledger/`(TxnSheet/TxnRow/AccountSheet/LoanSheet/LoanDetailSheet)+ ErrorBanner
 - `src/i18n/` — i18next 單例(zh-TW 預設/en-US 全量;**不跟隨系統**,僅手動切換)+ `format.ts`(Intl 日期/月份)
-- `src/theme/tokens.json` — 設計 token 單一事實來源(值同步自 Uniconsign `@galen-chu/uniconsign` 語意層淺色:品牌綠 accent/暖中性階;對應表見 `theme/index.ts` 註解)。字體 Inter(@expo-google-fonts,根布局 `useFonts` 不阻斷渲染;權重映射 500/600/700→medium/semibold/bold,全專案禁用 fontWeight);圖示 vendor 於 `components/ui/icon.tsx`(24×24 填色路徑,color prop 注入)
+- `src/theme/` — `tokens.json` 單一事實來源,**成對雙盤**:`color`(淺色)+ `colorDark`(深色;值取自 Uniconsign 語意層 `$extensions.mode.dark`,對應表見 `theme/index.tsx` 註解)。`index.tsx` 匯出 `lightColors/darkColors`+`ThemeProvider`(context 預設淺色→測試零改動)+ `useColors()/useThemeMode()/useStyles(makeStyles)`;`app.json userInterfaceStyle: automatic`、StatusBar 隨模式。字體 Inter(@expo-google-fonts,根布局 `useFonts` 不阻斷渲染;權重映射 500/600/700→medium/semibold/bold,全專案禁用 fontWeight);圖示 vendor 於 `components/ui/icon.tsx`(24×24 填色路徑,fill prop 注入;預設色隨主題)
 
 ## 重要行為(修改時勿破壞)
 
 - **金額一律以「分」的整數儲存與運算**(D2):UI 輸入 → `parseAmount` → `toCents`;呈現走 `formatCents`(Intl TWD)。任何新代碼不得以浮點元運算
 - **淨值口徑**(D4):餘額=期初+收入−支出+轉入−轉出;信用卡以餘額轉負呈現負債;淨值=Σ正餘額−Σ|負餘額|;**轉帳不計入收支統計**(只是位置移動)
 - **分類為固定集**(D3,支出 8+收入 4):label 走 `categories.*` i18n、色票在 `domain/categories.ts`;不做分類 CRUD(變更需同步兩份 locale+parity 測試)
+- **樣式雙模式慣例**:元件樣式一律模組級 `const makeStyles = (c: ThemeColors) => StyleSheet.create(...)` + 元件內 `const { c, styles } = useStyles(makeStyles)`;**禁止模組級引用色票**(靜態 `color` 匯出已移除;radius/font 與模式無關維持靜態匯入)。新代碼不得寫死 hex
 - **驗證單一來源**:交易驗證只走 `domain/ledger.validateTxn`(錯誤碼→`txn.err*` i18n)、貸款驗證只走 `domain/loan.validateLoan`(→`loans.err*`);store 動作重驗一次,UI 不自行發明規則
 - **帳戶明細**(優化項):點帳戶卡開明細 Sheet——餘額、本月收支小計(`accountMonthTotals`,轉帳不計)、該帳戶全部交易(`accountTxns` 含轉入/轉出端,依日分組);點交易列編輯、編輯帳戶鈕在明細內(卡片點擊不再直接編輯)
 - **貸款口徑**(P1):年利率以「千分之百分比」整數儲存(2.185%→2185),期內利息=round(剩餘×rateMilliPercent÷1,200,000);annuity 月繳四捨五入為常數、**末期強制結清**(利息逐期捨入殘留);寬限期只繳息;提前還本=月繳不變期數縮短;利率情境=自某期起新利率月繳重算;淨值=帳戶淨值−Σ未償本金
@@ -56,6 +57,6 @@ npm run verify         # lint+typecheck+test(同 CI)
 ## 待辦排隊(2026-11-25 更新·D9 功能優先/D10 功能軸)
 
 - **主線(功能軸)**:P5 載具發票查詢 ✅ 2026-11-25 完成(golden 驗收;**待維護者:統編→申請 appID→真機補驗**)、P6 通知管理批次一 ✅(批次二 Gmail 待 OAuth client);優化候選:CSV 各家 preset(收樣本中;分類月預算/定期交易/帳戶明細均 ✅ 2026-11-25)
-- **環境建置類(依 D9 暫緩,功能告一段落後依序)**:深色模式(Uniconsign 成對 token;**下一項**)、TestFlight 首建(**卡 Apple Developer 申請+`eas login`**,見 `docs/RELEASE.md`)、Uniconsign 套件依賴化
+- **環境建置類(依 D9 暫緩,功能告一段落後依序)**:深色模式 🔄 2026-11-25 開工(P0.6 批次三——設計見 PLAN §🌗)、TestFlight 首建(**卡 Apple Developer 申請+`eas login`**,見 `docs/RELEASE.md`)、Uniconsign 套件依賴化
 - **優先度較高的工程項**:表單層 RNTL 測試 ✅ 2026-11-25(TxnSheet/AccountSheet:驗證訊息/類型切換/轉帳雙戶/preset/編輯刪除/errInUse;async render 下互動須包 `await act(async ...)`——見 state 記憶與測試檔註)、真機 Expo Go 驗證 SQLite 路徑、TestFlight 首建(卡 Apple Developer 申請)
 - 完整清單(產品優化候選+技術債):`docs/PLAN.md` §「待辦與優化清單」
